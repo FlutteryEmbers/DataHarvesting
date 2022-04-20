@@ -11,11 +11,11 @@ def Phi_dif_transmitting_speed(agent_position,X_target_position,r_list,R_list,n_
   data_transmitting_rate_list=np.zeros((1, n_target_number))
   distance=np.zeros((1, n_target_number))
 
-  for i in range(1,n_target_number):
-      distance(i) = abs(agent_position-X_target_position(i))
-      if R_list(i)>= r_list(i):
-        data_rate(i) = 0
+  for i in range(0,n_target_number):
+      distance[i] = abs(agent_position-X_target_position[i])
+      if R_list[i]>= r_list[i]:
+        data_rate[i] = 0
       else:
-        data_rate(i) = Phi_list(i)*B*math.log2(1+K/(N*(distance(i)^2 + height^2)))
+        data_rate[i] = Phi_list[i]*B*math.log2(1+K/(N*(distance[i]^2 + height^2)))
   
   return data_transmitting_rate_list
