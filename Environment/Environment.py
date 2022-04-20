@@ -1,4 +1,3 @@
-
 class Environment():
     def __init__(self, reward_func):
         self.reward_func = reward_func
