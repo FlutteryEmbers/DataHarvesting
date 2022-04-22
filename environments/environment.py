@@ -1,5 +1,5 @@
 import numpy as np
-from .Environment import Action_T1
+from .actions import Action_T1
 # Discrete Position; Single Agent
 class Environment():
     def __init__(self, reward_func):
