@@ -1,5 +1,6 @@
 import numpy as np
 from .actions import Action_T1
+
 # Discrete Position; Single Agent
 class Environment():
     def __init__(self, reward_func):
@@ -22,8 +23,17 @@ class Environment():
         return (self.board, self.current_position, self.data_volume_remaining)
 
     def step(self, action):
-        is_done = False
-        # return next_state, reward, is_done, _
+        is_done = True
+        next_position = []
+        for (c1, c2) in zip(self.current_position, action):
+            next_position.append(c1+c2)
+        self.current_position = next_position
+        
+        for (c1, c2) in zip(self.current_position, self.target):
+            if c1 != c2:
+                is_done = False
+        reward = self.reward_func()
+        return next_position, reward, is_done
 
     def reward(self):
         return self.reward
