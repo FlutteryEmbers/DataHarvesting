@@ -12,7 +12,7 @@ from PIL import Image
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from Estimator import DQN
+from estimators import DQN
 import time
 
 GAMMA = 0.9
