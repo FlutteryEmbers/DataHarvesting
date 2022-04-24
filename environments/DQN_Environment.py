@@ -10,8 +10,9 @@ class DQN_Environment():
     def __init__(self, board):
         self.reward_func = RewardFunction_1
         self.board = board
+        self.action_space = _action_class(board)
         self.tower_location = self._get_tower_location()
-
+        
     def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
         self.arrivalAt = arrivalAt
@@ -53,19 +54,20 @@ class DQN_Environment():
     def reward(self):
         return self.reward
 
-    def action_space(self):
-        action = action_T1(self.board)
-        return action
+    def get_action_space(self):
+        return self.action_space
 
     def visualizer(self):
         pass
 
-class action_T1():
+class _action_class():
     def __init__(self, board):
         self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
         self.board = board
         self.x_limit = len(board)
         self.y_limit = len(board[0])
+        print(self.x_limit)
+        print(self.y_limit)
     
     def n(self):
         return len(self.actions)
@@ -75,12 +77,17 @@ class action_T1():
         return random.choice(actions)
     
     def get_available_actions(self, position):
+        # print("position", end=':')
+        # print(position)
         valid_actions = []
         for i in range(len(self.actions)):
             action = self.actions[i]
             next_position = tools.ListAddition(action, position)
-            if next_position[0] > 0 and next_position[0] < self.x_limit and next_position[1] > 0 and next_position[0] < self.y_limit:
-                valid_actions.push(action)
+            # print(next_position, end=',')
+            # print(action)
+            if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
+                valid_actions.append(action)
+        # print(valid_actions)
         return valid_actions
 
     def get_actions(self):

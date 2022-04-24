@@ -9,7 +9,7 @@ if __name__ == "__main__":
             [0, 0, 0, 0, 0]]
 
     env = DQN_Environment(board=board)
-    action_n = env.action_space().n()
+    action_n = env.get_action_space().n()
     startAt = [0,0]
     arrivalAt = [1,1]
     data_volumn = [10, 10, 10]
@@ -20,8 +20,15 @@ if __name__ == "__main__":
     # print(action)
     action = [1, 0]
     print(env.step(action=action))
-    action = [0, 1]
+    action = [1, 0]
     print(env.step(action=action))
-    action = [1, 1]
+    action = [1, 0]
     print(env.step(action=action))
+    action = [1, 0]
+    print(env.step(action=action))
+    action = [1, 0]
+    position, _, _, _ = env.step(action=action)
+    # print(env.step(action=action))
+    print(env.get_action_space().get_available_actions(position))
+    print(env.get_action_space().sample(position))
 
