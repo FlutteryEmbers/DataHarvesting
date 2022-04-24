@@ -1,23 +1,25 @@
+from json import tool
+from matplotlib.style import available
 import numpy as np
-from .actions import Action_T1
+import random
 from config.reward_function import RewardFunction_1
 import utils.tools as tools
 
 # Discrete Position; Single Agent
-class Environment():
-    def __init__(self):
+class DQN_Environment():
+    def __init__(self, board):
         self.reward_func = RewardFunction_1
-        
-    def init(self, board, startAt, arrivalAt, data_volume):
         self.board = board
+        self.tower_location = self._get_tower_location()
+
+    def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
         self.arrivalAt = arrivalAt
         self.current_position = startAt
         self.data_volume_required = data_volume
         self.data_volume_collected = [0]*len(data_volume)
         self.num_steps = 0
-        self.tower_location = self._get_tower_location()
-
+        
     def reset(self):
         self.current_position = self.startAt
         self.data_volume_collected = [0]*len(self.data_volume_required)
@@ -52,8 +54,34 @@ class Environment():
         return self.reward
 
     def action_space(self):
-        action = Action_T1()
+        action = action_T1(self.board)
         return action
 
     def visualizer(self):
         pass
+
+class action_T1():
+    def __init__(self, board):
+        self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
+        self.board = board
+        self.x_limit = len(board)
+        self.y_limit = len(board[0])
+    
+    def n(self):
+        return len(self.actions)
+    
+    def sample(self, position):
+        actions = self.get_available_actions(position)
+        return random.choice(actions)
+    
+    def get_available_actions(self, position):
+        valid_actions = []
+        for i in range(len(self.actions)):
+            action = self.actions[i]
+            next_position = tools.ListAddition(action, position)
+            if next_position[0] > 0 and next_position[0] < self.x_limit and next_position[1] > 0 and next_position[0] < self.y_limit:
+                valid_actions.push(action)
+        return valid_actions
+
+    def get_actions(self):
+        return self.actions
