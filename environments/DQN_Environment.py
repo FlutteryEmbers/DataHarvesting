@@ -3,8 +3,10 @@ from matplotlib.style import available
 import numpy as np
 import random
 # from config.reward_function import RewardFunction_1
+from collections import namedtuple
 import utils.tools as tools
 
+dqn_state = namedtuple('state', field_names=['board', 'current_position', 'data_volumn_collected'])
 # Discrete Position; Single Agent
 class DQN_Environment():
     def __init__(self, board):
@@ -26,9 +28,10 @@ class DQN_Environment():
         self.data_volume_collected = [0]*len(self.data_volume_required)
         self.reward = 0
         self.num_steps = 0
+        return self.get_state()
     
     def get_state(self):
-        return (self.board, self.current_position, self.data_volume_collected)
+        return dqn_state(self.board, self.current_position, self.data_volume_collected)
 
     def _get_tower_location(self):
         tower_location = []
@@ -46,10 +49,10 @@ class DQN_Environment():
         if self.current_position == self.arrivalAt:
             is_done = True
 
-        reward = self.test_reward_function(self.num_steps)
+        reward = self.test_reward_function()
         
         # self.data_volume_remaining = config.Phi_dif_transmitting_speed(self.current_position, self.tower_location, )
-        return self.current_position, reward, is_done, self.num_steps
+        return self.get_state(), reward, is_done, self.num_steps
 
     def reward(self):
         return self.reward

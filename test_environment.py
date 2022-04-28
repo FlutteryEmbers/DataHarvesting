@@ -27,8 +27,8 @@ if __name__ == "__main__":
     action = [1, 0]
     print(env.step(action=action))
     action = [1, 0]
-    position, _, _, _ = env.step(action=action)
+    state, _, _, _ = env.step(action=action)
     # print(env.step(action=action))
-    print(env.get_action_space().get_available_actions(position))
-    print(env.get_action_space().sample(position))
+    print(env.get_action_space().get_available_actions(state.current_position))
+    print(env.get_action_space().sample(state.current_position))
 

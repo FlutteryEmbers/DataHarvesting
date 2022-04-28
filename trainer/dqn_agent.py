@@ -1,13 +1,7 @@
-import argparse
-import gym
-import math
 import random
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
+
 from collections import namedtuple, deque
-from itertools import count
-from PIL import Image
 
 import torch
 import torch.nn as nn
@@ -26,7 +20,6 @@ EPSILON_DECAY_LAST_FRAME = 150000
 EPSILON_START = 1.0
 EPSILON_FINAL = 0.01
 
-env = gym.make('CartPole-v0').unwrapped
 
 Experience = namedtuple('Experience', 
                             field_names=['state', 'action', 'reward', 'done', 'next_state'])
@@ -53,7 +46,7 @@ class Agent:
         self._reset()
     
     def _reset(self):
-        self.state = env.reset()
+        self.state = self.env.reset()
         self.total_reward = 0.0
 
     def play_step(self, net, epsilon= 0.0, device= 'cuda'):
