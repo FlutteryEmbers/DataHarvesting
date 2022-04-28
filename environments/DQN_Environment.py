@@ -2,13 +2,13 @@ from json import tool
 from matplotlib.style import available
 import numpy as np
 import random
-from config.reward_function import RewardFunction_1
+# from config.reward_function import RewardFunction_1
 import utils.tools as tools
 
 # Discrete Position; Single Agent
 class DQN_Environment():
     def __init__(self, board):
-        self.reward_func = RewardFunction_1
+        # self.reward_func = self.test_reward_function
         self.board = board
         self.action_space = _action_class(board)
         self.tower_location = self._get_tower_location()
@@ -46,13 +46,16 @@ class DQN_Environment():
         if self.current_position == self.arrivalAt:
             is_done = True
 
-        reward = self.reward_func(self.num_steps)
+        reward = self.test_reward_function(self.num_steps)
         
         # self.data_volume_remaining = config.Phi_dif_transmitting_speed(self.current_position, self.tower_location, )
         return self.current_position, reward, is_done, self.num_steps
 
     def reward(self):
         return self.reward
+
+    def test_reward_function(self):
+        return -self.num_steps
 
     def get_action_space(self):
         return self.action_space
