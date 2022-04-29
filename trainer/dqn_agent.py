@@ -52,10 +52,10 @@ class Agent:
     def play_step(self, net, epsilon= 0.0, device= 'cuda'):
         done_reward = None
         if np.random.random() < epsilon:
-            action = env.action_sapce.sample()
+            action = self.env.action_sapce.sample()
         else:
-            state_action = np.array([self.state], copy=False)
-            state_value = torch.tensor(state.a).to(device)
+            state_array = np.array([self.state], copy=False)
+            state_value = torch.tensor(state_array).to(device)
             q_val_vector = net(state_value)
             _, action_value = torch.max(q_val_vector, dim=1)
             action = int(action_value.item())
