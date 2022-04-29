@@ -1,4 +1,3 @@
-from turtle import position
 from estimators.DQN import DQN
 from environments.DQN_Environment import DQN_Environment
 
@@ -21,12 +20,16 @@ def initEnvironment():
 
 if __name__ == "__main__":
     env = initEnvironment()
-    net = DQN(6, 3, 3, env.get_action_space().n()).to(device)
+    net = DQN(6, 5, env.get_action_space().n()).to(device)
     state_array = env.get_state()
-    # action = env.action_space().sample(state.current_position)
-    # state = env.step()
-    state = torch.tensor(np.array(state_array)).to(device)
+
+    #1: GET BEST ACTION FROM NN
+    state = torch.tensor(np.array(state_array), dtype=torch.float).to(device)
     state = torch.unsqueeze(state, dim=0)
     print(state.size())
     q_value = net(state)
     print(q_value)
+    _, action_value = torch.max(q_value, dim=1)
+    print(action_value)
+    action = int(action_value.item())
+    print(action)

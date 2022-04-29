@@ -42,7 +42,7 @@ class DQN_Environment():
         
         for x, y, tower_no in self.tower_location:
             transmission_map[x][y] = self.data_volume_collected[tower_no-1]
-            
+
         return [geo_map, location_map, transmission_map]
 
     def _get_tower_location(self):
@@ -64,7 +64,7 @@ class DQN_Environment():
         reward = self.test_reward_function()
         
         # self.data_volume_remaining = config.Phi_dif_transmitting_speed(self.current_position, self.tower_location, )
-        return self.get_state(), reward, is_done, self.num_steps
+        return self.get_state(), reward, is_done, self.current_position
 
     def reward(self):
         return self.reward
