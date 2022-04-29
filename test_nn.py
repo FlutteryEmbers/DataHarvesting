@@ -1,4 +1,4 @@
-from estimators.DQN import DQN
+from nets.DQN import DQN
 from environments.DQN_Environment import DQN_Environment
 
 import numpy as np
