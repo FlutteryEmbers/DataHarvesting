@@ -10,8 +10,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def initEnvironment():
     board = [[0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0],
-        [0, 0, 0, 1, 0],
-        [0, 0, 1, 0, 0],
+        [0, 0, 0, 2, 0],
+        [0, 0, 3, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0]]
 
@@ -21,12 +21,12 @@ def initEnvironment():
 
 if __name__ == "__main__":
     env = initEnvironment()
-    net = DQN(6, 3, 3, env.get_action_space().n())
-    state = env.get_state()
+    net = DQN(6, 3, 3, env.get_action_space().n()).to(device)
+    state_array = env.get_state()
     # action = env.action_space().sample(state.current_position)
     # state = env.step()
-    board = torch.tensor(np.array(state.board))
-    position = torch.tensor(np.array(state.current_position))
-    collected = torch.tensor(np.array(state.data_volumn_collected))
-    q_value = net(board, position, collected)
+    state = torch.tensor(np.array(state_array)).to(device)
+    state = torch.unsqueeze(state, dim=0)
+    print(state.size())
+    q_value = net(state)
     print(q_value)

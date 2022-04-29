@@ -120,6 +120,7 @@ if __name__ == "__main__":
             ts = time.time()
             mean_reward = np.mean(total_reward[-100:])
             print("%d: done %d games, reward: %0.3f", "eps %f, speed, %.2f f/s"%(frame_idx, len(total_reward),mean_reward, epsilon, speed))
-            if best_mean
+            if best_mean:
+                pass
 
 

@@ -8,7 +8,7 @@ class DQN(nn.Module):
     
     def __init__(self, h, w, l, outputs):
         super(DQN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=5, stride=2)
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
         self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
         self.bn2 = nn.BatchNorm2d(32)
@@ -22,31 +22,17 @@ class DQN(nn.Module):
         convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(w)))
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
 
-        self.position_linear1 = nn.Linear(2, 16)
-        self.position_linear2 = nn.Linear(16, 32)
-
-        self.data_volumn_linear1 = nn.Linear(l, 16)
-        self.data_volumn_linear2 = nn.Linear(16, 32)
-
-        total_linear_input_size = convw * convh * 32 + 32 + 32
+        total_linear_input_size = convw * convh * 32
         self.head = nn.Linear(total_linear_input_size, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
-    def forward(self, x, position, data_volumn):
-        x = x.to(device)
+    def forward(self, x):
+        # x = x.to(device)
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))
 
-        position = position.to(device)
-        position = F.relu(self.position_linear1(position))
-        position = F.relu(self.position_linear2(position))
-
-        data_volumn = data_volumn.to(device)
-        data_volumn = F.relu(self.data_volumn_linear1(data_volumn))
-        data_volumn = F.relu(self.data_volumn_linear2(data_volumn))
-
-        total_linear = torch.cat((x.view(x.size(0), -1), position, data_volumn), dim=0)
+        total_linear = x.view(x.size(0), -1)
 
         return self.head(total_linear)

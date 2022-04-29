@@ -31,14 +31,26 @@ class DQN_Environment():
         return self.get_state()
     
     def get_state(self):
-        return dqn_state(self.board, self.current_position, self.data_volume_collected)
+        
+        geo_map = self.board
+        location_map = self.board
+        transmission_map = self.board
+
+        [x, y] = self.current_position
+        # print(x, y)
+        location_map[x][y] = 1
+        
+        for x, y, tower_no in self.tower_location:
+            transmission_map[x][y] = self.data_volume_collected[tower_no-1]
+            
+        return [geo_map, location_map, transmission_map]
 
     def _get_tower_location(self):
         tower_location = []
         for i in range(len(self.board)):
             for j in range(len(self.board[0])):
-                if self.board[i][j] == 1:
-                    tower_location.append([i, j])
+                if self.board[i][j] > 0:
+                    tower_location.append([i, j, self.board[i][j]])
         return tower_location
 
     def step(self, action):
