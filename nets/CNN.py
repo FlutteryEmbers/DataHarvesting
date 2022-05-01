@@ -4,10 +4,10 @@ import torch.nn.functional as F
 # if gpu is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class DQN(nn.Module):
+class CNN(nn.Module):
     
     def __init__(self, h, w, outputs):
-        super(DQN, self).__init__()
+        super(CNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=2, stride=1)
         # self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1)

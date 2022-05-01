@@ -1,4 +1,4 @@
-from nets.DQN import DQN
+from nets.CNN import CNN
 from environments.DQN_Environment import DQN_Environment
 
 import numpy as np
@@ -20,7 +20,7 @@ def initEnvironment():
 
 if __name__ == "__main__":
     env = initEnvironment()
-    net = DQN(6, 5, env.get_action_space().n()).to(device)
+    net = CNN(6, 5, env.get_action_space().n()).to(device)
     state_array = env.get_state()
 
     #1: GET BEST ACTION FROM NN
@@ -33,3 +33,5 @@ if __name__ == "__main__":
     print(action_value)
     action = int(action_value.item())
     print(action)
+
+    

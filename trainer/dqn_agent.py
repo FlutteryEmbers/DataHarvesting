@@ -6,7 +6,7 @@ from collections import namedtuple, deque
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from estimators import DQN
+from nets.CNN import CNN
 import time
 
 GAMMA = 0.9
@@ -52,19 +52,19 @@ class Agent:
     def play_step(self, net, epsilon= 0.0, device= 'cuda'):
         done_reward = None
         if np.random.random() < epsilon:
-            action = self.env.action_sapce.sample()
+            action_index = self.env.action_sapce.sample()
         else:
-            state_array = np.array([self.state], copy=False)
-            state_value = torch.tensor(state_array).to(device)
-            q_val_vector = net(state_value)
-            _, action_value = torch.max(q_val_vector, dim=1)
-            action = int(action_value.item())
+            state = torch.tensor(np.array(self.state), dtype=torch.float).to(device)
+            state = torch.unsqueeze(state, dim=0)
+            q_value = net(state)
+            _, action_value = torch.max(q_value, dim=1)
+            action_index = int(action_value.item())
         
         #env method
-        new_state, reward, is_done, _ = self.env.step(action)
+        new_state, reward, is_done, _ = self.env.step(action_index)
         self.total_reward += reward
 
-        exp = Experience(self.state, action, reward, is_done, new_state)
+        exp = Experience(self.state, action_index, reward, is_done, new_state)
 
         self.exp_buffer.append(exp)
         self.state = new_state

@@ -31,7 +31,6 @@ class DQN_Environment():
         return self.get_state()
     
     def get_state(self):
-        
         geo_map = self.board
         location_map = self.board
         transmission_map = self.board
@@ -53,7 +52,8 @@ class DQN_Environment():
                     tower_location.append([i, j, self.board[i][j]])
         return tower_location
 
-    def step(self, action):
+    def step(self, action_index):
+        action = self.action_space.get_actions(action_index)
         is_done = False
         self.num_steps += 1
         self.current_position = tools.ListAddition(self.current_position, action)
@@ -62,7 +62,8 @@ class DQN_Environment():
             is_done = True
 
         reward = self.test_reward_function()
-        
+        if is_done:
+            reward += 10000
         # self.data_volume_remaining = config.Phi_dif_transmitting_speed(self.current_position, self.tower_location, )
         return self.get_state(), reward, is_done, self.current_position
 
@@ -91,22 +92,25 @@ class _action_class():
         return len(self.actions)
     
     def sample(self, position):
-        actions = self.get_available_actions(position)
-        return random.choice(actions)
-    
+        actions_index = self.get_available_actions(position)
+        return random.choice(actions_index)
+
+    def get_indexed_action(self, n):
+        return self.actions[n]
+
     def get_available_actions(self, position):
         # print("position", end=':')
         # print(position)
-        valid_actions = []
+        valid_actions_index = []
         for i in range(len(self.actions)):
             action = self.actions[i]
             next_position = tools.ListAddition(action, position)
             # print(next_position, end=',')
             # print(action)
             if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
-                valid_actions.append(action)
+                valid_actions_index.append(i)
         # print(valid_actions)
-        return valid_actions
+        return valid_actions_index
 
     def get_actions(self):
         return self.actions
