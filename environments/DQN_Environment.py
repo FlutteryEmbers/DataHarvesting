@@ -14,6 +14,8 @@ class DQN_Environment():
         self.board = board
         self.action_space = _action_class(board)
         self.tower_location = self._get_tower_location()
+        self.x_limit = len(board)
+        self.y_limit = len(board[0])
         
     def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
@@ -28,7 +30,7 @@ class DQN_Environment():
         self.data_volume_collected = [0]*len(self.data_volume_required)
         self.reward = 0
         self.num_steps = 0
-        return self.get_state()
+        return self.get_state(), self.current_position
     
     def get_state(self):
         geo_map = self.board
@@ -56,7 +58,14 @@ class DQN_Environment():
         action = self.action_space.get_actions(action_index)
         is_done = False
         self.num_steps += 1
-        self.current_position = tools.ListAddition(self.current_position, action)
+        next_position = tools.ListAddition(self.current_position, action)
+        # self.current_position[0] = max(0, min(len(self.board), self.current_position[0]))
+        # self.current_position[1] = max(0, min(len(self.board[0]), self.current_position[1]))
+
+        # 是否出界
+        if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
+            self.current_position = next_position
+
         # 判断是否到达终点
         if self.current_position == self.arrivalAt:
             is_done = True
@@ -91,7 +100,7 @@ class _action_class():
     def n(self):
         return len(self.actions)
     
-    def sample(self, position):
+    def sample_valid_action(self, position):
         actions_index = self.get_available_actions(position)
         return random.choice(actions_index)
 
