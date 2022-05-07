@@ -1,6 +1,19 @@
 from trainer.dqn import DQN, MEMORY_CAPACITY
 from environments.DQN_Environment import DQN_Environment
 
+def init_env() {
+    board = [[0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0]]
+    startAt = [0 ,0]
+    arrivalAt = [4,4]
+    env = DQN_Environment(board=board)
+    data_volumn = [100, 100, 100]
+    env.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
+}
+
 dqn = DQN()                                                           
 env = DQN_Environment()
 for i in range(400):
