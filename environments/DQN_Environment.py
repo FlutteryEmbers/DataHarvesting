@@ -60,14 +60,14 @@ class DQN_Environment():
         # self.current_position[0] = max(0, min(len(self.board), self.current_position[0]))
         # self.current_position[1] = max(0, min(len(self.board[0]), self.current_position[1]))
 
-        # 是否出界
+        # NOTE: 是否出界; 如果出界
         if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
             self.current_position = next_position
 
         # 判断是否到达终点
         if self.current_position == self.arrivalAt:
             is_done = True
-
+ 
         reward = self.test_reward_function()
         if is_done:
             reward += 10000
