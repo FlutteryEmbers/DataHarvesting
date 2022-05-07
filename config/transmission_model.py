@@ -27,4 +27,4 @@ def Phi_dif_transmitting_speed(agent_position,X_target_position,data_to_collect_
      data_to_collect_list[i] = data_collected_list[i] - data_transmitting_rate_list[i]*time_ratio
 
   
-     return data_to_collect_list,data_collected_list
+     return data_to_collect_list,data_collected_list,data_transmitting_rate_list
