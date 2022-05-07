@@ -8,7 +8,7 @@ K=2
 N=3
 Phi_list=np.array([5,4,3])
 
-def Phi_dif_transmitting_speed(agent_position,X_target_position,data_to_collect_list,data_collected_list):
+def Phi_dif_transmitting_speed(agent_position,X_target_position,data_volume_required,data_volume_collected):
 
      n_target_number=np.length(data_to_collect_list)
   
