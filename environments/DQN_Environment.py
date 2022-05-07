@@ -1,9 +1,7 @@
-from json import tool
-from matplotlib.style import available
 import numpy as np
 import random
-# from config.reward_function import RewardFunction_1
 from collections import namedtuple
+from config.transmission_model import Phi_dif_transmitting_speed
 import utils.tools as tools
 
 dqn_state = namedtuple('state', field_names=['board', 'current_position', 'data_volumn_collected'])
@@ -85,7 +83,7 @@ class DQN_Environment():
     def get_action_space(self):
         return self.action_space
 
-    def visualizer(self):
+    def render(self):
         pass
 
 class _action_class():
