@@ -69,6 +69,7 @@ class DQN(object):
         for i in range(BATCH_SIZE):
             batch_state.append([1, batch_samples[i].state])
         '''
+        # WARNING: Might Break
         batch_state = self.unpack_memory("state", batch_samples)
         batch_state = torch.FloatTensor(batch_state)
 
