@@ -14,6 +14,7 @@ class DQN_Environment():
         self.tower_location = self._get_tower_location()
         self.x_limit = len(board)
         self.y_limit = len(board[0])
+        self.reward = 0
         
     def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
@@ -21,6 +22,7 @@ class DQN_Environment():
         self.current_position = startAt
         self.data_volume_required = data_volume
         self.data_volume_collected = [0]*len(data_volume)
+        self.data_transmitting_rate_list = [0]*len(data_volume)
         self.num_steps = 0
         
     def reset(self):
@@ -53,7 +55,7 @@ class DQN_Environment():
         return tower_location
 
     def step(self, action_index):
-        action = self.action_space.get_actions(action_index)
+        action = self.action_space.get_indexed_action(action_index)
         is_done = False
         self.num_steps += 1
         next_position = tools.ListAddition(self.current_position, action)
@@ -64,21 +66,24 @@ class DQN_Environment():
         if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
             self.current_position = next_position
 
-        # 判断是否到达终点
+        # NOTE: 判断是否到达终点
         if self.current_position == self.arrivalAt:
             is_done = True
- 
+        # self.reward = reward
+        data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.current_position, self.tower_location, self.data_volume_collected, self.data_volume_required)
+        self.data_volume_collected = data_volume_collected.tolist()
+        self.data_transmitting_rate_list = data_transmitting_rate_list.tolist()
+
+        # NOTE: 计算 Reward
         reward = self.test_reward_function()
+        reward -= 1
         if is_done:
-            reward += 10000
-        # self.data_volume_remaining = config.Phi_dif_transmitting_speed(self.current_position, self.tower_location, )
+            reward += 1000
+            reward -= 10 * np.sum(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
         return self.get_state(), reward, is_done, self.current_position
 
-    def reward(self):
-        return self.reward
-
     def test_reward_function(self):
-        return -self.num_steps
+        return 5*sum(self.data_transmitting_rate_list)
 
     def get_action_space(self):
         return self.action_space

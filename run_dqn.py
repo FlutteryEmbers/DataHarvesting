@@ -15,8 +15,8 @@ def init_env():
     return env
 
 if __name__ == "__main__":                            
-    env = DQN_Environment()
-    dqn = DQN(5, 5, env.get_action_space().n())
+    env = init_env()
+    dqn = DQN(5, 5, env.get_action_space().n(), env=env)
 
     for i in range(400):
         print('<<<<<<<<<Episode: %s' % i)

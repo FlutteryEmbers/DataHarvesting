@@ -33,11 +33,11 @@ class ExperienceBuffer(object):
 
 class DQN(object):
     def __init__(self, h, w, outputs, env) -> None:
-        self.eval_net, self.target_net = CNN(h, w, outputs), CNN(h, w, outputs)
+        self.eval_net, self.target_net = CNN(h, w, outputs).to(device=device), CNN(h, w, outputs).to(device=device)
         self.learn_step_counter = 0
         self.memory_counter = 0
         self.memory = ExperienceBuffer(MEMORY_CAPACITY)
-        self.optimizer = torch.optim.Adam(self.eval_net.parameters, lr=LR)
+        self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=LR)
         self.loss_func = nn.MSELoss()
         self.env = env
 
