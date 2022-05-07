@@ -5,7 +5,8 @@ from config.transmission_model import Phi_dif_transmitting_speed
 import utils.tools as tools
 
 dqn_state = namedtuple('state', field_names=['board', 'current_position', 'data_volumn_collected'])
-# Discrete Position; Single Agent
+
+# NOTE: Discrete Position; Single Agent
 class DQN_Environment():
     def __init__(self, board):
         # self.reward_func = self.test_reward_function
@@ -97,8 +98,8 @@ class _action_class():
         self.board = board
         self.x_limit = len(board)
         self.y_limit = len(board[0])
-        print(self.x_limit)
-        print(self.y_limit)
+        # print(self.x_limit)
+        # print(self.y_limit)
     
     def n(self):
         return len(self.actions)
