@@ -34,9 +34,9 @@ class DQN_Environment():
         return self.get_state(), self.current_position
     
     def get_state(self):
-        geo_map = self.board
-        location_map = self.board
-        transmission_map = self.board
+        geo_map = self.board[:][:]
+        location_map = self.board[:][:]
+        transmission_map = self.board[:][:]
 
         [x, y] = self.current_position
         # print(x, y)
@@ -83,7 +83,7 @@ class DQN_Environment():
         reward -= 1
         if is_done:
             reward += 1000
-            reward -= 10 * np.sum(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            reward -= 1000 * np.sum(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
         return self.get_state(), reward, is_done, self.current_position
 
     def test_reward_function(self):
@@ -94,6 +94,9 @@ class DQN_Environment():
 
     def render(self):
         pass
+
+    def view(self):
+        print('data left = ', np.array(self.data_volume_collected) - np.array(self.data_volume_required), 'steps taken = ', self.num_steps)
 
 class _action_class():
     def __init__(self, board):

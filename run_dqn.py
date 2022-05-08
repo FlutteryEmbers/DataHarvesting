@@ -46,4 +46,5 @@ if __name__ == "__main__":
 
             if done:
                 print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
+                env.view()
                 break

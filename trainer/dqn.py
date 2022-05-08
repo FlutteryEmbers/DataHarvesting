@@ -83,22 +83,20 @@ class DQN(object):
         q_target = batch_reward + GAMMA * q_next.max(1)[0].view(BATCH_SIZE, 1)
         '''
         batch = Experience(*zip(*batch_samples))
-        # print(batch)
+        
         # Compute a mask of non-final states and concatenate the batch elements
         # (a final state would've been the one after which simulation ended)
-        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=device, dtype=torch.bool)
-        non_final_next_states = torch.cat([torch.FloatTensor(s_) for s_ in batch.next_state if s_ is not None])
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=device, dtype=torch.bool).to(device=device)
+        non_final_next_states = torch.cat([torch.FloatTensor(s_) for s_ in batch.next_state if s_ is not None]).reshape(32, 3, 5, 5).to(device=device)
         # state_batch = torch.cat([torch.FloatTensor(s) for s in batch.state if s is not None])
-        state_batch = torch.cat(tuple(torch.FloatTensor(batch.state)))
-        action_batch = torch.FloatTensor(batch.action)
-        reward_batch = torch.FloatTensor(batch.reward)
+        state_batch = torch.cat(tuple(torch.FloatTensor(batch.state))).reshape((32,3,5,5)).to(device=device)
+        action_batch = torch.tensor(batch.action, dtype=torch.int64).to(device=device)
+        reward_batch = torch.FloatTensor(batch.reward).to(device=device)
 
-        state_batch = torch.unsqueeze(state_batch, dim = 0)
-        print(state_batch.size())
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
         # for each batch state according to policy_net
-        state_action_values = self.eval_net(state_batch).gather(1, action_batch)
+        state_action_values = self.eval_net(state_batch).gather(1, action_batch.view(-1, 1))
 
         # Compute V(s_{t+1}) for all next states.
         # Expected values of actions for non_final_next_states are computed based
