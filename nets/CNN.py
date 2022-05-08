@@ -9,11 +9,11 @@ class CNN(nn.Module):
     def __init__(self, h, w, outputs):
         super(CNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=2, stride=1)
-        # self.bn1 = nn.BatchNorm2d(16)
+        self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1)
-        # self.bn2 = nn.BatchNorm2d(32)
+        self.bn2 = nn.BatchNorm2d(32)
         self.conv3 = nn.Conv2d(32, 32, kernel_size=2, stride=1)
-        # self.bn3 = nn.BatchNorm2d(32)
+        self.bn3 = nn.BatchNorm2d(32)
 
         # Number of Linear input connections depends on output of conv2d layers
         # and therefore the input image size, so compute it.
@@ -29,9 +29,9 @@ class CNN(nn.Module):
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
         # x = x.to(device)
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
 
         total_linear = x.view(x.size(0), -1)
 

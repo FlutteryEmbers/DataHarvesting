@@ -53,6 +53,9 @@ class DQN_Environment():
             for j in range(len(self.board[0])):
                 if self.board[i][j] > 0:
                     tower_location.append([i, j, self.board[i][j]])
+        tower_location.sort(key = lambda x:x[2])
+        print(tower_location)
+        # for i in range(tower_location):  
         return tower_location
 
     def step(self, action_index):

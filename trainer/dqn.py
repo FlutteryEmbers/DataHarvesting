@@ -51,7 +51,7 @@ class DQN(object):
             action = int(action_value.item())
         else:
             # action = np.random.randint(0 , 5)
-            self.env.get_action_space().sample_valid_action(position)
+            action = self.env.get_action_space().sample_valid_action(position)
         return action
 
     def store_transition(self, s, a, r, s_, done):
@@ -64,12 +64,8 @@ class DQN(object):
         self.learn_step_counter += 1
 
         batch_samples = self.memory.sample(BATCH_SIZE)
-        ''''
-        batch_state = []
-        for i in range(BATCH_SIZE):
-            batch_state.append([1, batch_samples[i].state])
-        '''
         # WARNING: Might Break
+        '''
         batch_state = self.unpack_memory("state", batch_samples)
         batch_state = torch.FloatTensor(batch_state)
 
@@ -85,12 +81,44 @@ class DQN(object):
         q_eval = self.eval_net(batch_state).gather(1, batch_action)
         q_next = self.target_net(batch_state_).detach()
         q_target = batch_reward + GAMMA * q_next.max(1)[0].view(BATCH_SIZE, 1)
-        loss = self.loss_func(q_eval, q_target)
+        '''
+        batch = Experience(*zip(*batch_samples))
+        # print(batch)
+        # Compute a mask of non-final states and concatenate the batch elements
+        # (a final state would've been the one after which simulation ended)
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=device, dtype=torch.bool)
+        non_final_next_states = torch.cat([torch.FloatTensor(s_) for s_ in batch.next_state if s_ is not None])
+        # state_batch = torch.cat([torch.FloatTensor(s) for s in batch.state if s is not None])
+        state_batch = torch.cat(tuple(torch.FloatTensor(batch.state)))
+        action_batch = torch.FloatTensor(batch.action)
+        reward_batch = torch.FloatTensor(batch.reward)
+
+        state_batch = torch.unsqueeze(state_batch, dim = 0)
+        print(state_batch.size())
+        # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
+        # columns of actions taken. These are the actions which would've been taken
+        # for each batch state according to policy_net
+        state_action_values = self.eval_net(state_batch).gather(1, action_batch)
+
+        # Compute V(s_{t+1}) for all next states.
+        # Expected values of actions for non_final_next_states are computed based
+        # on the "older" target_net; selecting their best reward with max(1)[0].
+        # This is merged based on the mask, such that we'll have either the expected
+        # state value or 0 in case the state was final.
+        next_state_values = torch.zeros(BATCH_SIZE, device=device)
+        next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
+        # Compute the expected Q values
+        expected_state_action_values = (next_state_values * GAMMA) + reward_batch
+
+        loss = self.loss_func(state_action_values, expected_state_action_values.unsqueeze(1))
+
+        # loss = self.loss_func(q_eval, q_target)
         self.optimizer.zero_grad()                                     
         loss.backward()                                                 
         self.optimizer.step()   
 
     def unpack_memory(self, name, batch_samples):
+        
         result = []
         for i in range(BATCH_SIZE):
             result.append([i, batch_samples[i][name]])

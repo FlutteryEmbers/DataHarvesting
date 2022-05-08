@@ -3,9 +3,9 @@ from environments.DQN_Environment import DQN_Environment
 
 def init_env():
     board = [[0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 0],
+            [0, 3, 0, 0, 0],
             [0, 0, 0, 1, 0],
-            [0, 0, 1, 0, 0],
+            [0, 0, 2, 0, 0],
             [0, 0, 0, 0, 0]]
     startAt = [0 ,0]
     arrivalAt = [4,4]
