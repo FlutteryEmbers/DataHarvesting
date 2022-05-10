@@ -7,9 +7,11 @@ from nets.CNN import CNN
 from collections import namedtuple, deque
 import random
 
+random.seed(10)
+
 BATCH_SIZE = 32
 LR = 0.01
-EPSILON = 0.9
+EPSILON = 0.95
 GAMMA = 0.9
 TARGET_REPLACE_ITER = 100
 MEMORY_CAPACITY = 2000
@@ -44,7 +46,12 @@ class DQN(object):
     def choose_action(self, state, position):
         state = torch.FloatTensor(np.array(state)).to(device)
         state = torch.unsqueeze(state, dim=0)
-
+        '''
+        global EPSILON
+        if self.learn_step_counter % 100000 == 0:
+            EPSILON = EPSILON * 0.99
+            print('EPSILON = ', EPSILON)
+        '''
         if np.random.uniform() < EPSILON:
             q_value = self.eval_net(state)
             _, action_value = torch.max(q_value, dim=1)

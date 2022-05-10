@@ -3,6 +3,9 @@ import random
 from collections import namedtuple
 from config.transmission_model import Phi_dif_transmitting_speed
 import utils.tools as tools
+import copy
+import math
+random.seed(10)
 
 dqn_state = namedtuple('state', field_names=['board', 'current_position', 'data_volumn_collected'])
 
@@ -16,6 +19,7 @@ class DQN_Environment():
         self.x_limit = len(board)
         self.y_limit = len(board[0])
         self.reward = 0
+        self.action_sequence = []
         
     def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
@@ -31,12 +35,13 @@ class DQN_Environment():
         self.data_volume_collected = [0]*len(self.data_volume_required)
         self.reward = 0
         self.num_steps = 0
+        self.action_sequence = []
         return self.get_state(), self.current_position
     
     def get_state(self):
-        geo_map = self.board[:][:]
-        location_map = self.board[:][:]
-        transmission_map = self.board[:][:]
+        geo_map = copy.deepcopy(self.board[:][:]) 
+        location_map = copy.deepcopy(self.board[:][:])
+        transmission_map = copy.deepcopy(self.board[:][:])
 
         [x, y] = self.current_position
         # print(x, y)
@@ -59,6 +64,7 @@ class DQN_Environment():
         return tower_location
 
     def step(self, action_index):
+        self.action_sequence.append(action_index)
         action = self.action_space.get_indexed_action(action_index)
         is_done = False
         self.num_steps += 1
@@ -80,14 +86,20 @@ class DQN_Environment():
 
         # NOTE: 计算 Reward
         reward = self.test_reward_function()
-        reward -= 1
+        reward -= 10
         if is_done:
             reward += 1000
-            reward -= 1000 * np.sum(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            reward -= 100 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+        '''
+        if self.num_steps > 5000:
+            reward -= 100
+            # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
+            is_done = True
+        '''
         return self.get_state(), reward, is_done, self.current_position
 
     def test_reward_function(self):
-        return 5*sum(self.data_transmitting_rate_list)
+        return sum(self.data_transmitting_rate_list)
 
     def get_action_space(self):
         return self.action_space
@@ -97,6 +109,7 @@ class DQN_Environment():
 
     def view(self):
         print('data left = ', np.array(self.data_volume_collected) - np.array(self.data_volume_required), 'steps taken = ', self.num_steps)
+        return self.action_sequence
 
 class _action_class():
     def __init__(self, board):
