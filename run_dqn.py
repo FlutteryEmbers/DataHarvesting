@@ -36,6 +36,10 @@ if __name__ == "__main__":
     env = init_test_env()
     dqn = DQN(5, 5, env.get_action_space().n(), env=env)
 
+    best_action_sequence = []
+    best_num_steps = 9999999999999999
+    episode_rewards = []
+    num_steps = []
     for i in range(400):
         print('<<<<<<<<<Episode: %s' % i)
         s, current_position = env.reset()

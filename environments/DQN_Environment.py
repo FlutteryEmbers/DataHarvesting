@@ -14,7 +14,7 @@ class DQN_Environment():
     def __init__(self, board):
         # self.reward_func = self.test_reward_function
         self.board = board
-        self.action_space = _action_class(board)
+        self.action_space = action_class(board)
         self.tower_location = self._get_tower_location()
         self.x_limit = len(board)
         self.y_limit = len(board[0])
@@ -111,7 +111,7 @@ class DQN_Environment():
         print('data left = ', np.array(self.data_volume_collected) - np.array(self.data_volume_required), 'steps taken = ', self.num_steps)
         return self.action_sequence
 
-class _action_class():
+class action_class():
     def __init__(self, board):
         self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
         self.board = board
