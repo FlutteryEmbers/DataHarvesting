@@ -9,7 +9,7 @@ import numpy as np
 
 # device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
 class CriticNetwork(nn.Module):
-    def __init__(self, beta, input_dims, n_actions, fc1_dims = 256, fc2_dims = 256, name='critic',  chkpt_dir = 'tmp/sac') -> None:
+    def __init__(self, beta, input_dims, n_actions, fc1_dims = 256, fc2_dims = 256, name='critic',  chkpt_dir = 'model/sac') -> None:
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -46,7 +46,7 @@ class CriticNetwork(nn.Module):
 
 
 class ValueNetwork(nn.Module):
-    def __init__(self, beta, input_dims, fc1_dims=256, fc2_dims=256, name='value', chkpt_dir='tmp/sac') -> None:
+    def __init__(self, beta, input_dims, fc1_dims=256, fc2_dims=256, name='value', chkpt_dir='model/sac') -> None:
         super(ValueNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -80,7 +80,7 @@ class ValueNetwork(nn.Module):
         self.load_state_dict(T.load(self.checkpoint_file))
 
 class ActorNetwork(nn.Module):
-    def __init__(self, alpha, input_dims, max_action, fc1_dims=256, fc2_dims=256, n_actions=2, name='actor', chkpt_dir='tmp/sac') -> None:
+    def __init__(self, alpha, input_dims, max_action, fc1_dims=256, fc2_dims=256, n_actions=2, name='actor', chkpt_dir='model/sac') -> None:
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
