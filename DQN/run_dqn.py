@@ -1,6 +1,7 @@
 from trainer.dqn import DQN, MEMORY_CAPACITY
 from environments.DQN_Environment import DQN_Environment
 import signal
+from utils.utils import plot_curve
 
 def init_test_env():
     board = [[0, 0, 0, 0, 0],
@@ -11,7 +12,7 @@ def init_test_env():
     startAt = [0 ,0]
     arrivalAt = [4,4]
     env = DQN_Environment(board=board)
-    data_volumn = [1000, 1200, 900]
+    data_volumn = [100, 120, 90]
     env.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
     return env
 
@@ -34,13 +35,14 @@ def init_env():
 
 if __name__ == "__main__":                            
     env = init_test_env()
-    dqn = DQN(5, 5, env.get_action_space().n(), env=env)
-
+    # dqn = DQN(5, 5, env.get_action_space().n(), env=env)
+    n_games = 200
+    dqn = DQN(env.get_linear_state_length(), 5, env)
     best_action_sequence = []
     best_num_steps = 9999999999999999
     episode_rewards = []
     num_steps = []
-    for i in range(400):
+    for i in range(n_games):
         print('<<<<<<<<<Episode: %s' % i)
         s, current_position = env.reset()
         episode_reward_sum = 0
@@ -69,4 +71,11 @@ if __name__ == "__main__":
             if done:
                 print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
                 env.view()
+                
                 break
+        num_steps.append(env.num_steps)
+        episode_rewards.append(round(episode_reward_sum, 2))
+            
+    x = [i+1 for i in range(n_games)]
+    plot_curve(x, episode_rewards, 'result.png', 1)
+    plot_curve(x, num_steps, 'step.png', 2)

@@ -8,3 +8,9 @@ def plot_learning_curve(x, scores, figure_file):
     plt.plot(x, running_avg)
     plt.title('Running average of previous 100 scores')
     plt.savefig(figure_file)
+
+def plot_curve(x, y, figure_file, n):
+    plt.figure(n)
+    plt.plot(x, y)
+    # plt.title('Running average of previous 100 scores')
+    plt.savefig(figure_file)

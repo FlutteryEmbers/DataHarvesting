@@ -36,9 +36,9 @@ class DQN_Environment():
         self.reward = 0
         self.num_steps = 0
         self.action_sequence = []
-        return self.get_state(), self.current_position
+        return self.get_state_linear(), self.current_position
     
-    def get_state(self):
+    def get_state_map(self):
         geo_map = copy.deepcopy(self.board[:][:]) 
         location_map = copy.deepcopy(self.board[:][:])
         transmission_map = copy.deepcopy(self.board[:][:])
@@ -52,6 +52,25 @@ class DQN_Environment():
 
         return [geo_map, location_map, transmission_map]
 
+    def get_linear_state_length(self):
+        state = []
+        state += self.current_position
+        state += self.data_volume_collected
+        # state += self.tower_location
+        for x, y, _ in self.tower_location:
+            state.append(x)
+            state.append(y)
+        return len(state)
+
+    def get_state_linear(self):
+        state = []
+        state += self.current_position
+        state += self.data_volume_collected
+        for x, y, _ in self.tower_location:
+            state.append(x)
+            state.append(y)
+        return state
+
     def _get_tower_location(self):
         tower_location = []
         for i in range(len(self.board)):
@@ -59,7 +78,7 @@ class DQN_Environment():
                 if self.board[i][j] > 0:
                     tower_location.append([i, j, self.board[i][j]])
         tower_location.sort(key = lambda x:x[2])
-        print(tower_location)
+        # print(tower_location)
         # for i in range(tower_location):  
         return tower_location
 
@@ -86,17 +105,17 @@ class DQN_Environment():
 
         # NOTE: 计算 Reward
         reward = self.test_reward_function()
-        reward -= 10
+        reward -= 1
         if is_done:
-            reward += 1000
-            reward -= 100 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            # reward += 1000
+            reward -= 10 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
         '''
         if self.num_steps > 5000:
             reward -= 100
             # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
             is_done = True
         '''
-        return self.get_state(), reward, is_done, self.current_position
+        return self.get_state_linear(), reward, is_done, self.current_position
 
     def test_reward_function(self):
         return sum(self.data_transmitting_rate_list)
