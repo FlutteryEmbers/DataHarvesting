@@ -1,4 +1,4 @@
-from trainer.dqn import DQN, MEMORY_CAPACITY
+from trainer.ddqn import DDQN, MEMORY_CAPACITY
 from environments.DQN_Environment import DQN_Environment
 import signal
 from utils.utils import plot_curve
@@ -12,7 +12,7 @@ def init_test_env():
     startAt = [0 ,0]
     arrivalAt = [4,4]
     env = DQN_Environment(board=board)
-    data_volumn = [100, 120, 90]
+    data_volumn = [1000, 1200, 900]
     env.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
     return env
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     env = init_test_env()
     # dqn = DQN(5, 5, env.get_action_space().n(), env=env)
     n_games = 200
-    dqn = DQN(env.get_linear_state_length(), 5, env)
+    ddqn = DDQN(env.get_linear_state_length(), 5, env)
     best_action_sequence = []
     best_num_steps = 9999999999999999
     episode_rewards = []
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
         while True:
             # env.render()
-            a = dqn.choose_action(s, current_position)
+            a = ddqn.choose_action(s, current_position)
             s_, r, done, current_position = env.step(a)
 
             '''
@@ -60,13 +60,13 @@ if __name__ == "__main__":
             new_r = r1 + r2
             '''
 
-            dqn.store_transition(s, a, r, s_, done)
+            ddqn.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
 
             s = s_
 
-            if dqn.memory_counter > MEMORY_CAPACITY:
-                dqn.learn()
+            if ddqn.memory_counter > MEMORY_CAPACITY:
+                ddqn.learn()
 
             if done:
                 print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))

@@ -108,7 +108,7 @@ class DQN_Environment():
         reward -= 1
         if is_done:
             # reward += 1000
-            reward -= 10 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            reward -= 0.5 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
         '''
         if self.num_steps > 5000:
             reward -= 100
@@ -118,7 +118,7 @@ class DQN_Environment():
         return self.get_state_linear(), reward, is_done, self.current_position
 
     def test_reward_function(self):
-        return sum(self.data_transmitting_rate_list)
+        return 0.5*sum(self.data_transmitting_rate_list)/len(self.data_transmitting_rate_list)
 
     def get_action_space(self):
         return self.action_space
