@@ -1,5 +1,5 @@
 from nets.CNN import CNN
-from environments.DQN_Environment import DQN_Environment
+from environments.single_discrete import DQN_Environment
 
 import numpy as np
 import torch

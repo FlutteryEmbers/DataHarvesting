@@ -1,4 +1,4 @@
-from environments.DQN_Environment import DQN_Environment
+from environments.single_discrete import DQN_Environment
 
 if __name__ == "__main__":
     board = [[0, 0, 0, 0, 0],

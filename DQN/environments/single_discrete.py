@@ -87,13 +87,13 @@ class DQN_Environment():
         action = self.action_space.get_indexed_action(action_index)
         is_done = False
         self.num_steps += 1
-        next_position = tools.ListAddition(self.current_position, action)
+        next_position = np.array(self.current_position) + np.array(action)
         # self.current_position[0] = max(0, min(len(self.board), self.current_position[0]))
         # self.current_position[1] = max(0, min(len(self.board[0]), self.current_position[1]))
 
         # NOTE: 是否出界; 如果出界
         if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
-            self.current_position = next_position
+            self.current_position = next_position.tolist()
 
         # NOTE: 判断是否到达终点
         if self.current_position == self.arrivalAt:
@@ -106,7 +106,13 @@ class DQN_Environment():
         # NOTE: 计算 Reward
         reward = self.test_reward_function()
         reward -= 1
+        '''
+        if self.num_steps > 5000:
+            # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
+            is_done = True
+        '''
         if is_done:
+            reward += 100
             # reward += 1000
             reward -= 0.5 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
         '''
@@ -155,7 +161,7 @@ class action_class():
         valid_actions_index = []
         for i in range(len(self.actions)):
             action = self.actions[i]
-            next_position = tools.ListAddition(action, position)
+            next_position = np.array(action) + np.array(position)
             # print(next_position, end=',')
             # print(action)
             if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
