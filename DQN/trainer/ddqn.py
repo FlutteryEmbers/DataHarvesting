@@ -79,6 +79,7 @@ class DDQN(object):
         b_a = torch.tensor(action, dtype=torch.long).to(device=device)
         b_r = torch.tensor(reward, dtype=torch.float).to(device=device)
         b_s_ = torch.tensor(new_state, dtype=torch.float).to(device=device)
+        is_done = torch.tensor(done, dtype=torch.int).to(device=device)
 
         q_eval = self.eval_net(b_s).gather(1, b_a)
 
@@ -88,7 +89,7 @@ class DDQN(object):
         q_target_values = self.target_net(b_s_).detach()
         q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
         q_target_s_a_prime = q_target_s_a_prime.squeeze()
-        q_target = b_r.reshape(BATCH_SIZE, 1) + GAMMA * q_target_s_a_prime.view(BATCH_SIZE, 1)
+        q_target = b_r.reshape(BATCH_SIZE, 1) + GAMMA * q_target_s_a_prime.view(BATCH_SIZE, 1) * (1 - is_done.reshape(BATCH_SIZE, 1))
 
         loss = self.loss_func(q_eval, q_target)
 

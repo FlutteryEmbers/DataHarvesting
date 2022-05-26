@@ -4,6 +4,7 @@ from collections import namedtuple
 from config.transmission_model import Phi_dif_transmitting_speed
 import utils.tools as tools
 import copy
+from numpy import linalg as LNG 
 import math
 random.seed(10)
 
@@ -91,30 +92,30 @@ class DQN_Environment():
         # self.current_position[0] = max(0, min(len(self.board), self.current_position[0]))
         # self.current_position[1] = max(0, min(len(self.board[0]), self.current_position[1]))
 
-        # NOTE: 是否出界; 如果出界
+        # NOTE: 是否出界; 如果未出界更新位置
         if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
             self.current_position = next_position.tolist()
 
-        # NOTE: 判断是否到达终点
-        if self.current_position == self.arrivalAt:
-            is_done = True
-        # self.reward = reward
         data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.current_position, self.tower_location, self.data_volume_collected, self.data_volume_required)
         self.data_volume_collected = data_volume_collected.tolist()
         self.data_transmitting_rate_list = data_transmitting_rate_list.tolist()
 
-        # NOTE: 计算 Reward
-        reward = self.test_reward_function()
-        reward -= 1
-        '''
-        if self.num_steps > 5000:
-            # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
+        data_volume_left = np.array(self.data_volume_required) - np.array(self.data_volume_collected)
+        # NOTE: 判断是否到达终点
+        # if self.data_volume_collected == self.data_volume_required:
+        #     is_done = True
+        if not data_volume_left.any():
             is_done = True
-        '''
+
+        reward = self.test_reward_function()
+        reward -= 1 # 每步减少reward 1
+
+
         if is_done:
-            reward += 100
-            # reward += 1000
-            reward -= 0.5 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            # reward += 100
+            # reward -= 0.5 * np.max(data_volume_left)
+            reward -= 5 * LNG.norm(np.array(self.current_position) - np.array(self.arrivalAt))
+
         '''
         if self.num_steps > 5000:
             reward -= 100
@@ -124,7 +125,9 @@ class DQN_Environment():
         return self.get_state_linear(), reward, is_done, self.current_position
 
     def test_reward_function(self):
-        return 0.5*sum(self.data_transmitting_rate_list)/len(self.data_transmitting_rate_list)
+        transmission_reward = 0.5*sum(self.data_transmitting_rate_list)/len(self.data_transmitting_rate_list)
+        # print(transmission_reward)
+        return transmission_reward
 
     def get_action_space(self):
         return self.action_space
@@ -133,7 +136,7 @@ class DQN_Environment():
         pass
 
     def view(self):
-        print('data left = ', np.array(self.data_volume_collected) - np.array(self.data_volume_required), 'steps taken = ', self.num_steps)
+        print('data left = ', np.array(self.data_volume_required) - np.array(self.data_volume_collected), 'steps taken = ', self.num_steps)
         return self.action_sequence
 
 class action_class():

@@ -4,42 +4,42 @@ import signal
 from utils.utils import plot_curve
 
 def test_env():
-    board = [[0, 0, 0, 0, 0],
-            [0, 3, 0, 0, 0],
-            [0, 0, 0, 1, 0],
-            [0, 0, 2, 0, 0],
-            [0, 0, 0, 0, 0]]
+    board = [[3, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0]]
     startAt = [0 ,0]
     arrivalAt = [4,4]
     env = DQN_Environment(board=board)
-    data_volumn = [10000, 12000, 9000]
+    data_volumn = [200, 500, 800]
     env.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
     return env
 
 def init_env():
     board = []
-    for i in range(50):
+    for i in range(10):
         boardrow = []
-        for j in range(50):
+        for j in range(10):
             boardrow.append(0)
         board.append(boardrow)
     startAt = [0, 0]
     arrivalAt = [9, 9]
-    board[5][5] = 1 ## first tower
-    board[3][6] = 2 ## second tower
-    board[7][9] = 3 ## third tower
+    board[0][1] = 1 ## first tower
+    board[4][7] = 2 ## second tower
+    board[9][3] = 3 ## third tower
     # board[27][27] = 4
     # board[13][12] = 5
     # board[40][30] = 6
     env = DQN_Environment(board=board)
-    data_volumn = [10000, 12000, 90000]
+    data_volumn = [300, 500, 800]
     env.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
     return env
 
 if __name__ == "__main__":                            
-    env = test_env()
+    env = init_env()
     # dqn = DQN(5, 5, env.get_action_space().n(), env=env)
-    n_games = 200
+    n_games = 1000
     ddqn = DDQN(env.get_linear_state_length(), 5, env)
     best_action_sequence = []
     best_num_steps = 9999999999999999

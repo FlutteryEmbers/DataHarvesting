@@ -5,7 +5,7 @@ from numpy import linalg as LNG
 time_ratio=1
 B=0.5
 height=0.5
-K=20
+K=8
 N=3
 Phi_list=np.array([5,4,3])
 
