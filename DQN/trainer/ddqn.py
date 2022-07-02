@@ -11,7 +11,7 @@ from utils.buffer import ReplayBuffer
 random.seed(10)
 
 BATCH_SIZE = 32
-LR = 0.01
+LR = 0.0001
 EPSILON = 0.95
 GAMMA = 0.9
 TARGET_REPLACE_ITER = 100

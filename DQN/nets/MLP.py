@@ -8,9 +8,9 @@ class MLP(nn.Module):
     
     def __init__(self, inputs, outputs):
         super(MLP, self).__init__()
-        self.fc1 = nn.Linear(inputs, 32)
-        self.fc2 = nn.Linear(32, 64)
-        self.output = nn.Linear(64, outputs)
+        self.fc1 = nn.Linear(inputs, 128)
+        self.fc2 = nn.Linear(128, 256)
+        self.output = nn.Linear(256, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
