@@ -16,29 +16,14 @@ EPSILON = 0.95
 GAMMA = 0.9
 TARGET_REPLACE_ITER = 100
 MEMORY_CAPACITY = 2000
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-'''
-Experience = namedtuple('Experience', field_names=['state', 'action', 'reward', 'next_state', 'done'])
-
-class ExperienceBuffer(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
-
-    def append(self, experience):
-        """Save a transition"""
-        self.memory.append(experience)
-
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
-
-    def __len__(self):
-        return len(self.memory)
-'''
 
 class DDQN(object):
-    def __init__(self, inputs, outputs, env) -> None:
-        self.eval_net, self.target_net = MLP(inputs, outputs).to(device=device), MLP(inputs, outputs).to(device=device)
+    def __init__(self, inputs, outputs, env, eval_name = 'ddqn_eval', target_name = 'ddqn_target') -> None:
+        self.eval_name = eval_name
+        self.target_name = target_name
+
+        self.eval_net, self.target_net = MLP(inputs, outputs, self.eval_name).to(device=device), MLP(inputs, outputs, self.target_name).to(device=device)
         # self.eval_net, self.target_net = CNN(h, w, outputs).to(device=device), CNN(h, w, outputs).to(device=device)
         self.learn_step_counter = 0
         self.memory_counter = 0
@@ -96,10 +81,18 @@ class DDQN(object):
         # loss = self.loss_func(q_eval, q_target)
         self.optimizer.zero_grad()                                     
         loss.backward()                                                 
-        self.optimizer.step()   
+        self.optimizer.step()
+    
+    def save_models(self):
+        self.eval_net.save_checkpoint()
+        self.target_net.save_checkpoint()
+
+    def load_models(self, checkpoints):
+        self.eval_net.load_checkpoint(checkpoint=checkpoints)
+        self.target_net.load_checkpoint(checkpoint=checkpoints)
+
 
     def unpack_memory(self, name, batch_samples):
-        
         result = []
         for i in range(BATCH_SIZE):
             result.append([i, batch_samples[i][name]])

@@ -1,12 +1,16 @@
-import torch
+import os
+import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 # if gpu is to be used
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class MLP(nn.Module):
-    
-    def __init__(self, inputs, outputs):
+    def __init__(self, inputs, outputs, name, chkpt_dir='model/q_networks'):
         super(MLP, self).__init__()
+        self.checkpoint_dir = chkpt_dir
+        self.checkpoint_file = os.path.join(chkpt_dir, name)
+        self.num_checkpoints = 0
+        
         self.fc1 = nn.Linear(inputs, 128)
         self.fc2 = nn.Linear(128, 256)
         self.output = nn.Linear(256, outputs)
@@ -17,8 +21,18 @@ class MLP(nn.Module):
         # x = x.to(device)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-
         return self.output(x)
+
+    def save_checkpoint(self):
+        print('... saving checkpoint ...')
+        self.num_checkpoints += 1
+        checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+        T.save(self.state_dict(), checkpoint_file)
+
+    def load_checkpoint(self, checkpoint=None):
+        checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
+        print('... loading checkpoint ...')
+        self.load_state_dict(T.load(checkpoint_file))
 
 class CNN(nn.Module):
     

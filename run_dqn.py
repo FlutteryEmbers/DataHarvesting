@@ -1,6 +1,5 @@
 from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
 from environments.single_discrete import DQN_Environment
-import signal
 from utils.utils import plot_curve
 
 def test_env():
@@ -39,12 +38,13 @@ def init_env():
 if __name__ == "__main__":                            
     env = init_env()
     # dqn = DQN(5, 5, env.get_action_space().n(), env=env)
-    n_games = 1000
+    n_games = 200
     ddqn = DDQN(env.get_linear_state_length(), 5, env)
     best_action_sequence = []
     best_num_steps = 9999999999999999
     episode_rewards = []
     num_steps = []
+
     for i in range(n_games):
         print('<<<<<<<<<Episode: %s' % i)
         s, current_position = env.reset()
@@ -54,14 +54,6 @@ if __name__ == "__main__":
             # env.render()
             a = ddqn.choose_action(s, current_position)
             s_, r, done, current_position = env.step(a)
-
-            '''
-            # 修改奖励 (不修改也可以，修改奖励只是为了更快地得到训练好的摆杆)
-            x, x_dot, theta, theta_dot = s_
-            r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
-            r2 = (env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5
-            new_r = r1 + r2
-            '''
 
             ddqn.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
@@ -74,11 +66,15 @@ if __name__ == "__main__":
             if done:
                 print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
                 env.view()
-                
                 break
+
         num_steps.append(env.num_steps)
+        if env.num_steps < best_num_steps:
+            best_num_steps = env.num_steps
+            ddqn.save_models()
+
         episode_rewards.append(round(episode_reward_sum, 2))
             
     x = [i+1 for i in range(n_games)]
-    plot_curve(x, episode_rewards, 'result.png', 1)
-    plot_curve(x, num_steps, 'step.png', 2)
+    plot_curve(x, episode_rewards, './results/rewards.png', 1)
+    plot_curve(x, num_steps, './results/step.png', 2)
