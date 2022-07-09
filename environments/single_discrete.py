@@ -1,9 +1,10 @@
 import numpy as np
 import random
 from collections import namedtuple
-from utils.transmission_model import Phi_dif_transmitting_speed
+from .transmission_model import Phi_dif_transmitting_speed
 import utils.tools as tools
 import copy
+from numpy import linalg as LNG 
 import math
 random.seed(10)
 
@@ -36,9 +37,9 @@ class DQN_Environment():
         self.reward = 0
         self.num_steps = 0
         self.action_sequence = []
-        return self.get_state(), self.current_position
+        return self.get_state_linear(), self.current_position
     
-    def get_state(self):
+    def get_state_map(self):
         geo_map = copy.deepcopy(self.board[:][:]) 
         location_map = copy.deepcopy(self.board[:][:])
         transmission_map = copy.deepcopy(self.board[:][:])
@@ -52,6 +53,25 @@ class DQN_Environment():
 
         return [geo_map, location_map, transmission_map]
 
+    def get_linear_state_length(self):
+        state = []
+        state += self.current_position
+        state += self.data_volume_collected
+        # state += self.tower_location
+        for x, y, _ in self.tower_location:
+            state.append(x)
+            state.append(y)
+        return len(state)
+
+    def get_state_linear(self):
+        state = []
+        state += self.current_position
+        state += self.data_volume_collected
+        for x, y, _ in self.tower_location:
+            state.append(x)
+            state.append(y)
+        return state
+
     def _get_tower_location(self):
         tower_location = []
         for i in range(len(self.board)):
@@ -59,7 +79,7 @@ class DQN_Environment():
                 if self.board[i][j] > 0:
                     tower_location.append([i, j, self.board[i][j]])
         tower_location.sort(key = lambda x:x[2])
-        print(tower_location)
+        # print(tower_location)
         # for i in range(tower_location):  
         return tower_location
 
@@ -68,38 +88,46 @@ class DQN_Environment():
         action = self.action_space.get_indexed_action(action_index)
         is_done = False
         self.num_steps += 1
-        next_position = tools.ListAddition(self.current_position, action)
+        next_position = np.array(self.current_position) + np.array(action)
         # self.current_position[0] = max(0, min(len(self.board), self.current_position[0]))
         # self.current_position[1] = max(0, min(len(self.board[0]), self.current_position[1]))
 
-        # NOTE: 是否出界; 如果出界
+        # NOTE: 是否出界; 如果未出界更新位置
         if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:
-            self.current_position = next_position
+            self.current_position = next_position.tolist()
 
-        # NOTE: 判断是否到达终点
-        if self.current_position == self.arrivalAt:
-            is_done = True
-        # self.reward = reward
         data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.current_position, self.tower_location, self.data_volume_collected, self.data_volume_required)
         self.data_volume_collected = data_volume_collected.tolist()
         self.data_transmitting_rate_list = data_transmitting_rate_list.tolist()
 
-        # NOTE: 计算 Reward
+        data_volume_left = np.array(self.data_volume_required) - np.array(self.data_volume_collected)
+        # NOTE: 判断是否到达终点
+        # if self.data_volume_collected == self.data_volume_required:
+        #     is_done = True
+        if not data_volume_left.any():
+            is_done = True
+
         reward = self.test_reward_function()
-        reward -= 10
+        reward -= 1 # 每步减少reward 1
+
+
         if is_done:
-            reward += 1000
-            reward -= 100 * np.max(np.array(self.data_volume_required) - np.array(self.data_volume_collected))
+            # reward += 100
+            # reward -= 0.5 * np.max(data_volume_left)
+            reward -= 5 * LNG.norm(np.array(self.current_position) - np.array(self.arrivalAt))
+
         '''
         if self.num_steps > 5000:
             reward -= 100
             # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
             is_done = True
         '''
-        return self.get_state(), reward, is_done, self.current_position
+        return self.get_state_linear(), reward, is_done, self.current_position
 
     def test_reward_function(self):
-        return sum(self.data_transmitting_rate_list)
+        transmission_reward = 0.5*sum(self.data_transmitting_rate_list)/len(self.data_transmitting_rate_list)
+        # print(transmission_reward)
+        return transmission_reward
 
     def get_action_space(self):
         return self.action_space
@@ -108,7 +136,7 @@ class DQN_Environment():
         pass
 
     def view(self):
-        print('data left = ', np.array(self.data_volume_collected) - np.array(self.data_volume_required), 'steps taken = ', self.num_steps)
+        print('data left = ', np.array(self.data_volume_required) - np.array(self.data_volume_collected), 'steps taken = ', self.num_steps)
         return self.action_sequence
 
 class action_class():
@@ -136,7 +164,7 @@ class action_class():
         valid_actions_index = []
         for i in range(len(self.actions)):
             action = self.actions[i]
-            next_position = tools.ListAddition(action, position)
+            next_position = np.array(action) + np.array(position)
             # print(next_position, end=',')
             # print(action)
             if next_position[0] >= 0 and next_position[0] < self.x_limit and next_position[1] >= 0 and next_position[1] < self.y_limit:

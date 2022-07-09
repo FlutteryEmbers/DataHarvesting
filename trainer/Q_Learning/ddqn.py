@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 # from nets.CNN import CNN
-from nets.MLP import MLP
+from .networks import MLP
 import random
 from utils.buffer import ReplayBuffer
 

@@ -1,4 +1,4 @@
-from trainer.ddqn import DDQN, MEMORY_CAPACITY
+from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
 from environments.single_discrete import DQN_Environment
 import signal
 from utils.utils import plot_curve
