@@ -2,14 +2,14 @@ from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
 from environments.instances import discrete_single
 from utils.utils import plot_curve
                    
-env = discrete_single.TestEnvironment_2
+
 n_games = 200
-ddqn = DDQN(env.get_linear_state_length(), 5, env)
-best_action_sequence = []
 best_num_steps = 9999999999999999
 episode_rewards = []
 num_steps = []
 
+env = discrete_single.TestEnvironment_2
+ddqn = DDQN(env.get_linear_state_length(), 5, env)
 for i in range(n_games):
     print('<<<<<<<<<Episode: %s' % i)
     s, current_position = env.reset()

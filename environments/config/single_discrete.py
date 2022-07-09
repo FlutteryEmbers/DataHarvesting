@@ -2,7 +2,7 @@ import numpy as np
 import random
 from collections import namedtuple
 from .transmission_model import Phi_dif_transmitting_speed
-import utils.tools as tools
+from utils.buffer import Info
 import copy
 from numpy import linalg as LNG 
 import math
@@ -21,6 +21,8 @@ class DQN_Environment():
         self.y_limit = len(board[0])
         self.reward = 0
         self.action_sequence = []
+
+        self.running_info = Info(board_structure=self.board, num_turrent=len(self.tower_location))
         
     def init(self, startAt, arrivalAt, data_volume):
         self.startAt = startAt
@@ -37,6 +39,8 @@ class DQN_Environment():
         self.reward = 0
         self.num_steps = 0
         self.action_sequence = []
+
+        self.running_info.reset()
         return self.get_state_linear(), self.current_position
     
     def get_state_map(self):
@@ -101,6 +105,11 @@ class DQN_Environment():
         self.data_transmitting_rate_list = data_transmitting_rate_list.tolist()
 
         data_volume_left = np.array(self.data_volume_required) - np.array(self.data_volume_collected)
+
+        self.running_info.store(position_t=self.current_position, action_t=action_index,
+                                    data_collected_t=self.data_volume_collected, 
+                                    data_left_t=data_volume_left.tolist(), data_collect_rate_t = data_transmitting_rate_list.tolist())
+
         # NOTE: 判断是否到达终点
         # if self.data_volume_collected == self.data_volume_required:
         #     is_done = True
@@ -137,7 +146,7 @@ class DQN_Environment():
 
     def view(self):
         print('data left = ', np.array(self.data_volume_required) - np.array(self.data_volume_collected), 'steps taken = ', self.num_steps)
-        return self.action_sequence
+        return self.running_info
 
 class action_class():
     def __init__(self, board):

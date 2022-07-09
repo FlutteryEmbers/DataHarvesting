@@ -32,7 +32,7 @@ class DDQN(object):
         self.loss_func = nn.MSELoss()
         self.env = env
 
-    def choose_action(self, state, position):
+    def choose_action(self, state, position, disable_exploration=False):
         state = torch.FloatTensor(np.array(state)).to(device)
         state = torch.unsqueeze(state, dim=0)
         '''
@@ -41,13 +41,13 @@ class DDQN(object):
             EPSILON = EPSILON * 0.99
             print('EPSILON = ', EPSILON)
         '''
-        if np.random.uniform() < EPSILON:
+        if np.random.uniform() > EPSILON and not disable_exploration:
+           action = self.env.get_action_space().sample_valid_action(position)
+        else:
             q_value = self.eval_net(state)
             _, action_value = torch.max(q_value, dim=1)
             action = int(action_value.item())
-        else:
-            # action = np.random.randint(0 , 5)
-            action = self.env.get_action_space().sample_valid_action(position)
+            
         return action
 
     def store_transition(self, s, a, r, s_, done):
