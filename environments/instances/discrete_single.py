@@ -1,5 +1,6 @@
 from environments.config.single_discrete import DQN_Environment
 
+'''
 board = [[3, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 1],
@@ -11,7 +12,7 @@ arrivalAt = [4,4]
 TestEnvironment = DQN_Environment(board=board)
 data_volumn = [200, 500, 800]
 TestEnvironment.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)
-
+'''
 
 board = []
 for i in range(10):

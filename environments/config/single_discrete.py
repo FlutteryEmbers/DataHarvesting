@@ -83,7 +83,7 @@ class DQN_Environment():
                 if self.board[i][j] > 0:
                     tower_location.append([i, j, self.board[i][j]])
         tower_location.sort(key = lambda x:x[2])
-        # print(tower_location)
+        print(tower_location)
         # for i in range(tower_location):  
         return tower_location
 
@@ -119,18 +119,11 @@ class DQN_Environment():
         reward = self.test_reward_function()
         reward -= 1 # 每步减少reward 1
 
-
         if is_done:
             # reward += 100
             # reward -= 0.5 * np.max(data_volume_left)
             reward -= 5 * LNG.norm(np.array(self.current_position) - np.array(self.arrivalAt))
 
-        '''
-        if self.num_steps > 5000:
-            reward -= 100
-            # reward += 10 * math.log(np.sum(np.array(self.data_volume_collected)))
-            is_done = True
-        '''
         return self.get_state_linear(), reward, is_done, self.current_position
 
     def test_reward_function(self):

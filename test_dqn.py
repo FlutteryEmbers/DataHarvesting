@@ -10,7 +10,7 @@ num_steps = []
 
 env = discrete_single.TestEnvironment_2
 ddqn = DDQN(env.get_linear_state_length(), 5, env)
-ddqn.load_models(checkpoints=2)
+ddqn.load_models(checkpoints=10)
 
 done = False
 s, current_position = env.reset()
