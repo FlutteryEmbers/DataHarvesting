@@ -83,7 +83,6 @@ class DQN_Environment():
     
     def step(self, action_index):
         action = self.action_space.get_indexed_action(action_index)
-        is_done = False
         self.num_steps += 1
 
         current_position, tower_location, dv_collected, dv_left, dv_transmittion_rate, dv_required = self.status_tracker.get_current_status()
@@ -111,7 +110,7 @@ class DQN_Environment():
         if self.status_tracker.is_done():
             reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
 
-        return self.status_tracker.get_state(), reward, is_done, self.status_tracker.current_position
+        return self.status_tracker.get_state(), reward, self.status_tracker.is_done(), self.status_tracker.current_position
 
     def view(self):
         print('data left = ', np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), 'steps taken = ', self.num_steps)
