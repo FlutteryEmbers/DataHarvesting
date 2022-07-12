@@ -29,5 +29,5 @@ board[9][3] = 3 ## third tower
 # board[13][12] = 5
 # board[40][30] = 6
 TestEnvironment_2 = DQN_Environment(board=board)
-data_volumn = [300, 500, 800]
+data_volumn = [30, 50, 80]
 TestEnvironment_2.init(startAt=startAt, arrivalAt=arrivalAt, data_volume=data_volumn)

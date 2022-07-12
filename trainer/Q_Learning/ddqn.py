@@ -83,9 +83,9 @@ class DDQN(object):
         loss.backward()                                                 
         self.optimizer.step()
     
-    def save_models(self):
-        self.eval_net.save_checkpoint()
-        self.target_net.save_checkpoint()
+    def save_models(self, saveBest = True):
+        self.eval_net.save_checkpoint(saveBest=saveBest)
+        self.target_net.save_checkpoint(saveBest=saveBest)
 
     def load_models(self, checkpoints):
         self.eval_net.load_checkpoint(checkpoint=checkpoints)

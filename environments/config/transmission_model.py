@@ -22,7 +22,7 @@ def Phi_dif_transmitting_speed(agent_position, tower_location, data_volume_colle
           if data_volume_collected[i] >= data_volume_required[i]:
                data_transmitting_rate_list[i] = 0
           else:
-               data_transmitting_rate_list[i] = Phi_list[i] * B * math.log2(1 + K / N * (pow(distance[i], 2) + pow(height, 2)))              
+               data_transmitting_rate_list[i] = Phi_list[i] * B * math.log2(1 + K / (N * (pow(distance[i], 2) + pow(height, 2))))              
 
      
      # WARNING: DATA_TYPE

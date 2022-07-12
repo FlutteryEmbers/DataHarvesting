@@ -23,14 +23,22 @@ class MLP(nn.Module):
         x = F.relu(self.fc2(x))
         return self.output(x)
 
-    def save_checkpoint(self):
+    def save_checkpoint(self, saveBest = False):
         print('... saving checkpoint ...')
         self.num_checkpoints += 1
-        checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+
+        if saveBest:
+            checkpoint_file = self.checkpoint_file
+        else:
+            checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+
         T.save(self.state_dict(), checkpoint_file)
 
     def load_checkpoint(self, checkpoint=None):
-        checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
+        if checkpoint == None:
+            checkpoint_file = self.checkpoint_file
+        else:
+            checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
         print('... loading checkpoint ...')
         self.load_state_dict(T.load(checkpoint_file))
 

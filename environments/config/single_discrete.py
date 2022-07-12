@@ -31,6 +31,9 @@ class DQN_Environment():
         self.data_volume_required = data_volume
         self.data_volume_collected = [0]*len(data_volume)
         self.data_transmitting_rate_list = [0]*len(data_volume)
+        print(self.tower_location)
+        print(self.data_volume_required)
+        print(self.data_volume_collected)
         self.num_steps = 0
         
     def reset(self):
@@ -83,7 +86,6 @@ class DQN_Environment():
                 if self.board[i][j] > 0:
                     tower_location.append([i, j, self.board[i][j]])
         tower_location.sort(key = lambda x:x[2])
-        print(tower_location)
         # for i in range(tower_location):  
         return tower_location
 
