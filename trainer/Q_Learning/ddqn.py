@@ -42,7 +42,7 @@ class DDQN(object):
             print('EPSILON = ', EPSILON)
         '''
         if np.random.uniform() > EPSILON and not disable_exploration:
-           action = self.env.get_action_space().sample_valid_action(position)
+           action = self.env.action_space.sample()
         else:
             q_value = self.eval_net(state)
             _, action_value = torch.max(q_value, dim=1)

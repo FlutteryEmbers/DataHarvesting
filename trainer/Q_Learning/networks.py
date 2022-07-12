@@ -7,6 +7,9 @@ import torch.nn.functional as F
 class MLP(nn.Module):
     def __init__(self, inputs, outputs, name, chkpt_dir='model/q_networks'):
         super(MLP, self).__init__()
+        self.inputs = inputs
+        self.outputs = outputs
+        
         self.checkpoint_dir = chkpt_dir
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
