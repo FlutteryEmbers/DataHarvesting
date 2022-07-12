@@ -2,12 +2,9 @@ import numpy as np
 import random
 from .transmission_model import Phi_dif_transmitting_speed
 from utils.buffer import Info
-import copy
 from numpy import linalg as LNG 
-import math
-random.seed(10)
 
-class Tracker():
+class Task():
     def __init__(self, x_limit, y_limit, tower_location) -> None:
         self.x_limit = x_limit
         self.y_limit = y_limit
@@ -62,11 +59,11 @@ class Tracker():
         return False
 
 # NOTE: Discrete Position; Single Agent
-class DQN_Environment():
-    def __init__(self, mission):
+class Agent():
+    def __init__(self, env):
         # self.reward_func = self.test_reward_function
-        self.status_tracker = mission
-        self.action_space = action_class()
+        self.status_tracker = env
+        self.action_space = Actions()
         self.running_info = Info(board_structure=self.status_tracker, num_turrent=self.status_tracker.num_tower)
         
         self.reward = 0
@@ -116,7 +113,7 @@ class DQN_Environment():
         print('data left = ', np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), 'steps taken = ', self.num_steps)
         return self.running_info
 
-class action_class():
+class Actions():
     def __init__(self):
         self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
         self.n = len(self.actions)
