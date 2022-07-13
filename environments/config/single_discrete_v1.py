@@ -1,8 +1,9 @@
 import numpy as np
 import random
 from .transmission_model import Phi_dif_transmitting_speed
+from .transmission_model_v1 import Phi_dif_Model
 from utils.buffer import Info
-from numpy import linalg as LNG 
+from numpy import linalg as LNG
 
 class Task():
     def __init__(self, x_limit, y_limit, tower_location) -> None:
@@ -10,6 +11,7 @@ class Task():
         self.y_limit = y_limit
         self.tower_location = tower_location
         self.num_tower = len(tower_location)
+        self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location)
 
     def set_mission(self, start_at, arrival_at, dv_required) -> None:
         self.dv_required = dv_required
@@ -88,7 +90,8 @@ class Agent():
         self.status_tracker.update_position(next_position)
         
 
-        data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.status_tracker.current_position, tower_location, dv_collected, dv_required)
+        # data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.status_tracker.current_position, tower_location, dv_collected, dv_required)
+        data_volume_collected, data_transmitting_rate_list = self.status_tracker.transmitting_model.update_dv_status(self.status_tracker.current_position, dv_collected, dv_required)
 
         data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
 
