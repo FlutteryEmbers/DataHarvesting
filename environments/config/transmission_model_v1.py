@@ -30,8 +30,9 @@ class Phi_dif_Model():
         dv_collected_updated = np.minimum(dv_collected_updated, dv_required)
 
         transmitting_rate = dv_collected_updated - dv_collected
+        dv_left = dv_required - dv_collected_updated
 
-        return dv_collected_updated,  transmitting_rate
+        return dv_collected_updated.tolist(),  transmitting_rate.tolist(), dv_left.tolist()
         
     
     def init_signal_map(self):

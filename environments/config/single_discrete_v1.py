@@ -4,7 +4,9 @@ from .transmission_model import Phi_dif_transmitting_speed
 from .transmission_model_v1 import Phi_dif_Model
 from utils.buffer import Info
 from numpy import linalg as LNG
+from utils.utils import Timer
 
+timer = Timer()
 class Task():
     def __init__(self, x_limit, y_limit, tower_location) -> None:
         self.x_limit = x_limit
@@ -89,19 +91,17 @@ class Agent():
         next_position = np.array(current_position) + np.array(action)
         self.status_tracker.update_position(next_position)
         
-
         # data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.status_tracker.current_position, tower_location, dv_collected, dv_required)
-        data_volume_collected, data_transmitting_rate_list = self.status_tracker.transmitting_model.update_dv_status(self.status_tracker.current_position, dv_collected, dv_required)
+        # data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
+        data_volume_collected, data_transmitting_rate_list, data_volume_left = self.status_tracker.transmitting_model.update_dv_status(self.status_tracker.current_position, dv_collected, dv_required)
 
-        data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
-
-        self.status_tracker.update_dv_info(dv_collected=data_volume_collected.tolist(), 
-                                    dv_transmittion_rate=data_transmitting_rate_list.tolist(), 
-                                    dv_left=data_volume_left.tolist())
+        self.status_tracker.update_dv_info(dv_collected=data_volume_collected, 
+                                    dv_transmittion_rate=data_transmitting_rate_list, 
+                                    dv_left=data_volume_left)
 
         self.running_info.store(position_t=self.status_tracker.current_position, action_t=action_index,
-                                    data_collected_t=data_volume_collected.tolist(), 
-                                    data_left_t=data_volume_left.tolist(), data_collect_rate_t = data_transmitting_rate_list.tolist())
+                                    data_collected_t=data_volume_collected, 
+                                    data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 
         # NOTE: 判断是否到达终点
         reward = self.status_tracker.get_reward()
