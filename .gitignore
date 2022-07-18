@@ -7,3 +7,4 @@ model/
 .vscode/*
 .results
 .results/*
+results/
