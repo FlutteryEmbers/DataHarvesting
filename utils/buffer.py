@@ -90,6 +90,7 @@ class Info():
             # plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
             plt.plot(t, data[i], label="turrent" + str(i))
 
+        plt.legend(loc='upper left')
         plt.savefig(self.filename(type=type))
         plt.close()
 
