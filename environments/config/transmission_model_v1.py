@@ -3,7 +3,7 @@ import math
 import sys
 
 class Phi_dif_Model():
-    def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3])) -> None:
+    def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
         self.time_ratio = time_ratio
         self.B = B
         self.height = height

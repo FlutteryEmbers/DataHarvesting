@@ -48,8 +48,9 @@ class Task():
         current_position = np.array(self.current_position)
         dv_collected = np.array(self.dv_collected)
         tower_location = np.array(self.tower_location)
-
-        state = np.concatenate((current_position, dv_collected, tower_location), axis=None)
+        dv_required = np.array(self.dv_required)
+        #state = np.concatenate((current_position, dv_collected, tower_location), axis=None)
+        state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
         return state.tolist()
 
     def get_reward(self):

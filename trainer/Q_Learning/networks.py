@@ -46,9 +46,13 @@ class MLP(nn.Module):
         self.load_state_dict(T.load(checkpoint_file))
 
 class CNN(nn.Module):
-    
-    def __init__(self, h, w, outputs):
+    def __init__(self, h, w, outputs, name, chkpt_dir='model/q_networks'):
         super(CNN, self).__init__()
+
+        self.checkpoint_dir = chkpt_dir
+        self.checkpoint_file = os.path.join(chkpt_dir, name)
+        self.num_checkpoints = 0
+
         self.conv1 = nn.Conv2d(3, 16, kernel_size=2, stride=1)
         self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1)
@@ -77,3 +81,22 @@ class CNN(nn.Module):
         total_linear = x.view(x.size(0), -1)
 
         return self.head(total_linear)
+
+    def save_checkpoint(self, saveBest = False):
+        print('... saving checkpoint ...')
+        self.num_checkpoints += 1
+
+        if saveBest:
+            checkpoint_file = self.checkpoint_file
+        else:
+            checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+
+        T.save(self.state_dict(), checkpoint_file)
+
+    def load_checkpoint(self, checkpoint=None):
+        if checkpoint == None:
+            checkpoint_file = self.checkpoint_file
+        else:
+            checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
+        print('... loading checkpoint ...')
+        self.load_state_dict(T.load(checkpoint_file))

@@ -1,16 +1,17 @@
 from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
-from environments.instances import single_diescreteV1
+from environments import single_diescreteV1
 from utils.utils import plot_curve
 from utils.utils import Timer
                    
 
-n_games = 500
+n_games = 1000
 best_num_steps = 9999999999999999
+best_rewards = 0 
 episode_rewards = []
 num_steps = []
 timer = Timer()
 
-env = single_diescreteV1.Test_Environment
+env = single_diescreteV1.DR_Environment
 ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
 
 for i in range(n_games):
@@ -38,10 +39,12 @@ for i in range(n_games):
             break
         
     num_steps.append(env.num_steps)
+    ddqn.save_models()
+    '''
     if env.num_steps < best_num_steps:
         best_num_steps = env.num_steps
         ddqn.save_models()
-
+    '''
     episode_rewards.append(round(episode_reward_sum, 2))
     timer.stop()
         

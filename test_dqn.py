@@ -1,5 +1,5 @@
 from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
-from environments.instances import discrete_single
+from environments import single_diescreteV1
 from utils.utils import plot_curve
                    
 
@@ -8,8 +8,8 @@ best_num_steps = 9999999999999999
 episode_rewards = []
 num_steps = []
 
-env = discrete_single.TestEnvironment_2
-ddqn = DDQN(env.get_linear_state_length(), 5, env)
+env = single_diescreteV1.Test_Environment
+ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
 ddqn.load_models(checkpoints=None)
 
 done = False
