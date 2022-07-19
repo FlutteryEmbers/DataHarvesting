@@ -62,7 +62,9 @@ class Random_Task():
         tower_location = np.array(self.tower_location)
         dv_required = np.array(self.dv_required)
 
-        state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
+        state = np.concatenate((current_position, dv_collected, tower_location), axis=None)
+        # state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
+        
         return state.tolist()
 
     def is_done(self):

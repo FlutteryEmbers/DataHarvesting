@@ -12,9 +12,9 @@ from utils.buffer import ReplayBuffer
 random.seed(10)
 
 BATCH_SIZE = 32
-LR = 0.00001
+LR = 0.0001
 EPSILON = 0.95
-GAMMA = 0.9
+GAMMA = 0.95
 TARGET_REPLACE_ITER = 100
 MEMORY_CAPACITY = 2000
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -88,7 +88,7 @@ class DDQN(object):
         self.eval_net.save_checkpoint(mode=mode)
         self.target_net.save_checkpoint(mode=mode)
 
-    def load_models(self, checkpoints, mode):
+    def load_models(self, mode, checkpoints = None):
         self.eval_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
         self.target_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
 

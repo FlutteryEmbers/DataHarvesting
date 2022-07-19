@@ -15,8 +15,8 @@ class MLP(nn.Module):
         self.num_checkpoints = 0
         
         self.fc1 = nn.Linear(inputs, 256)
-        self.fc2 = nn.Linear(256, 512)
-        self.output = nn.Linear(512, outputs)
+        self.fc2 = nn.Linear(256, 256)
+        self.output = nn.Linear(256, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
