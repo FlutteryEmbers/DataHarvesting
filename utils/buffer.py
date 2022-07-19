@@ -1,6 +1,7 @@
 import numpy as np
 import os
-from .utils import plot_curve
+from .tools import plot_curve
+import matplotlib.pyplot as plt
 
 class ReplayBuffer():
     def __init__(self, max_size, input_shape, n_actions) -> None:
@@ -60,15 +61,18 @@ class Info():
         self.data_left_t.append(data_left_t)
         self.data_collect_rate_t.append(data_collect_rate_t)
 
-    def save(self):
+    def save(self, sub_dir = ''):
+        self.output_dir = self.output_dir + sub_dir
+        self.mkdir(self.output_dir)
+
         data_collected = np.array(self.data_collected_t).T.tolist()
         data_left = np.array(self.data_left_t).T.tolist()
         data_collect_rate = np.array(self.data_collect_rate_t).T.tolist()
 
-        print(len(data_collected))
-        self.plot(type='data_collected/', data=data_collected)
-        self.plot(type='data_left/', data=data_left)
-        self.plot(type='data_collect_rate/', data=data_collect_rate)
+        # print(len(data_collected))
+        self.plot(type='data_collected', data=data_collected)
+        self.plot(type='data_left', data=data_left)
+        self.plot(type='data_collect_rate', data=data_collect_rate)
 
         with open(self.output_dir + 'position_t.txt', 'w') as f:
             timestamp = 0
@@ -78,20 +82,25 @@ class Info():
                 timestamp += 1
 
     def plot(self, type, data):
-        self.mkdir(type)
+        # self.mkdir(type)
         t = [i+1 for i in range(self.timestamp)]
+        plt.figure()
         for i in range(self.num_turrent):
-            self.num_plots += 1
-            plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
+            # self.num_plots += 1
+            # plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
+            plt.plot(t, data[i], label="turrent" + str(i))
 
-    def filename(self, type, turrent):
-        return self.output_dir + type + str(turrent) + '.png'
+        plt.savefig(self.filename(type=type))
+        plt.close()
 
-    def mkdir(self, path):
-        isExist = os.path.exists(self.output_dir + path)
+    def filename(self, type):
+        return self.output_dir + type + '.png'
+
+    def mkdir(self, dir):
+        isExist = os.path.exists(dir)
         if not isExist:
             # Create a new directory because it does not exist 
-            os.makedirs(self.output_dir + path)
+            os.makedirs(dir)
             # print("The new directory is created!")
 
     def reset(self):

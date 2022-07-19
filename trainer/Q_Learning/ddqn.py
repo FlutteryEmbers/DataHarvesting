@@ -1,3 +1,4 @@
+from operator import mod
 from turtle import done, position
 from unittest import result
 import torch
@@ -11,7 +12,7 @@ from utils.buffer import ReplayBuffer
 random.seed(10)
 
 BATCH_SIZE = 32
-LR = 0.0001
+LR = 0.00001
 EPSILON = 0.95
 GAMMA = 0.9
 TARGET_REPLACE_ITER = 100
@@ -83,13 +84,13 @@ class DDQN(object):
         loss.backward()                                                 
         self.optimizer.step()
     
-    def save_models(self, saveBest = True):
-        self.eval_net.save_checkpoint(saveBest=saveBest)
-        self.target_net.save_checkpoint(saveBest=saveBest)
+    def save_models(self, mode):
+        self.eval_net.save_checkpoint(mode=mode)
+        self.target_net.save_checkpoint(mode=mode)
 
-    def load_models(self, checkpoints):
-        self.eval_net.load_checkpoint(checkpoint=checkpoints)
-        self.target_net.load_checkpoint(checkpoint=checkpoints)
+    def load_models(self, checkpoints, mode):
+        self.eval_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
+        self.target_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
 
 
     def unpack_memory(self, name, batch_samples):

@@ -4,7 +4,7 @@ from .transmission_model import Phi_dif_transmitting_speed
 from .transmission_model_v1 import Phi_dif_Model
 from utils.buffer import Info
 from numpy import linalg as LNG
-from utils.utils import Timer
+from utils.tools import Timer
 
 timer = Timer()
 class Task():

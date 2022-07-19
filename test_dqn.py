@@ -1,6 +1,6 @@
 from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
 from environments import single_diescreteV1
-from utils.utils import plot_curve
+from utils.tools import plot_curve
                    
 
 n_games = 200
@@ -10,7 +10,7 @@ num_steps = []
 
 env = single_diescreteV1.Test_Environment
 ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-ddqn.load_models(checkpoints=None)
+ddqn.load_models(checkpoints=None, mode='DR')
 
 done = False
 s, current_position = env.reset()

@@ -14,9 +14,9 @@ class MLP(nn.Module):
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
         
-        self.fc1 = nn.Linear(inputs, 128)
-        self.fc2 = nn.Linear(128, 256)
-        self.output = nn.Linear(256, outputs)
+        self.fc1 = nn.Linear(inputs, 256)
+        self.fc2 = nn.Linear(256, 512)
+        self.output = nn.Linear(512, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
@@ -26,24 +26,33 @@ class MLP(nn.Module):
         x = F.relu(self.fc2(x))
         return self.output(x)
 
-    def save_checkpoint(self, saveBest = False):
-        print('... saving checkpoint ...')
+    def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
 
-        if saveBest:
+        if mode == 'Default':
+            print('... saving best model ...')
             checkpoint_file = self.checkpoint_file
+        elif mode == 'DR':
+            print('... saving DR model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
         else:
+            print('... saving model with ckpt ...')
             checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
 
         T.save(self.state_dict(), checkpoint_file)
 
-    def load_checkpoint(self, checkpoint=None):
-        if checkpoint == None:
-            checkpoint_file = self.checkpoint_file
+    def load_checkpoint(self, checkpoint=None, mode = 'Default'):
+        if mode == 'Default':
+            print('... loading Best model ...')
+            checkpoint_file = self.checkpoint_file 
+        elif mode == 'DR':
+            print('... loading DR model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
         else:
+            print('... saving model with ckpt ...')
             checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
-        print('... loading checkpoint ...')
         self.load_state_dict(T.load(checkpoint_file))
+
 
 class CNN(nn.Module):
     def __init__(self, h, w, outputs, name, chkpt_dir='model/q_networks'):

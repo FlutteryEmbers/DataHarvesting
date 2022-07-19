@@ -10,11 +10,12 @@ def plot_learning_curve(x, scores, figure_file):
     plt.title('Running average of previous 100 scores')
     plt.savefig(figure_file)
 
-def plot_curve(x, y, figure_file, n):
-    plt.figure(n)
+def plot_curve(x, y, figure_file):
+    plt.figure()
     plt.plot(x, y)
     # plt.title('Running average of previous 100 scores')
     plt.savefig(figure_file)
+    plt.close()
 
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""
