@@ -85,8 +85,8 @@ class DDQN(object):
         self.target_net.save_checkpoint(mode=mode)
 
     def load_models(self, mode, checkpoints = None):
-        self.eval_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
-        self.target_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
+        self.eval_net.load_checkpoint(mode=mode)
+        self.target_net.load_checkpoint(mode=mode)
 
 
     def unpack_memory(self, name, batch_samples):

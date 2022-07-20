@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from .tools import plot_curve
+from utils import tools
 import matplotlib.pyplot as plt
 
 class ReplayBuffer():
@@ -63,7 +63,7 @@ class Info():
 
     def save(self, sub_dir = ''):
         self.output_dir = self.output_dir + sub_dir
-        self.mkdir(self.output_dir)
+        tools.mkdir(self.output_dir)
 
         data_collected = np.array(self.data_collected_t).T.tolist()
         data_left = np.array(self.data_left_t).T.tolist()
@@ -96,13 +96,6 @@ class Info():
 
     def filename(self, type):
         return self.output_dir + type + '.png'
-
-    def mkdir(self, dir):
-        isExist = os.path.exists(dir)
-        if not isExist:
-            # Create a new directory because it does not exist 
-            os.makedirs(dir)
-            # print("The new directory is created!")
 
     def reset(self):
         self.position_t = []

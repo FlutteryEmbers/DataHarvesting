@@ -13,9 +13,9 @@ class DDQN_GameAgent():
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        # ddqn = DDQN_CNN(env=env)
-        # env.mode = 1
+        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        env.mode = 'CNN'
+        ddqn = DDQN_CNN(env=env)
 
         ddqn.load_models(mode=mode)
         done = False
@@ -47,9 +47,9 @@ class DDQN_GameAgent():
         else:
             sys.exit("need to set mode")
 
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        # ddqn = DDQN_CNN(env=env)
-        # env.mode = 1
+        #  ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        env.mode = 'CNN'
+        ddqn = DDQN_CNN(env=env)
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)
@@ -80,7 +80,7 @@ class DDQN_GameAgent():
             if mode == 'DR':
                 ddqn.save_models(mode=mode)
             elif mode == 'Default':
-                if env.num_steps < best_num_steps:
+                if env.num_steps < best_num_steps and n_games - i < 100:
                     best_num_steps = env.num_steps
                     ddqn.save_models(mode=mode)
             self.episode_rewards.append(round(episode_reward_sum, 2))
@@ -89,4 +89,7 @@ class DDQN_GameAgent():
         x = [i+1 for i in range(n_games)]
         tools.plot_curve(x, self.episode_rewards, 'results/' + mode + '/rewards.png')
         tools.plot_curve(x, self.num_steps, 'results/' + mode + '/step.png')
+
+    def fine_tuning(self, n_game):
+        pass
         

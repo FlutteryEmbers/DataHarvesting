@@ -9,7 +9,7 @@ from utils.tools import Timer
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, env, mode = 0):
+    def __init__(self, env, mode = 'Default'):
         # self.reward_func = self.test_reward_function
         self.mode = mode
         self.status_tracker = env
@@ -26,7 +26,7 @@ class Agent():
         self.status_tracker.reset()
         self.running_info.reset()
 
-        s = self.status_tracker.get_state() if self.mode == 0 else self.status_tracker.get_visual_state()
+        s = self.status_tracker.get_state(mode = self.mode)
         return s, self.status_tracker.current_position
     
     def step(self, action_index):
@@ -50,14 +50,14 @@ class Agent():
                                     data_collected_t=data_volume_collected, 
                                     data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 
-        # NOTE: 判断是否到达终点
         reward = self.status_tracker.get_reward()
-        reward -= 1 # 每步减少reward 1
+        reward -= self.num_steps * 0.01 # 每步减少reward 1
 
+        # NOTE: 判断是否到达终点
         if self.status_tracker.is_done():
             reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
 
-        s = self.status_tracker.get_state() if self.mode == 0 else self.status_tracker.get_visual_state()
+        s = self.status_tracker.get_state(mode = self.mode)
         return s, reward, self.status_tracker.is_done(), self.status_tracker.current_position
 
     def view(self):

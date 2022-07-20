@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import os
 
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
@@ -16,6 +17,13 @@ def plot_curve(x, y, figure_file):
     # plt.title('Running average of previous 100 scores')
     plt.savefig(figure_file)
     plt.close()
+
+def mkdir(dir):
+        isExist = os.path.exists(dir)
+        if not isExist:
+            # Create a new directory because it does not exist 
+            os.makedirs(dir)
+            # print("The new directory is created!")
 
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""

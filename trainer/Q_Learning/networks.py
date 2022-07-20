@@ -21,7 +21,6 @@ class MLP(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        # x = x.to(device)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.output(x)
@@ -35,13 +34,16 @@ class MLP(nn.Module):
         elif mode == 'DR':
             print('... saving DR model ...')
             checkpoint_file = self.checkpoint_file + '_' + mode
-        else:
+        elif mode == 'Checkpoints':
             print('... saving model with ckpt ...')
             checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+        else:
+            print('... saving {mode} model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
 
         T.save(self.state_dict(), checkpoint_file)
 
-    def load_checkpoint(self, checkpoint=None, mode = 'Default'):
+    def load_checkpoint(self, mode = 'Default'):
         if mode == 'Default':
             print('... loading Best model ...')
             checkpoint_file = self.checkpoint_file 
@@ -49,8 +51,9 @@ class MLP(nn.Module):
             print('... loading DR model ...')
             checkpoint_file = self.checkpoint_file + '_' + mode
         else:
-            print('... saving model with ckpt ...')
-            checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
+            print('... loading {mode} model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
+            
         self.load_state_dict(T.load(checkpoint_file))
 
 
@@ -111,13 +114,16 @@ class CNN(nn.Module):
         elif mode == 'DR':
             print('... saving DR model ...')
             checkpoint_file = self.checkpoint_file + '_' + mode
-        else:
+        elif mode == 'Checkpoints':
             print('... saving model with ckpt ...')
             checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
+        else:
+            print('... saving {mode} model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
 
         T.save(self.state_dict(), checkpoint_file)
 
-    def load_checkpoint(self, checkpoint=None, mode = 'Default'):
+    def load_checkpoint(self, mode = 'Default'):
         if mode == 'Default':
             print('... loading Best model ...')
             checkpoint_file = self.checkpoint_file 
@@ -125,6 +131,7 @@ class CNN(nn.Module):
             print('... loading DR model ...')
             checkpoint_file = self.checkpoint_file + '_' + mode
         else:
-            print('... saving model with ckpt ...')
-            checkpoint_file = self.checkpoint_file + '_' + str(checkpoint)
+            print('... loading {mode} model ...')
+            checkpoint_file = self.checkpoint_file + '_' + mode
+
         self.load_state_dict(T.load(checkpoint_file))

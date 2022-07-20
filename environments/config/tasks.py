@@ -20,8 +20,14 @@ class Status_Tracker(object):
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
 
+    def get_state(self, mode='Default'):
+        if mode == 'CNN':
+            return self.get_visual_state()
+
+        return self.get_linear_state()
+
     ## Important    
-    def get_state(self):
+    def get_linear_state(self):
         current_position = np.array(self.current_position)
         tower_location = np.array(self.tower_location)
         dv_collected = np.array(self.dv_collected)
@@ -53,7 +59,7 @@ class Status_Tracker(object):
     def get_reward(self):
         dv_transmisttion_rate = np.array(self.dv_transmittion_rate)
         dv_required = np.array(self.dv_required)
-        transmission_reward = 1*np.max(dv_transmisttion_rate/dv_required)
+        transmission_reward = 10*np.sum(dv_transmisttion_rate/dv_required)
         return transmission_reward
 
     def update_dv_info(self, dv_left, dv_collected, dv_transmittion_rate):
