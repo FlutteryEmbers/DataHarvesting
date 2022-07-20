@@ -1,5 +1,6 @@
 from environments.instances.single_diescreteV1 import DR_Environment, Test_Environment
 from trainer.Q_Learning.ddqn import DDQN
+from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
 import sys
 
@@ -12,7 +13,10 @@ class DDQN_GameAgent():
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        ddqn = DDQN_CNN(env=env)
+        env.mode = 1
+
         ddqn.load_models(mode=mode)
         done = False
         s, current_position = env.reset()
@@ -43,7 +47,9 @@ class DDQN_GameAgent():
         else:
             sys.exit("need to set mode")
 
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        ddqn = DDQN_CNN(env=env)
+        env.mode = 1
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)
