@@ -13,9 +13,9 @@ class DDQN_GameAgent():
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        ddqn = DDQN_CNN(env=env)
-        env.mode = 1
+        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # ddqn = DDQN_CNN(env=env)
+        # env.mode = 1
 
         ddqn.load_models(mode=mode)
         done = False
@@ -47,9 +47,9 @@ class DDQN_GameAgent():
         else:
             sys.exit("need to set mode")
 
-        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        ddqn = DDQN_CNN(env=env)
-        env.mode = 1
+        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # ddqn = DDQN_CNN(env=env)
+        # env.mode = 1
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)

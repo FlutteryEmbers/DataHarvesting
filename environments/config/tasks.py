@@ -53,7 +53,7 @@ class Status_Tracker(object):
     def get_reward(self):
         dv_transmisttion_rate = np.array(self.dv_transmittion_rate)
         dv_required = np.array(self.dv_required)
-        transmission_reward = 0.5*np.sum(dv_transmisttion_rate/dv_required)
+        transmission_reward = 1*np.max(dv_transmisttion_rate/dv_required)
         return transmission_reward
 
     def update_dv_info(self, dv_left, dv_collected, dv_transmittion_rate):
