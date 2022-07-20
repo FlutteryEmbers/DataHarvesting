@@ -1,4 +1,5 @@
-from environments.instances.single_diescreteV1 import DR_Environment, Test_Environment
+from environments.instances.determistic import Test_Environment
+from environments.instances.randomized import DR_Environment
 from trainer.Q_Learning.ddqn import DDQN
 from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
@@ -13,9 +14,9 @@ class DDQN_GameAgent():
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        # ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        env.mode = 'CNN'
-        ddqn = DDQN_CNN(env=env)
+        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # env.mode = 'CNN'
+        # ddqn = DDQN_CNN(env=env)
 
         ddqn.load_models(mode=mode)
         done = False
@@ -43,13 +44,14 @@ class DDQN_GameAgent():
         if mode == 'Default':
             env = Test_Environment
         elif mode == 'DR':
+            print('xxxx')
             env = DR_Environment
         else:
             sys.exit("need to set mode")
 
-        #  ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
-        env.mode = 'CNN'
-        ddqn = DDQN_CNN(env=env)
+        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        # env.mode = 'CNN'
+        # ddqn = DDQN_CNN(env=env)
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)

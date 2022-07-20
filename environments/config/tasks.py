@@ -34,8 +34,8 @@ class Status_Tracker(object):
         dv_required = np.array(self.dv_required)
 
         dv_collected_ratio = dv_collected/dv_required
-        state = np.concatenate((current_position, dv_collected_ratio, tower_location), axis=None)
-        # state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
+        # state = np.concatenate((current_position, dv_collected_ratio, tower_location), axis=None)
+        state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
         return state.tolist()
 
     def get_visual_state(self):
@@ -91,6 +91,7 @@ class Random_Task(Status_Tracker):
         self.arrival_at = arrival_at
         self.current_position = self.start_at
         self.random_init_state()
+        # print('xxxx')
         
 
     def random_init_state(self):
@@ -102,16 +103,14 @@ class Random_Task(Status_Tracker):
         rand.shuffle(y_coordinates)
 
         tower_location = []
-        dv_require = [30]*self.num_tower
+        dv_required = [30]*self.num_tower
         for i in range(self.num_tower):
             tower_location.append([x_coordinates[i], y_coordinates[i]])
-            # dv_require[i] = rand.randint(30, 30)
+            dv_required[i] = 30 + rand.randint(0, 30)*10
         
         self.tower_location = tower_location
         self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location)
-        self.dv_required = dv_require
-
-        print('tower_locations = ', tower_location, 'dv_require = ', dv_require)
+        self.dv_required = dv_required
         # print(dv_require)
         # print(self.num_tower)
         self.dv_left = self.dv_required
@@ -121,6 +120,7 @@ class Random_Task(Status_Tracker):
     def reset(self):
         self.current_position = self.start_at
         self.random_init_state()
+        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
 
 class Single_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit, tower_location) -> None:
@@ -139,9 +139,11 @@ class Single_Task(Status_Tracker):
         self.dv_left = self.dv_required
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
+        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
 
     def reset(self):
         self.current_position = self.start_at
         self.dv_left = self.dv_required
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
+        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
