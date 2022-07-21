@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import os
+import torch
+import random
 
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
@@ -24,6 +26,12 @@ def mkdir(dir):
             # Create a new directory because it does not exist 
             os.makedirs(dir)
             # print("The new directory is created!")
+def setup_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""

@@ -31,9 +31,9 @@ class DDQN_CNN(object):
         self.loss_func = nn.MSELoss()
         self.env = env
 
-    def choose_action(self, state, position, disable_exploration=False):
+    def choose_action(self, state, disable_exploration=False):
         self.eval_net.eval()
-        state = torch.FloatTensor(np.array(state)).to(device)
+        state = torch.tensor(state).to(device)
         state = torch.unsqueeze(state, dim=0)
         '''
         global EPSILON
@@ -95,9 +95,9 @@ class DDQN_CNN(object):
         self.eval_net.save_checkpoint(mode=mode)
         self.target_net.save_checkpoint(mode=mode)
 
-    def load_models(self, mode, checkpoints = None):
-        self.eval_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
-        self.target_net.load_checkpoint(checkpoint=checkpoints, mode=mode)
+    def load_models(self, mode):
+        self.eval_net.load_checkpoint(mode=mode)
+        self.target_net.load_checkpoint(mode=mode)
 
 
     def unpack_memory(self, name, batch_samples):

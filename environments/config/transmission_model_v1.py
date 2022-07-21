@@ -5,9 +5,9 @@ import yaml
 
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
-        with open("config_trans_model.yaml", 'r') as stream:
+        with open("configs/config_trans_model.yaml", 'r') as stream:
             Config = yaml.safe_load(stream)
-        print(Config)
+        # print(Config)
         if Config == None:
             sys.exit('Trans_model initial not correctly')
 

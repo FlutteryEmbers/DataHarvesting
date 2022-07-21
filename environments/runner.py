@@ -21,12 +21,12 @@ class DDQN_GameAgent():
 
         ddqn.load_models(mode=mode)
         done = False
-        s, current_position = env.reset()
+        s, _ = env.reset()
         episode_reward_sum = 0
 
         while not done:
-            a = ddqn.choose_action(s, current_position, disable_exploration=True)
-            s_, r, done, current_position = env.step(a)
+            a = ddqn.choose_action(s, disable_exploration=True)
+            s_, r, done, _ = env.step(a)
 
             ddqn.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
@@ -55,14 +55,14 @@ class DDQN_GameAgent():
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)
-            s, current_position = env.reset()
+            s, _ = env.reset()
             episode_reward_sum = 0
 
             self.timer.start()
             while True:
                 # env.render()
-                a = ddqn.choose_action(s, current_position)
-                s_, r, done, current_position = env.step(a)
+                a = ddqn.choose_action(s)
+                s_, r, done, _ = env.step(a)
 
                 ddqn.store_transition(s, a, r, s_, done)
                 episode_reward_sum += r

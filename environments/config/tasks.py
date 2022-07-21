@@ -51,8 +51,9 @@ class Status_Tracker(object):
             x, y = self.tower_location[i]
             board[x, y] = dv_collected_ratio[i]
 
-        board.flatten()
-        state = np.concatenate((board, current_position), axis=None)
+        board = board.flatten()
+        state = np.concatenate((board, current_position), axis=0)
+        # state = state
         return state.tolist()
 
     ## Important
