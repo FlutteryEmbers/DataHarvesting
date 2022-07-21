@@ -106,7 +106,7 @@ class Random_Task(Status_Tracker):
         dv_required = [30]*self.num_tower
         for i in range(self.num_tower):
             tower_location.append([x_coordinates[i], y_coordinates[i]])
-            dv_required[i] = 30 + rand.randint(0, 30)*10
+            dv_required[i] = 20 + rand.randint(0, 16)*5
         
         self.tower_location = tower_location
         self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location)

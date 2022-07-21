@@ -79,12 +79,13 @@ class DDQN_GameAgent():
                 
             self.num_steps.append(env.num_steps)
 
-            if mode == 'DR':
-                ddqn.save_models(mode=mode)
-            elif mode == 'Default':
-                if env.num_steps < best_num_steps and n_games - i < 100:
-                    best_num_steps = env.num_steps
+            if  n_games - i < 100:
+                if mode == 'DR':
                     ddqn.save_models(mode=mode)
+                elif mode == 'Default':
+                    if env.num_steps < best_num_steps:
+                        best_num_steps = env.num_steps
+                        ddqn.save_models(mode=mode)
             self.episode_rewards.append(round(episode_reward_sum, 2))
             self.timer.stop()
 
