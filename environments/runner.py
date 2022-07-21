@@ -6,15 +6,16 @@ from utils import tools
 import sys
 
 class DDQN_GameAgent():
-    def __init__(self, mode = 'Default') -> None:
+    def __init__(self, config, mode = 'Default') -> None:
         # self.n_games = n_games
         # self.mode = mode
+        self.config = config
         self.timer = tools.Timer()
         self.episode_rewards = []
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK']['MLP'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
 
@@ -44,12 +45,11 @@ class DDQN_GameAgent():
         if mode == 'Default':
             env = Test_Environment
         elif mode == 'DR':
-            print('xxxx')
             env = DR_Environment
         else:
             sys.exit("need to set mode")
 
-        ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
+        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK']['MLP'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
 

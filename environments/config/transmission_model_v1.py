@@ -1,15 +1,22 @@
 import numpy as np
 import math
 import sys
+import yaml
 
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
-        self.time_ratio = time_ratio
-        self.B = B
-        self.height = height
-        self.K = K
-        self.N = N
-        self.Phi_list = Phi_list
+        with open("config_trans_model.yaml", 'r') as stream:
+            Config = yaml.safe_load(stream)
+        print(Config)
+        if Config == None:
+            sys.exit('Trans_model initial not correctly')
+
+        self.time_ratio = Config['TIME_RATIO']
+        self.B = Config['B']
+        self.height = Config['HEIGHT']
+        self.K = Config['K']
+        self.N = Config['N']
+        self.Phi_list = np.array(Config['PHI_LIST'])
 
         self.x_limit = x_limit
         self.y_limit = y_limit

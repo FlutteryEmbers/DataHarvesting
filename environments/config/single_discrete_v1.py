@@ -1,7 +1,5 @@
 import numpy as np
 import random
-# from .transmission_model import Phi_dif_transmitting_speed
-from .transmission_model_v1 import Phi_dif_Model
 from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
@@ -76,4 +74,4 @@ class Actions():
         return self.actions
 
     def sample(self):
-        return random.randint(0, len(self.actions)-1)
+        return np.random.randint(0, len(self.actions)-1)

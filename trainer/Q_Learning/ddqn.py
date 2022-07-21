@@ -2,34 +2,36 @@ import torch
 import torch.nn as nn
 import numpy as np
 from .networks import MLP
-import random
 from utils.buffer import ReplayBuffer
 
-random.seed(10)
-
-BATCH_SIZE = 32
-LR = 0.0001
-EPSILON = 0.95
-GAMMA = 0.95
-TARGET_REPLACE_ITER = 100
-MEMORY_CAPACITY = 2000
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DDQN(object):
-    def __init__(self, inputs, outputs, env, eval_name = 'ddqn_eval', target_name = 'ddqn_target') -> None:
+    def __init__(self, env, config, network_config, eval_name = 'ddqn_eval', target_name = 'ddqn_target') -> None:
+        self.batch_size = config['BATCH_SIZE']
+        self.lr = config['LR']
+        self.epsilon = config['EPSILON']
+        self.gamma = config['GAMMA']
+        self.target_replace_iter = config['TARGET_REPLACE_ITER']
+        self.memory_capaciy = config['MEMORY_CAPACITY']
+
         self.eval_name = eval_name
         self.target_name = target_name
 
-        self.eval_net, self.target_net = MLP(inputs, outputs, self.eval_name).to(device=device), MLP(inputs, outputs, self.target_name).to(device=device)
-        # self.eval_net, self.target_net = CNN(h, w, outputs).to(device=device), CNN(h, w, outputs).to(device=device)
+        self.inputs= len(env.status_tracker.get_state())
+        self.outputs=env.action_space.n
+
+        self.eval_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.eval_name, fc_dim1=network_config['FC1'], fc_dim2=network_config['FC2']).to(device=device)
+        self.target_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.target_name, fc_dim1=network_config['FC1'], fc_dim2=network_config['FC2']).to(device=device)
+
         self.learn_step_counter = 0
         self.memory_counter = 0
-        self.memory = ReplayBuffer(max_size=MEMORY_CAPACITY, input_shape=inputs, n_actions=1)
-        self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=LR)
+        self.memory = ReplayBuffer(max_size=self.memory_capaciy, input_shape=self.inputs, n_actions=1)
+        self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=self.lr)
         self.loss_func = nn.MSELoss()
         self.env = env
 
-    def choose_action(self, state, position, disable_exploration=False):
+    def choose_action(self, state, disable_exploration=False):
         state = torch.FloatTensor(np.array(state)).to(device)
         state = torch.unsqueeze(state, dim=0)
         '''
@@ -38,7 +40,7 @@ class DDQN(object):
             EPSILON = EPSILON * 0.99
             print('EPSILON = ', EPSILON)
         '''
-        if np.random.uniform() > EPSILON and not disable_exploration:
+        if np.random.uniform() > self.epsilon and not disable_exploration:
            action = self.env.action_space.sample()
         else:
             q_value = self.eval_net(state)
@@ -52,11 +54,11 @@ class DDQN(object):
         self.memory_counter += 1
 
     def learn(self):
-        if self.learn_step_counter % TARGET_REPLACE_ITER == 0:
+        if self.learn_step_counter % self.target_replace_iter == 0:
             self.target_net.load_state_dict(self.eval_net.state_dict())
         self.learn_step_counter += 1
 
-        state, action, reward, new_state, done = self.memory.sample_buffer(BATCH_SIZE)
+        state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
         b_s = torch.tensor(state, dtype=torch.float).to(device=device)
         b_a = torch.tensor(action, dtype=torch.long).to(device=device)
         b_r = torch.tensor(reward, dtype=torch.float).to(device=device)
@@ -71,7 +73,7 @@ class DDQN(object):
         q_target_values = self.target_net(b_s_).detach()
         q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
         q_target_s_a_prime = q_target_s_a_prime.squeeze()
-        q_target = b_r.reshape(BATCH_SIZE, 1) + GAMMA * q_target_s_a_prime.view(BATCH_SIZE, 1) * (1 - is_done.reshape(BATCH_SIZE, 1))
+        q_target = b_r.reshape(self.batch_size, 1) + self.gamma * q_target_s_a_prime.view(self.batch_size, 1) * (1 - is_done.reshape(self.batch_size, 1))
 
         loss = self.loss_func(q_eval, q_target)
 
@@ -91,6 +93,6 @@ class DDQN(object):
 
     def unpack_memory(self, name, batch_samples):
         result = []
-        for i in range(BATCH_SIZE):
+        for i in range(self.batch_size):
             result.append([i, batch_samples[i][name]])
         return result

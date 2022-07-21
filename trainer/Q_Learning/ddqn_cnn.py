@@ -2,10 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from .networks import CNN
-import random
 from utils.buffer import ReplayBuffer
-
-random.seed(10)
 
 BATCH_SIZE = 32
 LR = 0.0001

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 
 class MLP(nn.Module):
-    def __init__(self, inputs, outputs, name, chkpt_dir='model/q_networks'):
+    def __init__(self, inputs, outputs, name, fc_dim1=256, fc_dim2=256, chkpt_dir='model/q_networks'):
         super(MLP, self).__init__()
         self.inputs = inputs
         self.outputs = outputs
@@ -14,9 +14,9 @@ class MLP(nn.Module):
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
         
-        self.fc1 = nn.Linear(inputs, 256)
-        self.fc2 = nn.Linear(256, 256)
-        self.output = nn.Linear(256, outputs)
+        self.fc1 = nn.Linear(inputs, fc_dim1)
+        self.fc2 = nn.Linear(fc_dim1, fc_dim2)
+        self.output = nn.Linear(fc_dim2, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
