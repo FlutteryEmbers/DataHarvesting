@@ -1,3 +1,10 @@
 # RLDataHarvesting
-RL approach to Data Harvesting
-- Implemented: Discrete Position; Single Agent
+
+Data Harvesting Path Planning Using a Reinforcement Learning Approach
+
+Environment:
+- Implemented: Discrete Action; Single Agent
+
+Trainning Algorithm:
+- DDQN
+- PPO Algorithm: Modified from https://github.com/Lizhi-sjtu/DRL-code-pytorch
