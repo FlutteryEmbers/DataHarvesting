@@ -7,6 +7,7 @@ from trainer.PPO.normalization import Normalization, RewardScaling
 from trainer.PPO.replaybuffer import ReplayBuffer
 from trainer.PPO.ppo_continuous import PPO_continuous
 from environments.instances.determistic import Test_Environment_Continuous, Test_Environment_eval_Continuous
+from utils import tools
 
 class PPO_GameAgent():
     def __init__(self, args) -> None:
@@ -36,7 +37,8 @@ class PPO_GameAgent():
                 episode_reward += r
                 s = s_
             evaluate_reward += episode_reward
-            env.view()
+            stats = env.view()
+            stats.save('Default/')
         return evaluate_reward / times
 
 
@@ -146,6 +148,10 @@ class PPO_GameAgent():
                     if evaluate_num % args.save_freq == 0:
                         np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
                     '''
+        env_type = 'Default'
+        x = [i+1 for i in range(len(evaluate_rewards))]
+        tools.plot_curve(x, evaluate_rewards, 'results/' + env_type + '/rewards.png')
+        # tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
 
 
     

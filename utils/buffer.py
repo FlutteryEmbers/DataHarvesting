@@ -62,42 +62,40 @@ class Info():
         self.data_collect_rate_t.append(data_collect_rate_t)
 
     def save(self, sub_dir = ''):
-        self.output_dir = self.output_dir + sub_dir
-        tools.mkdir(self.output_dir)
+        output_dir = self.output_dir + sub_dir
+        # tools.mkdir(self.output_dir)
 
         data_collected = np.array(self.data_collected_t).T.tolist()
         data_left = np.array(self.data_left_t).T.tolist()
         data_collect_rate = np.array(self.data_collect_rate_t).T.tolist()
 
         # print(len(data_collected))
-        self.plot(type='data_collected', data=data_collected)
-        self.plot(type='data_left', data=data_left)
-        self.plot(type='data_collect_rate', data=data_collect_rate)
+        self.plot(filename='{}/data_collected'.format(output_dir), data=data_collected)
+        self.plot(filename='{}/data_left'.format(output_dir), data=data_left)
+        self.plot(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
 
-        with open(self.output_dir + 'position_t.txt', 'w') as f:
+        with open(output_dir + 'position_t.txt', 'w') as f:
             timestamp = 0
             for line in self.position_t:
                 f.write(str(timestamp) + ' ' + str(line[0]) + '  ' + str(line[1]))
                 f.write('\n')
                 timestamp += 1
 
-    def plot(self, type, data):
+    def plot(self, filename, data):
         # self.mkdir(type)
         t = [i+1 for i in range(self.timestamp)]
         plt.figure()
         for i in range(self.num_turrent):
             # self.num_plots += 1
             # plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
-            plt.plot(t, data[i], label="turrent" + str(i))
+            plt.plot(t, data[i], label="turrent {}".format(i))
 
         plt.legend(loc='upper left')
-        plt.savefig(self.filename(type=type))
+        plt.savefig('{}.png'.format(filename))
         plt.close()
 
-    def filename(self, type):
-        return self.output_dir + type + '.png'
-
     def reset(self):
+        self.timestamp = 0
         self.position_t = []
         self.action_t = []
         self.data_collected_t = []
