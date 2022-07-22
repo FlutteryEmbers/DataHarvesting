@@ -33,7 +33,8 @@ class Agent():
         self.running_info.reset()
 
         s = self.status_tracker.get_state(mode = self.state_mode)
-        return s, self.status_tracker.current_position
+        # return s, self.status_tracker.current_position
+        return s
     
     def step(self, action):
         if self.action_type == 'Discrete':

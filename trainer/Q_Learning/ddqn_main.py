@@ -9,10 +9,7 @@ class DDQN_GameAgent():
     def __init__(self, config, network = 'Default') -> None:
         self.config = config
         self.network = network
-
         self.timer = tools.Timer()
-        self.episode_rewards = []
-        self.num_steps = []
 
     def evaluate(self, env_type, env = Test_Environment):
         env.state_mode = self.network
@@ -22,7 +19,7 @@ class DDQN_GameAgent():
 
         ddqn.load_models(mode=env_type)
         done = False
-        s, _ = env.reset()
+        s = env.reset()
         episode_reward_sum = 0
 
         while not done:
@@ -41,7 +38,9 @@ class DDQN_GameAgent():
         print('training in mode: ' + env_type)
         best_num_steps = float('inf')
         best_rewards = 0
-        
+        episode_rewards = []
+        num_steps = []
+
         env = None
         if env_type == 'Default':
             env = Test_Environment
@@ -57,7 +56,7 @@ class DDQN_GameAgent():
 
         for i in range(n_games):
             print('<<<<<<<<<Episode: %s' % i)
-            s, _ = env.reset()
+            s = env.reset()
             episode_reward_sum = 0
 
             self.timer.start()
@@ -78,9 +77,10 @@ class DDQN_GameAgent():
                     print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
                     env.view()
                     break
-                
-            self.num_steps.append(env.num_steps)
 
+            episode_rewards.append(round(episode_reward_sum, 2))
+            num_steps.append(env.num_steps)
+            
             if  n_games - i < 100:
                 if env_type == 'DR':
                     ddqn.save_models(mode=env_type)
@@ -88,12 +88,12 @@ class DDQN_GameAgent():
                     if env.num_steps < best_num_steps:
                         best_num_steps = env.num_steps
                         ddqn.save_models(mode=env_type)
-            self.episode_rewards.append(round(episode_reward_sum, 2))
+            
             self.timer.stop()
 
         x = [i+1 for i in range(n_games)]
-        tools.plot_curve(x, self.episode_rewards, 'results/' + env_type + '/rewards.png')
-        tools.plot_curve(x, self.num_steps, 'results/' + env_type + '/step.png')
+        tools.plot_curve(x, episode_rewards, 'results/' + env_type + '/rewards.png')
+        tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
 
     def fine_tuning(self, n_game):
         pass

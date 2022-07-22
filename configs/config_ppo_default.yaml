@@ -7,7 +7,7 @@ save_freq: 20 ## Save frequency
 policy_dist: Gaussian ## Beta or Gaussian
 batch_size: 2048 ## Batch size
 mini_batch_size: 64 ## Minibatch size
-hidden_weidth: 64 ## The number of neurons in hidden layers of the neural network
+hidden_width: 64 ## The number of neurons in hidden layers of the neural network
 lr_a: 3e-4 ## Learning rate of actor
 lr_c: 3e-4 ## Learning rate of critic
 gamma: 0.99 ## Discount factor

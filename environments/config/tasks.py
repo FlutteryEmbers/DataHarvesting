@@ -121,7 +121,7 @@ class Random_Task(Status_Tracker):
     def reset(self):
         self.current_position = self.start_at
         self.random_init_state()
-        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
+        # print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
 
 class Single_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit, tower_location) -> None:
@@ -147,4 +147,4 @@ class Single_Task(Status_Tracker):
         self.dv_left = self.dv_required
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
-        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
+        # print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)

@@ -1,5 +1,5 @@
 from trainer.Q_Learning.ddqn_main import DDQN_GameAgent
-# from trainer.PPO.PPO_continuous_main import PPO_GameAgent
+from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from utils import tools
 
 def init_working_dir():
@@ -14,7 +14,7 @@ def ddqn():
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
     agent = DDQN_GameAgent(config=config, network='MLP')
-    
+
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
@@ -29,12 +29,13 @@ def ppo():
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
     # print(args.random_seed)
-    PPO_GameAgent()
+    agent = PPO_GameAgent(args = args)
+    agent.train()
 
 if __name__ == '__main__':
     init_working_dir()
-    ddqn()
-    # ppo()
+    # ddqn()
+    ppo()
 
     
    

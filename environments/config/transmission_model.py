@@ -41,8 +41,8 @@ class Phi_dif_Model():
     
     def init_signal_map(self):
         signal_map = {}
-        x_position = np.arange(0, self.x_limit, self.precision, dtype=float)
-        y_position = np.arange(0, self.y_limit, self.precision, dtype=float)
+        x_position = np.arange(0, self.x_limit+1, self.precision, dtype=float)
+        y_position = np.arange(0, self.y_limit+1, self.precision, dtype=float)
 
         for x in x_position:
             for y in y_position:
