@@ -16,4 +16,5 @@ class Discrete():
 
 class Continuous():
     def __init__(self) -> None:
-        pass
+        self.action_dim = 2
+        self.max_action = 1

@@ -57,6 +57,11 @@ def load_config(file):
         
     return config
 
+class dict2class(object):
+    def __init__(self, my_dict):
+        for key in my_dict:
+            setattr(self, key, my_dict[key])
+
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""
 

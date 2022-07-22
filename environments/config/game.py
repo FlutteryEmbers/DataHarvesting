@@ -10,6 +10,7 @@ timer = Timer()
 class Agent():
     def __init__(self, env, mode = 'Default'):
         # self.reward_func = self.test_reward_function
+        self._max_episode_steps = 10000
         self.mode = mode
         self.status_tracker = env
         self.action_space = actions.Discrete()

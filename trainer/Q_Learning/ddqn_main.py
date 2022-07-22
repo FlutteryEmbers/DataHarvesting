@@ -14,7 +14,7 @@ class DDQN_GameAgent():
         self.episode_rewards = []
         self.num_steps = []
 
-    def run(self, mode, env = Test_Environment):
+    def evaluate(self, mode, env = Test_Environment):
         env.mode = self.network
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
