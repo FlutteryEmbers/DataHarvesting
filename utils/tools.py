@@ -6,6 +6,7 @@ import torch
 import random
 import yaml
 import sys
+import re
 
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
@@ -37,8 +38,19 @@ def setup_seed(seed):
 
 def load_config(file):
     print('loading {}'.format(file))
+    loader = yaml.SafeLoader
+    loader.add_implicit_resolver(
+        u'tag:yaml.org,2002:float',
+        re.compile(u'''^(?:
+        [-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+]?[0-9]+)?
+        |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
+        |\\.[0-9_]+(?:[eE][-+][0-9]+)?
+        |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*
+        |[-+]?\\.(?:inf|Inf|INF)
+        |\\.(?:nan|NaN|NAN))$''', re.X),
+        list(u'-+0123456789.'))
     with open(file, 'r') as stream:
-        config = yaml.safe_load(stream)
+        config = yaml.load(stream, Loader=loader)
 
     if config == None:
         sys.exit('{} did not loaded correctly'.format(file))
