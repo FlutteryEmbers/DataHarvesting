@@ -4,6 +4,8 @@ import time
 import os
 import torch
 import random
+import yaml
+import sys
 
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
@@ -32,6 +34,16 @@ def setup_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
+
+def load_config(file):
+    print('loading {}'.format(file))
+    with open(file, 'r') as stream:
+        config = yaml.safe_load(stream)
+
+    if config == None:
+        sys.exit('{} did not loaded correctly'.format(file))
+        
+    return config
 
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""

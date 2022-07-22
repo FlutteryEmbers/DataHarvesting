@@ -3,6 +3,7 @@ import random
 from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
+from environments.config import actions
 
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
@@ -11,7 +12,7 @@ class Agent():
         # self.reward_func = self.test_reward_function
         self.mode = mode
         self.status_tracker = env
-        self.action_space = Actions()
+        self.action_space = actions.Discrete()
         self.running_info = Info(board_structure=self.status_tracker, num_turrent=self.status_tracker.num_tower)
         
         self.reward = 0
@@ -61,17 +62,3 @@ class Agent():
     def view(self):
         print('data left = ', np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), 'steps taken = ', self.num_steps)
         return self.running_info
-
-class Actions():
-    def __init__(self):
-        self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
-        self.n = len(self.actions)
-
-    def get_indexed_action(self, n):
-        return self.actions[n]
-
-    def get_actions(self):
-        return self.actions
-
-    def sample(self):
-        return np.random.randint(0, len(self.actions)-1)

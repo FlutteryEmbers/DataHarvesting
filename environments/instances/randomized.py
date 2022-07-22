@@ -1,4 +1,4 @@
-from environments.config.single_discrete_v1 import Agent
+from environments.config.game import Agent
 from environments.config.tasks import Random_Task
 
 task2 = Random_Task(x_limit=10, y_limit=10)

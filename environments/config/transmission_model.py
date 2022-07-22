@@ -1,15 +1,12 @@
+from json import tool
 import numpy as np
 import math
 import sys
-import yaml
+from utils import tools
 
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
-        with open("configs/config_trans_model.yaml", 'r') as stream:
-            Config = yaml.safe_load(stream)
-        # print(Config)
-        if Config == None:
-            sys.exit('Trans_model initial not correctly')
+        Config = tools.load_config("configs/config_trans_model.yaml")
 
         self.time_ratio = Config['TIME_RATIO']
         self.B = Config['B']

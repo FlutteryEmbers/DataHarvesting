@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.random as rand
-from .transmission_model_v1 import Phi_dif_Model
+from .transmission_model import Phi_dif_Model
 
 class Status_Tracker(object):
     def __init__(self, x_limit, y_limit, tower_location) -> None:
