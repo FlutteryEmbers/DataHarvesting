@@ -1,4 +1,4 @@
-from environments.play_ddqn import DDQN_GameAgent
+from trainer.Q_Learning.ddqn_main import DDQN_GameAgent
 from utils import tools
 import numpy as np
 
@@ -12,8 +12,8 @@ tools.mkdir('results/Default')
 tools.mkdir('results/DR')
 
 agent = DDQN_GameAgent(config=config, network='Default')
-# agent.train(mode='Default', n_games=300)
-agent.run(mode='Default')
+agent.train(mode='Default', n_games=300)
+# agent.run(mode='Default')
 
 # agent.train(mode='DR', n_games=3000)
 # agent.run(mode='DR')
