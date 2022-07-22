@@ -123,7 +123,7 @@ def main(args, env_name, number, seed):
                 if evaluate_num % args.save_freq == 0:
                     np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
 
-
+'''
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
     parser.add_argument("--max_train_steps", type=int, default=int(3e6), help=" Maximum number of training steps")
@@ -155,3 +155,4 @@ if __name__ == '__main__':
     env_name = ['BipedalWalker-v3', 'HalfCheetah-v2', 'Hopper-v2', 'Walker2d-v2']
     env_index = 1
     main(args, env_name=env_name[env_index], number=1, seed=10)
+'''

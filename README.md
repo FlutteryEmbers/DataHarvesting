@@ -7,4 +7,4 @@ Environment:
 
 Trainning Algorithm:
 - DDQN
-- PPO Algorithm: Modified from https://github.com/Lizhi-sjtu/DRL-code-pytorch
+- PPO: Modified from https://github.com/Lizhi-sjtu/DRL-code-pytorch
