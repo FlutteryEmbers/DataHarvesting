@@ -1,21 +1,22 @@
 from environments.instances.determistic import Test_Environment
 from environments.instances.randomized import DR_Environment
 from trainer.Q_Learning.ddqn import DDQN
-from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
+# from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
 import sys
 
 class DDQN_GameAgent():
-    def __init__(self, config, mode = 'Default') -> None:
-        # self.n_games = n_games
-        # self.mode = mode
+    def __init__(self, config, network = 'Default') -> None:
         self.config = config
+        self.network = network
+
         self.timer = tools.Timer()
         self.episode_rewards = []
         self.num_steps = []
 
     def run(self, mode, env = Test_Environment):
-        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK']['MLP'])
+        env.mode = self.network
+        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
 
@@ -49,7 +50,8 @@ class DDQN_GameAgent():
         else:
             sys.exit("need to set mode")
 
-        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK']['MLP'])
+        env.mode = self.network
+        ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
 

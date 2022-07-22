@@ -11,7 +11,7 @@ tools.mkdir('model/q_networks')
 tools.mkdir('results/Default')
 tools.mkdir('results/DR')
 
-agent = DDQN_GameAgent(config=config)
+agent = DDQN_GameAgent(config=config, network='Default')
 # agent.train(mode='Default', n_games=300)
 agent.run(mode='Default')
 

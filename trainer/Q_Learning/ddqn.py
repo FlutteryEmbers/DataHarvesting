@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from .networks import MLP
+from .networks import MLP, CNN
 from utils.buffer import ReplayBuffer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,11 +18,23 @@ class DDQN(object):
         self.eval_name = eval_name
         self.target_name = target_name
 
-        self.inputs= len(env.status_tracker.get_state())
-        self.outputs=env.action_space.n
+        self.network_type  = env.mode
+        if self.network_type == 'CNN':
+            print('Tranning using CNN network')
+            state = env.status_tracker.get_state(mode='CNN')
+            self.inputs= len(state)
+            self.x_limit = env.status_tracker.x_limit
+            self.y_limit = env.status_tracker.y_limit
+            self.info_length = len(state) - self.x_limit*self.y_limit
 
-        self.eval_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.eval_name, fc_dim1=network_config['FC1'], fc_dim2=network_config['FC2']).to(device=device)
-        self.target_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.target_name, fc_dim1=network_config['FC1'], fc_dim2=network_config['FC2']).to(device=device)
+            self.eval_net, self.target_net = CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.eval_name).to(device=device), CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.target_name).to(device=device)
+        else:
+            print('Tranning using FC network')
+            self.inputs= len(env.status_tracker.get_state())
+            self.outputs=env.action_space.n
+            
+            self.eval_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.eval_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
+            self.target_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.target_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
 
         self.learn_step_counter = 0
         self.memory_counter = 0
@@ -32,6 +44,7 @@ class DDQN(object):
         self.env = env
 
     def choose_action(self, state, disable_exploration=False):
+        self.eval_net.eval()
         state = torch.FloatTensor(np.array(state)).to(device)
         state = torch.unsqueeze(state, dim=0)
         '''
@@ -42,11 +55,17 @@ class DDQN(object):
         '''
         if np.random.uniform() > self.epsilon and not disable_exploration:
            action = self.env.action_space.sample()
+
+        elif self.network_type == 'CNN':
+            q_value = self.eval_net(state, self.x_limit, self.y_limit)
+            _, action_value = torch.max(q_value, dim=1)
+            action = int(action_value.item())
         else:
             q_value = self.eval_net(state)
             _, action_value = torch.max(q_value, dim=1)
             action = int(action_value.item())
-            
+
+        self.eval_net.train()
         return action
 
     def store_transition(self, s, a, r, s_, done):
@@ -65,14 +84,26 @@ class DDQN(object):
         b_s_ = torch.tensor(new_state, dtype=torch.float).to(device=device)
         is_done = torch.tensor(done, dtype=torch.int).to(device=device)
 
-        q_eval = self.eval_net(b_s).gather(1, b_a)
+        if self.network_type == 'CNN':
+            q_eval = self.eval_net(b_s, self.x_limit, self.y_limit).gather(1, b_a)
 
-        q_eval_values = self.eval_net(b_s_).detach()
-        _, a_prime = q_eval_values.max(1)
+            q_eval_values = self.eval_net(b_s_, self.x_limit, self.y_limit).detach()
+            _, a_prime = q_eval_values.max(1)
 
-        q_target_values = self.target_net(b_s_).detach()
-        q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
-        q_target_s_a_prime = q_target_s_a_prime.squeeze()
+            q_target_values = self.target_net(b_s_, self.x_limit, self.y_limit).detach()
+            q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
+            q_target_s_a_prime = q_target_s_a_prime.squeeze()
+        
+        else:
+            q_eval = self.eval_net(b_s).gather(1, b_a)
+
+            q_eval_values = self.eval_net(b_s_).detach()
+            _, a_prime = q_eval_values.max(1)
+
+            q_target_values = self.target_net(b_s_).detach()
+            q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
+            q_target_s_a_prime = q_target_s_a_prime.squeeze()
+
         q_target = b_r.reshape(self.batch_size, 1) + self.gamma * q_target_s_a_prime.view(self.batch_size, 1) * (1 - is_done.reshape(self.batch_size, 1))
 
         loss = self.loss_func(q_eval, q_target)
