@@ -18,7 +18,7 @@ class DDQN(object):
         self.eval_name = eval_name
         self.target_name = target_name
 
-        self.network_type  = env.mode
+        self.network_type  = env.state_mode
         if self.network_type == 'CNN':
             print('Tranning using CNN network')
             state = env.status_tracker.get_state(mode='CNN')

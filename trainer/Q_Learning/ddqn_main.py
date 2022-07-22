@@ -14,13 +14,13 @@ class DDQN_GameAgent():
         self.episode_rewards = []
         self.num_steps = []
 
-    def evaluate(self, mode, env = Test_Environment):
-        env.mode = self.network
+    def evaluate(self, env_type, env = Test_Environment):
+        env.state_mode = self.network
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
 
-        ddqn.load_models(mode=mode)
+        ddqn.load_models(mode=env_type)
         done = False
         s, _ = env.reset()
         episode_reward_sum = 0
@@ -35,22 +35,22 @@ class DDQN_GameAgent():
             s = s_
 
         stats = env.view()
-        stats.save(mode + "/")
+        stats.save(env_type + "/")
 
-    def train(self, n_games, mode):
-        print('training in mode: ' + mode)
+    def train(self, n_games, env_type):
+        print('training in mode: ' + env_type)
         best_num_steps = float('inf')
         best_rewards = 0
         
         env = None
-        if mode == 'Default':
+        if env_type == 'Default':
             env = Test_Environment
-        elif mode == 'DR':
+        elif env_type == 'DR':
             env = DR_Environment
         else:
             sys.exit("need to set mode")
 
-        env.mode = self.network
+        env.state_mode = self.network
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
@@ -82,18 +82,18 @@ class DDQN_GameAgent():
             self.num_steps.append(env.num_steps)
 
             if  n_games - i < 100:
-                if mode == 'DR':
-                    ddqn.save_models(mode=mode)
-                elif mode == 'Default':
+                if env_type == 'DR':
+                    ddqn.save_models(mode=env_type)
+                elif env_type == 'Default':
                     if env.num_steps < best_num_steps:
                         best_num_steps = env.num_steps
-                        ddqn.save_models(mode=mode)
+                        ddqn.save_models(mode=env_type)
             self.episode_rewards.append(round(episode_reward_sum, 2))
             self.timer.stop()
 
         x = [i+1 for i in range(n_games)]
-        tools.plot_curve(x, self.episode_rewards, 'results/' + mode + '/rewards.png')
-        tools.plot_curve(x, self.num_steps, 'results/' + mode + '/step.png')
+        tools.plot_curve(x, self.episode_rewards, 'results/' + env_type + '/rewards.png')
+        tools.plot_curve(x, self.num_steps, 'results/' + env_type + '/step.png')
 
     def fine_tuning(self, n_game):
         pass

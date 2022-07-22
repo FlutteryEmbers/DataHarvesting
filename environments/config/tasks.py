@@ -20,7 +20,7 @@ class Status_Tracker(object):
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
 
-    def get_state(self, mode='Default'):
+    def get_state(self, mode='MLP'):
         if mode == 'CNN':
             return self.get_visual_state()
 

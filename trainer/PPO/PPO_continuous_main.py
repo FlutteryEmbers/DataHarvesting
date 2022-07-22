@@ -1,11 +1,12 @@
 import torch
 import numpy as np
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 import gym
 import argparse
 from normalization import Normalization, RewardScaling
 from replaybuffer import ReplayBuffer
 from ppo_continuous import PPO_continuous
+from environments.instances.determistic import Test_Environment
 
 
 def evaluate_policy(args, env, agent, state_norm):
@@ -33,7 +34,8 @@ def evaluate_policy(args, env, agent, state_norm):
     return evaluate_reward / times
 
 
-def main(args, env_name, number, seed):
+def main(args, env, number, seed):
+    '''
     env = gym.make(env_name)
     env_evaluate = gym.make(env_name)  # When evaluating the policy, we need to rebuild an environment
     # Set random seed
@@ -43,12 +45,14 @@ def main(args, env_name, number, seed):
     env_evaluate.action_space.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    '''
+    env = Test_Environment
 
-    args.state_dim = env.observation_space.shape[0]
+    args.state_dim = len(env.status_tracker.get_state())
     args.action_dim = env.action_space.shape[0]
     args.max_action = float(env.action_space.high[0])
     args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-    print("env={}".format(env_name))
+    #TODO: print("env={}".format(env_name))
     print("state_dim={}".format(args.state_dim))
     print("action_dim={}".format(args.action_dim))
     print("max_action={}".format(args.max_action))
@@ -123,6 +127,12 @@ def main(args, env_name, number, seed):
                 if evaluate_num % args.save_freq == 0:
                     np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
 
+class PPO_GameAgent():
+    def __init__(self) -> None:
+        pass
+
+    def train(self, env = Test_Environment):
+        pass
 '''
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
