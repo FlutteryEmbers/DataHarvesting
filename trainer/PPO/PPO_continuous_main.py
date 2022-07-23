@@ -69,8 +69,8 @@ class PPO_GameAgent():
 
     def main(self, args, env, env_type='Default'):
         logger.success('total {} evals'.format(args.max_train_steps / args.evaluate_freq))
-        logger.remove()
-        logger.add(sys.stderr, level="TRACE")
+        # logger.remove()
+        # logger.add(sys.stderr, level="TRACE")
 
         env = Test_Environment_Continuous
         env_evaluate = Test_Environment_Eval_Continuous

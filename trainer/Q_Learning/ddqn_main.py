@@ -4,6 +4,7 @@ from trainer.Q_Learning.ddqn import DDQN
 # from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
 import sys
+from loguru import logger
 
 class DDQN_GameAgent():
     def __init__(self, config, network = 'Default') -> None:
@@ -35,7 +36,7 @@ class DDQN_GameAgent():
         stats.save(env_type + "/")
 
     def train(self, n_games, env_type):
-        print('training in mode: ' + env_type)
+        logger.success('training in mode: ' + env_type)
         best_num_steps = float('inf')
         best_rewards = 0
         episode_rewards = []
@@ -55,7 +56,7 @@ class DDQN_GameAgent():
         # ddqn = DDQN_CNN(env=env)
 
         for i in range(n_games):
-            print('<<<<<<<<<Episode: %s' % i)
+            logger.success('<<<<<<<<<Episode: %s' % i)
             s = env.reset()
             episode_reward_sum = 0
 
@@ -74,7 +75,7 @@ class DDQN_GameAgent():
                     ddqn.learn()
 
                 if done:
-                    print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
+                    logger.success('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
                     env.view()
                     break
 

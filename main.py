@@ -18,8 +18,8 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    # agent.train(env_type='Default', n_games=100)
-    agent.evaluate(env_type='Default')
+    agent.train(env_type='Default', n_games=100)
+    # agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=100)
     # agent.evaluate(env_type='DR')
 
@@ -30,13 +30,13 @@ def ppo():
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
     agent = PPO_GameAgent(args = args)
-    # agent.train(env_type=mode)
-    agent.evaluate_policy(args=args, load_model=mode)
+    agent.train(env_type=mode)
+    # agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
     init_working_dir()
-    # ddqn()
-    ppo()
+    ddqn()
+    # ppo()
 
     
    

@@ -2,6 +2,7 @@ from trainer.Q_Learning.ddqn import DDQN, MEMORY_CAPACITY
 from environments import single_diescreteV1
 from utils.tools import plot_curve
 from utils.tools import Timer
+from loguru import logger
                    
 
 n_games = 2000
@@ -22,7 +23,7 @@ else:
 ddqn = DDQN(inputs=len(env.status_tracker.get_state()), outputs=env.action_space.n, env=env)
 
 for i in range(n_games):
-    print('<<<<<<<<<Episode: %s' % i)
+    logger.success('<<<<<<<<<Episode: %s' % i)
     s, current_position = env.reset()
     episode_reward_sum = 0
 
@@ -41,7 +42,7 @@ for i in range(n_games):
             ddqn.learn()
 
         if done:
-            print('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
+            logger.success('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
             env.view()
             break
         
