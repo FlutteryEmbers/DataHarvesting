@@ -1,6 +1,8 @@
 from trainer.Q_Learning.ddqn_main import DDQN_GameAgent
 from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from utils import tools
+from loguru import logger
+import sys
 
 def init_working_dir():
     tools.mkdir('model/q_networks')
@@ -34,6 +36,9 @@ def ppo():
     # agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
+    # logger.remove()
+    # logger.add(sys.stderr, level="TRACE")
+
     init_working_dir()
     ddqn()
     # ppo()
