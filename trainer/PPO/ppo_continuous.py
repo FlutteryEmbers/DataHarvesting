@@ -3,6 +3,8 @@ import torch.nn.functional as F
 from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 import torch.nn as nn
 from torch.distributions import Beta, Normal
+from utils import tools
+import os
 
 
 # Trick 8: orthogonal initialization
@@ -12,13 +14,16 @@ def orthogonal_init(layer, gain=1.0):
 
 
 class Actor_Beta(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, name='actor_beta', chkpt_dir='model/ppo'):
         super(Actor_Beta, self).__init__()
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.alpha_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.beta_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
+
+        self.checkpoint_file = os.path.join(chkpt_dir, name)
+        self.num_checkpoints = 0
 
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
@@ -45,9 +50,17 @@ class Actor_Beta(nn.Module):
         mean = alpha / (alpha + beta)  # The mean of the beta distribution
         return mean
 
+    def save_checkpoint(self, mode = 'Default'):
+        self.num_checkpoints += 1
+        tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
+                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+
+    def load_checkpoint(self, mode = 'Default'):
+        state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
+        self.load_state_dict(state_dict)
 
 class Actor_Gaussian(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, name='actor_gaussian', chkpt_dir='model/ppo'):
         super(Actor_Gaussian, self).__init__()
         self.max_action = args.max_action
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
@@ -55,6 +68,9 @@ class Actor_Gaussian(nn.Module):
         self.mean_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.log_std = nn.Parameter(torch.zeros(1, args.action_dim))  # We use 'nn.Parameter' to train log_std automatically
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
+
+        self.checkpoint_file = os.path.join(chkpt_dir, name)
+        self.num_checkpoints = 0
 
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
@@ -75,14 +91,25 @@ class Actor_Gaussian(nn.Module):
         dist = Normal(mean, std)  # Get the Gaussian distribution
         return dist
 
+    def save_checkpoint(self, mode = 'Default'):
+        self.num_checkpoints += 1
+        tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
+                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+
+    def load_checkpoint(self, mode = 'Default'):
+        state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
+        self.load_state_dict(state_dict)
 
 class Critic(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, name='critic', chkpt_dir='model/ppo'):
         super(Critic, self).__init__()
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.fc3 = nn.Linear(args.hidden_width, 1)
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
+
+        self.checkpoint_file = os.path.join(chkpt_dir, name)
+        self.num_checkpoints = 0
 
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
@@ -96,6 +123,14 @@ class Critic(nn.Module):
         v_s = self.fc3(s)
         return v_s
 
+    def save_checkpoint(self, mode = 'Default'):
+        self.num_checkpoints += 1
+        tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
+                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+
+    def load_checkpoint(self, mode = 'Default'):
+        state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
+        self.load_state_dict(state_dict)
 
 class PPO_continuous():
     def __init__(self, args):

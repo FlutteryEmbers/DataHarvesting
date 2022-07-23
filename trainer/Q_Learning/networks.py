@@ -3,6 +3,7 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from utils import tools
 
 class MLP(nn.Module):
     def __init__(self, inputs, outputs, name, fc_dim1=256, fc_dim2=256, chkpt_dir='model/q_networks'):
@@ -27,35 +28,12 @@ class MLP(nn.Module):
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
-
-        if mode == 'Default':
-            print('... saving best model ...')
-            checkpoint_file = self.checkpoint_file
-        elif mode == 'DR':
-            print('... saving DR model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-        elif mode == 'Checkpoints':
-            print('... saving model with ckpt ...')
-            checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
-        else:
-            print('... saving {mode} model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-
-        T.save(self.state_dict(), checkpoint_file)
+        tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
+                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
     def load_checkpoint(self, mode = 'Default'):
-        if mode == 'Default':
-            print('... loading Best model ...')
-            checkpoint_file = self.checkpoint_file 
-        elif mode == 'DR':
-            print('... loading DR model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-        else:
-            print('... loading {mode} model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-            
-        self.load_state_dict(T.load(checkpoint_file))
-
+        state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
+        self.load_state_dict(state_dict)
 
 class CNN(nn.Module):
     def __init__(self, h, w, info, outputs, name, chkpt_dir='model/q_networks'):
@@ -107,31 +85,9 @@ class CNN(nn.Module):
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
-
-        if mode == 'Default':
-            print('... saving best model ...')
-            checkpoint_file = self.checkpoint_file
-        elif mode == 'DR':
-            print('... saving DR model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-        elif mode == 'Checkpoints':
-            print('... saving model with ckpt ...')
-            checkpoint_file = self.checkpoint_file + '_' + str(self.num_checkpoints)
-        else:
-            print('... saving {mode} model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-
-        T.save(self.state_dict(), checkpoint_file)
+        tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
+                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
     def load_checkpoint(self, mode = 'Default'):
-        if mode == 'Default':
-            print('... loading Best model ...')
-            checkpoint_file = self.checkpoint_file 
-        elif mode == 'DR':
-            print('... loading DR model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-        else:
-            print('... loading {mode} model ...')
-            checkpoint_file = self.checkpoint_file + '_' + mode
-
-        self.load_state_dict(T.load(checkpoint_file))
+        state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
+        self.load_state_dict(state_dict)

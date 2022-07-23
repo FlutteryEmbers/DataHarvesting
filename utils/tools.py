@@ -1,4 +1,5 @@
 import numpy as np
+import torch as T
 import matplotlib.pyplot as plt
 import time
 import os
@@ -21,7 +22,7 @@ def plot_curve(x, y, figure_file):
     plt.plot(x, y)
     # plt.title('Running average of previous 100 scores')
     plt.savefig(figure_file)
-    plt.close()
+    plt.close('all')
 
 def mkdir(dir):
         isExist = os.path.exists(dir)
@@ -56,6 +57,35 @@ def load_config(file):
         sys.exit('{} did not loaded correctly'.format(file))
         
     return config
+
+def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
+    if mode == 'Default':
+        print('... saving default model ...')
+        checkpoint_file = checkpoint_file
+    elif mode == 'DR':
+        print('... saving DR model ...')
+        checkpoint_file = checkpoint_file + '_' + mode
+    elif mode == 'Checkpoints':
+        print('... saving model with ckpt ...')
+        checkpoint_file = checkpoint_file + '_' + str(num_checkpoints)
+    else:
+        print('... saving {mode} model ...')
+        checkpoint_file = checkpoint_file + '_' + mode
+
+    T.save(state_dict, checkpoint_file)
+
+def load_network_params(mode, checkpoint_file):
+    if mode == 'Default':
+        print('... loading Best model ...')
+        checkpoint_file = checkpoint_file 
+    elif mode == 'DR':
+        print('... loading DR model ...')
+        checkpoint_file = checkpoint_file + '_' + mode
+    else:
+        print('... loading {mode} model ...')
+        checkpoint_file = checkpoint_file + '_' + mode
+    
+    return T.load(checkpoint_file)
 
 class dict2class(object):
     def __init__(self, my_dict):

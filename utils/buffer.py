@@ -92,7 +92,7 @@ class Info():
 
         plt.legend(loc='upper left')
         plt.savefig('{}.png'.format(filename))
-        plt.close()
+        plt.close('all')
 
     def reset(self):
         self.timestamp = 0

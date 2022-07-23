@@ -18,8 +18,8 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    # agent.train(env_type='Default', n_games=300)
-    agent.evaluate(env_type='Default')
+    agent.train(env_type='Default', n_games=300)
+    # agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=100)
     # agent.evaluate(env_type='DR')
 
@@ -34,8 +34,8 @@ def ppo():
 
 if __name__ == '__main__':
     init_working_dir()
-    # ddqn()
-    ppo()
+    ddqn()
+    # ppo()
 
     
    
