@@ -148,8 +148,8 @@ class Single_Task(Status_Tracker):
         self.dv_left = self.dv_required[:]
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
-        logger.info('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
-
+        logger.trace('position: {} towers: {} dv_require: {}'.format(self.current_position, self.tower_location, self.dv_required))
+        
     def reset(self):
         self.current_position = self.start_at[:]
         self.dv_left = self.dv_required[:]

@@ -36,7 +36,7 @@ class DDQN_GameAgent():
         stats.save(env_type + "/")
 
     def train(self, n_games, env_type):
-        logger.warning('Training {} Mode:'.format(env_type))
+        logger.warning('Training {} Mode'.format(env_type))
         best_num_steps = float('inf')
         best_rewards = 0
         episode_rewards = []
@@ -50,6 +50,7 @@ class DDQN_GameAgent():
         else:
             sys.exit("need to set mode")
 
+        logger.warning('Using {} Environment'.format(env.status_tracker.name))
         env.state_mode = self.network
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'

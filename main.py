@@ -11,7 +11,7 @@ def init_working_dir():
     tools.mkdir('results/DR')
 
 def ddqn():
-    print('=====================DDQN======================')
+    logger.critical('Start DDQN Session')
     config = tools.load_config("configs/config_ddqn.yaml")
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
@@ -26,7 +26,7 @@ def ddqn():
     # agent.evaluate(env_type='DR')
 
 def ppo():
-    print('=====================PPO=======================')
+    logger.critical('Start PPO Session')
     mode = 'DR'
     config = tools.load_config("configs/config_ppo_{}.yaml".format(mode.lower()))
     tools.setup_seed(config['random_seed'])
