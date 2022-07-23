@@ -16,15 +16,16 @@ from loguru import logger
 class PPO_GameAgent():
     def __init__(self, args) -> None:
         self.args = args
+        self.timer = tools.Timer()
 
     def train(self, env_type, env=Test_Environment_Continuous):
         self.main(args=self.args, env=env, env_type=env_type)
 
     def evaluate_policy(self, args, env=Test_Environment_Eval_Continuous, agent=None, state_norm=None, load_model=None):
         if load_model != None:
-            logger.debug('evaluation mode {}'.format(load_model))
-            logger.debug(env.status_tracker.name)
-            logger.debug(env.action_type)
+            logger.success('evaluation mode {}'.format(load_model))
+            logger.success('environment name {}'.format(env.status_tracker.name))
+            logger.success('action type {}'.format(env.action_type))
             args.env_type = load_model
             args.state_dim = len(env.status_tracker.get_state())
             args.action_dim = env.action_space.shape
@@ -67,9 +68,9 @@ class PPO_GameAgent():
 
 
     def main(self, args, env, env_type='Default'):
-        logger.warning('total {} evals'.format(args.max_train_steps / args.evaluate_freq))
+        logger.success('total {} evals'.format(args.max_train_steps / args.evaluate_freq))
         logger.remove()
-        logger.add(sys.stderr, level="INFO")
+        logger.add(sys.stderr, level="TRACE")
 
         env = Test_Environment_Continuous
         env_evaluate = Test_Environment_Eval_Continuous
@@ -78,9 +79,9 @@ class PPO_GameAgent():
             env = DR_Environment_Continuous
             env_evaluate = DR_Environment_Eval_Continuous
 
-        logger.debug('trainning:')
-        logger.debug(env.status_tracker.name)
-        logger.debug(env.action_type)
+        logger.success('trainning:')
+        logger.success(env.status_tracker.name)
+        logger.success(env.action_type)
 
         args.env_type = env_type
         args.state_dim = len(env.status_tracker.get_state())
@@ -88,10 +89,10 @@ class PPO_GameAgent():
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
         #TODO: print("env={}".format(env_name))
-        print("state_dim={}".format(args.state_dim))
-        print("action_dim={}".format(args.action_dim))
-        print("max_action={}".format(args.max_action))
-        print("max_episode_steps={}".format(args.max_episode_steps))
+        logger.trace("state_dim={}".format(args.state_dim))
+        logger.trace("action_dim={}".format(args.action_dim))
+        logger.trace("max_action={}".format(args.max_action))
+        logger.trace("max_episode_steps={}".format(args.max_episode_steps))
 
         evaluate_num = 0  # Record the number of evaluations
         evaluate_rewards = []  # Record the rewards during the evaluating
@@ -109,6 +110,7 @@ class PPO_GameAgent():
         elif args.use_reward_scaling:  # Trick 4:reward scaling
             reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
 
+        self.timer.start()
         while total_steps < args.max_train_steps:
             s = env.reset()
             if args.use_state_norm:
@@ -153,24 +155,14 @@ class PPO_GameAgent():
 
                 # Evaluate the policy every 'evaluate_freq' steps
                 if total_steps % args.evaluate_freq == 0:
+                    self.timer.stop()
                     evaluate_num += 1
                     evaluate_reward = self.evaluate_policy(args, env_evaluate, agent, state_norm)
                     evaluate_rewards.append(evaluate_reward)
-                    logger.info("evaluate_num:{} \t evaluate_reward:{} \t".format(evaluate_num, evaluate_reward))
+                    logger.success("evaluate_num:{} \t evaluate_reward:{} \t".format(evaluate_num, evaluate_reward))
+                    self.timer.start()
 
-                    #TODO: SAVE:
-                    '''
-                    evaluate_num += 1
-                    evaluate_reward = evaluate_policy(args, env_evaluate, agent, state_norm)
-                    evaluate_rewards.append(evaluate_reward)
-                    print("evaluate_num:{} \t evaluate_reward:{} \t".format(evaluate_num, evaluate_reward))
-
-                    
-                    writer.add_scalar('step_rewards_{}'.format(env_name), evaluate_rewards[-1], global_step=total_steps)
-                    # Save the rewards
-                    if evaluate_num % args.save_freq == 0:
-                        np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
-                    '''
+        self.timer.stop()
         # env_type = 'Default'
         agent.actor.save_checkpoint(mode=args.env_type)
         agent.critic.save_checkpoint(mode=args.env_type)

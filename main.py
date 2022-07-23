@@ -30,8 +30,8 @@ def ppo():
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
     agent = PPO_GameAgent(args = args)
-    agent.train(env_type=mode)
-    # agent.evaluate_policy(args=args, load_model=mode)
+    # agent.train(env_type=mode)
+    agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
     init_working_dir()

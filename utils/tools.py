@@ -62,29 +62,29 @@ def load_config(file):
 def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
     if mode == 'Default':
         checkpoint_file = checkpoint_file
-        logger.debug('saving default model {}'.format(checkpoint_file))
+        logger.debug('saving default to {}'.format(checkpoint_file))
     elif mode == 'DR':
         checkpoint_file = checkpoint_file + '_' + mode
-        logger.debug('saving DR model {}'.format(checkpoint_file ))
+        logger.debug('saving DR to {}'.format(checkpoint_file ))
     elif mode == 'Checkpoints':
         checkpoint_file = checkpoint_file + '_' + str(num_checkpoints)
-        logger.debug('saving {} model with ckpt'.format(checkpoint_file))
+        logger.debug('saving to {}'.format(checkpoint_file))
     else:
         checkpoint_file = checkpoint_file + '_' + mode
-        logger.debug('... saving {}_{} model ...'.format(checkpoint_file, mode))
+        logger.debug('saving to {}_{}'.format(checkpoint_file, mode))
 
     T.save(state_dict, checkpoint_file)
 
 def load_network_params(mode, checkpoint_file):
     if mode == 'Default':
         checkpoint_file = checkpoint_file
-        logger.debug('loading default {}'.format(checkpoint_file))
+        logger.debug('loading default from {}'.format(checkpoint_file))
     elif mode == 'DR':
         checkpoint_file = checkpoint_file + '_' + mode
-        logger.debug('loading DR model {}'.format(checkpoint_file))
+        logger.debug('loading DR from {}'.format(checkpoint_file))
     else:
         checkpoint_file = checkpoint_file + '_' + mode
-        logger.debug('loading {} model'.format(checkpoint_file))
+        logger.debug('loading from {}'.format(checkpoint_file))
     
     return T.load(checkpoint_file)
 
@@ -114,4 +114,4 @@ class Timer:
 
         elapsed_time = time.perf_counter() - self._start_time
         self._start_time = None
-        print(f"Elapsed time: {elapsed_time:0.4f} seconds")
+        logger.info(f"Elapsed time: {elapsed_time:0.4f} seconds")
