@@ -129,7 +129,6 @@ class Critic(nn.Module):
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
     def load_checkpoint(self, mode = 'Default'):
-        print(self.checkpoint_file)
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
 
@@ -244,8 +243,8 @@ class PPO_continuous():
                     torch.nn.utils.clip_grad_norm_(self.critic.parameters(), 0.5)
                 self.optimizer_critic.step()
 
-                self.actor.save_checkpoint(mode=self.env_type)
-                self.critic.save_checkpoint(mode=self.env_type)
+            # self.actor.save_checkpoint(mode=self.env_type)
+            # self.critic.save_checkpoint(mode=self.env_type)
 
         if self.use_lr_decay:  # Trick 6:learning rate Decay
             self.lr_decay(total_steps)

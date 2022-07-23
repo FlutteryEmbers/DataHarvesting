@@ -61,29 +61,29 @@ def load_config(file):
 
 def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
     if mode == 'Default':
-        print('... saving default model ...')
+        logger.debug('saving default model {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file
     elif mode == 'DR':
-        print('... saving DR model ...')
+        logger.debug('saving DR model {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file + '_' + mode
     elif mode == 'Checkpoints':
-        print('... saving model with ckpt ...')
+        logger.debug('saving {} model with ckpt'.format(checkpoint_file))
         checkpoint_file = checkpoint_file + '_' + str(num_checkpoints)
     else:
-        print('... saving {mode} model ...')
+        logger.debug('... saving {}_{} model ...'.format(checkpoint_file, mode))
         checkpoint_file = checkpoint_file + '_' + mode
 
     T.save(state_dict, checkpoint_file)
 
 def load_network_params(mode, checkpoint_file):
     if mode == 'Default':
-        print('... loading default ...')
+        logger.debug('loading default {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file 
     elif mode == 'DR':
-        print('... loading DR model ...')
+        logger.debug('loading DR model {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file + '_' + mode
     else:
-        print('... loading {mode} model ...')
+        logger.debug('loading {}_{} model'.format(checkpoint_file, mode))
         checkpoint_file = checkpoint_file + '_' + mode
     
     return T.load(checkpoint_file)

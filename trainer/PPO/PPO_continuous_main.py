@@ -1,4 +1,4 @@
-from imp import load_module
+import sys
 import torch
 import numpy as np
 # from torch.utils.tensorboard import SummaryWriter
@@ -29,6 +29,8 @@ class PPO_GameAgent():
             args.action_dim = env.action_space.shape
             args.max_action = float(env.action_space.high)
             args.max_episode_steps = env._max_episode_steps
+            args.use_orthogonal_init = False
+            
             agent = PPO_continuous(args, load_model=load_model)
             state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
             if args.use_reward_norm:  # Trick 3:reward normalization
@@ -63,6 +65,9 @@ class PPO_GameAgent():
 
 
     def main(self, args, env, env_type='Default'):
+        logger.remove()
+        logger.add(sys.stderr, level="INFO")
+
         env = Test_Environment_Continuous
         env_evaluate = Test_Environment_Eval_Continuous
 
@@ -164,6 +169,9 @@ class PPO_GameAgent():
                         np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
                     '''
         # env_type = 'Default'
+        agent.actor.save_checkpoint(mode=args.env_type)
+        agent.critic.save_checkpoint(mode=args.env_type)
+
         x = [i+1 for i in range(len(evaluate_rewards))]
         tools.plot_curve(x, evaluate_rewards, 'results/' + env_type + '/rewards.png')
         # tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
