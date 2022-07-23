@@ -44,9 +44,8 @@ class Agent():
         self.num_steps += 1
 
         current_position, tower_location, dv_collected, dv_left, dv_transmittion_rate, dv_required = self.status_tracker.get_current_status()
-
-        next_position = np.array(current_position) + np.array(action)
-        self.status_tracker.update_position(next_position)
+        
+        position = self.status_tracker.update_position(action)
         
         # data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.status_tracker.current_position, tower_location, dv_collected, dv_required)
         # data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
@@ -56,7 +55,7 @@ class Agent():
                                     dv_transmittion_rate=data_transmitting_rate_list, 
                                     dv_left=data_volume_left)
 
-        self.running_info.store(position_t=self.status_tracker.current_position, action_t=action,
+        self.running_info.store(position_t=position, action_t=action,
                                     data_collected_t=data_volume_collected, 
                                     data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 

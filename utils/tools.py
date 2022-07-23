@@ -61,30 +61,30 @@ def load_config(file):
 
 def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
     if mode == 'Default':
-        logger.debug('saving default model {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file
+        logger.debug('saving default model {}'.format(checkpoint_file))
     elif mode == 'DR':
+        checkpoint_file = checkpoint_file + '_' + mode
         logger.debug('saving DR model {}'.format(checkpoint_file ))
-        checkpoint_file = checkpoint_file + '_' + mode
     elif mode == 'Checkpoints':
-        logger.debug('saving {} model with ckpt'.format(checkpoint_file))
         checkpoint_file = checkpoint_file + '_' + str(num_checkpoints)
+        logger.debug('saving {} model with ckpt'.format(checkpoint_file))
     else:
-        logger.debug('... saving {}_{} model ...'.format(checkpoint_file, mode))
         checkpoint_file = checkpoint_file + '_' + mode
+        logger.debug('... saving {}_{} model ...'.format(checkpoint_file, mode))
 
     T.save(state_dict, checkpoint_file)
 
 def load_network_params(mode, checkpoint_file):
     if mode == 'Default':
-        logger.debug('loading default {}'.format(checkpoint_file ))
-        checkpoint_file = checkpoint_file 
+        checkpoint_file = checkpoint_file
+        logger.debug('loading default {}'.format(checkpoint_file))
     elif mode == 'DR':
-        logger.debug('loading DR model {}'.format(checkpoint_file ))
         checkpoint_file = checkpoint_file + '_' + mode
+        logger.debug('loading DR model {}'.format(checkpoint_file))
     else:
-        logger.debug('loading {}_{} model'.format(checkpoint_file, mode))
         checkpoint_file = checkpoint_file + '_' + mode
+        logger.debug('loading {} model'.format(checkpoint_file))
     
     return T.load(checkpoint_file)
 

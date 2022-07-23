@@ -1,7 +1,7 @@
 ## Default values from https://github.com/Lizhi-sjtu/DRL-code-pytorch
 
 random_seed: 10 
-max_train_steps: 5e4 ## Maximum number of training steps
+max_train_steps: 5e5 ## Maximum number of training steps
 evaluate_freq: 5e3 ## Evaluate the policy every 'evaluate_freq' steps
 save_freq: 20 ## Save frequency
 policy_dist: Gaussian ## Beta or Gaussian
@@ -15,7 +15,7 @@ lamda: 0.95 ## GAE parameter
 epsilon: 0.2 ## PPO clip parameter
 K_epochs: 10 ## PPO parameter
 use_adv_norm: True ## Trick 1:advantage normalization
-use_state_norm: True ## Trick 2:state normalization
+use_state_norm: False ## Trick 2:state normalization
 use_reward_norm: False ## Trick 3:reward normalization
 use_reward_scaling: True ## Trick 4:reward scaling
 entropy_coef: 0.01 ## Trick 5: policy entropy

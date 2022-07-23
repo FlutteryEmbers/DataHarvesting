@@ -25,14 +25,13 @@ def ddqn():
 
 def ppo():
     print('=====================PPO=======================')
-    config = tools.load_config("configs/config_ppo_default.yaml")
+    mode = 'DR'
+    config = tools.load_config("configs/config_ppo_{}.yaml".format(mode.lower()))
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
     agent = PPO_GameAgent(args = args)
-    # agent.train(env_type='Default')
-    agent.evaluate_policy(args=args, load_model='Default')
-    # agent.train(env_type='DR')
-    # agent.evaluate_policy(args=args, load_model='DR')
+    agent.train(env_type=mode)
+    # agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
     init_working_dir()

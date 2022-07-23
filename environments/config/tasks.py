@@ -15,8 +15,8 @@ class Status_Tracker(object):
         self.start_at = start_at
         self.arrival_at = arrival_at
         
-        self.current_position = self.start_at
-        self.dv_left = self.dv_required
+        self.current_position = self.start_at[:]
+        self.dv_left = self.dv_required[:]
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
 
@@ -25,8 +25,7 @@ class Status_Tracker(object):
             return self.get_visual_state()
 
         return self.get_linear_state()
-
-    ## Important    
+   
     def get_linear_state(self):
         current_position = np.array(self.current_position)
         tower_location = np.array(self.tower_location)
@@ -68,10 +67,16 @@ class Status_Tracker(object):
         self.dv_collected = dv_collected
         self.dv_transmittion_rate = dv_transmittion_rate
 
-    def update_position(self, position):
-        position = position.tolist()
-        if position[0] >= 0 and position[0] < self.x_limit and position[1] >= 0 and position[1] < self.y_limit:
-            self.current_position = position
+    def update_position(self, action):
+        next_position = np.array(self.current_position) + np.array(action)
+        # next_position = next_position.tolist()
+        if next_position[0] >= 0 and next_position[0] < self.x_limit:
+            self.current_position[0] = next_position[0]
+
+        if next_position[1] >= 0 and next_position[1] < self.y_limit:
+            self.current_position[1] = next_position[1]
+
+        return self.current_position[:]
     
     def get_current_status(self):
         return self.current_position, self.tower_location, self.dv_collected, self.dv_left, self.dv_transmittion_rate, self.dv_required
@@ -91,7 +96,7 @@ class Random_Task(Status_Tracker):
     def set_mission(self, start_at, arrival_at) -> None:
         self.start_at = start_at
         self.arrival_at = arrival_at
-        self.current_position = self.start_at
+        self.current_position = self.start_at[:]
         self.random_init_state()
         # print('xxxx')
         
@@ -115,14 +120,14 @@ class Random_Task(Status_Tracker):
         self.dv_required = dv_required
         # print(dv_require)
         # print(self.num_tower)
-        self.dv_left = self.dv_required
+        self.dv_left = self.dv_required[:]
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
 
     def reset(self):
-        self.current_position = self.start_at
+        self.current_position = self.start_at[:]
         self.random_init_state()
-        print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
+        print('current_position: {} tower_locations: {} dv_require: {}'.format(self.current_position, self.tower_location, self.dv_required))
 
 class Single_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit, tower_location) -> None:
@@ -138,15 +143,15 @@ class Single_Task(Status_Tracker):
         self.start_at = start_at
         self.arrival_at = arrival_at
         
-        self.current_position = self.start_at
-        self.dv_left = self.dv_required
+        self.current_position = self.start_at[:]
+        self.dv_left = self.dv_required[:]
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
         print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)
 
     def reset(self):
-        self.current_position = self.start_at
-        self.dv_left = self.dv_required
+        self.current_position = self.start_at[:]
+        self.dv_left = self.dv_required[:]
         self.dv_collected = [0]*len(self.dv_required)
         self.dv_transmittion_rate = [0]*len(self.dv_required)
         # print('tower_locations = ', self.tower_location, 'dv_require = ', self.dv_required)

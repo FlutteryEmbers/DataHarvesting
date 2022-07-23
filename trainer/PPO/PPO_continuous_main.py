@@ -1,4 +1,5 @@
 import sys
+from turtle import position
 import torch
 import numpy as np
 # from torch.utils.tensorboard import SummaryWriter
@@ -19,7 +20,7 @@ class PPO_GameAgent():
     def train(self, env_type, env=Test_Environment_Continuous):
         self.main(args=self.args, env=env, env_type=env_type)
 
-    def evaluate_policy(self, args, env=Test_Environment_Continuous, agent=None, state_norm=None, load_model=None):
+    def evaluate_policy(self, args, env=Test_Environment_Eval_Continuous, agent=None, state_norm=None, load_model=None):
         if load_model != None:
             logger.debug('evaluation mode {}'.format(load_model))
             logger.debug(env.status_tracker.name)
@@ -30,7 +31,7 @@ class PPO_GameAgent():
             args.max_action = float(env.action_space.high)
             args.max_episode_steps = env._max_episode_steps
             args.use_orthogonal_init = False
-            
+
             agent = PPO_continuous(args, load_model=load_model)
             state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
             if args.use_reward_norm:  # Trick 3:reward normalization
@@ -52,7 +53,8 @@ class PPO_GameAgent():
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, _ = env.step(action)
+                s_, r, done, position = env.step(action)
+                # print(position)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
                 episode_reward += r
@@ -65,6 +67,7 @@ class PPO_GameAgent():
 
 
     def main(self, args, env, env_type='Default'):
+        logger.warning('total {} evals'.format(args.max_train_steps / args.evaluate_freq))
         logger.remove()
         logger.add(sys.stderr, level="INFO")
 
