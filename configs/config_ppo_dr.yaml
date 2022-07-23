@@ -1,0 +1,27 @@
+## Default values from https://github.com/Lizhi-sjtu/DRL-code-pytorch
+
+random_seed: 10 
+max_train_steps: 1e6 ## Maximum number of training steps
+evaluate_freq: 5e3 ## Evaluate the policy every 'evaluate_freq' steps
+save_freq: 20 ## Save frequency
+policy_dist: Gaussian ## Beta or Gaussian
+batch_size: 2048 ## Batch size
+mini_batch_size: 64 ## Minibatch size
+hidden_width: 64 ## The number of neurons in hidden layers of the neural network
+lr_a: 3e-4 ## Learning rate of actor
+lr_c: 3e-4 ## Learning rate of critic
+gamma: 0.99 ## Discount factor
+lamda: 0.95 ## GAE parameter
+epsilon: 0.2 ## PPO clip parameter
+K_epochs: 10 ## PPO parameter
+use_adv_norm: True ## Trick 1:advantage normalization
+use_state_norm: True ## Trick 2:state normalization
+use_reward_norm: False ## Trick 3:reward normalization
+use_reward_scaling: True ## Trick 4:reward scaling
+entropy_coef: 0.01 ## Trick 5: policy entropy
+use_lr_decay: True ## Trick 6:learning rate Decay
+use_grad_clip: True ## Trick 7: Gradient clip
+use_orthogonal_init: True ## Trick 8: orthogonal initialization
+set_adam_eps: True ## Trick 9: set Adam epsilon=1e-5
+use_tanh: True ## Trick 10: tanh activation function
+

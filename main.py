@@ -28,14 +28,14 @@ def ppo():
     config = tools.load_config("configs/config_ppo_default.yaml")
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
-    # print(args.random_seed)
     agent = PPO_GameAgent(args = args)
-    agent.train()
+    # agent.train(env_type='Default')
+    agent.train(env_type='DR')
 
 if __name__ == '__main__':
     init_working_dir()
-    ddqn()
-    # ppo()
+    # ddqn()
+    ppo()
 
     
    

@@ -151,6 +151,8 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
 
+        self.env_type = args.env_type
+
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args)
         else:
@@ -237,6 +239,9 @@ class PPO_continuous():
                     torch.nn.utils.clip_grad_norm_(self.critic.parameters(), 0.5)
                 self.optimizer_critic.step()
 
+        self.actor.save_checkpoint(mode=self.env_type)
+        self.critic.save_checkpoint(mode=self.env_type)
+        
         if self.use_lr_decay:  # Trick 6:learning rate Decay
             self.lr_decay(total_steps)
 

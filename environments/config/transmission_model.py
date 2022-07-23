@@ -4,10 +4,10 @@ import math
 import sys
 from utils import tools
 
+Config = tools.load_config("configs/config_trans_model.yaml")
+
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
-        Config = tools.load_config("configs/config_trans_model.yaml")
-
         self.time_ratio = Config['TIME_RATIO']
         self.B = Config['B']
         self.height = Config['HEIGHT']

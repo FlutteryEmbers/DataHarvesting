@@ -6,15 +6,16 @@ import argparse
 from trainer.PPO.normalization import Normalization, RewardScaling
 from trainer.PPO.replaybuffer import ReplayBuffer
 from trainer.PPO.ppo_continuous import PPO_continuous
-from environments.instances.determistic import Test_Environment_Continuous, Test_Environment_eval_Continuous
+from environments.instances.determistic import Test_Environment_Continuous, Test_Environment_Eval_Continuous
+from environments.instances.randomized import DR_Environment_Continuous, DR_Environment_Eval_Continuous
 from utils import tools
 
 class PPO_GameAgent():
     def __init__(self, args) -> None:
         self.args = args
 
-    def train(self, env=Test_Environment_Continuous):
-        self.main(args=self.args, env=env)
+    def train(self, env_type, env=Test_Environment_Continuous):
+        self.main(args=self.args, env=env, env_type=env_type)
 
     def evaluate_policy(self, args, env, agent, state_norm):
         times = 3
@@ -42,7 +43,7 @@ class PPO_GameAgent():
         return evaluate_reward / times
 
 
-    def main(self, args, env):
+    def main(self, args, env, env_type='Default'):
         '''
         env = gym.make(env_name)
         env_evaluate = gym.make(env_name)  # When evaluating the policy, we need to rebuild an environment
@@ -55,11 +56,13 @@ class PPO_GameAgent():
         torch.manual_seed(seed)
         '''
         env = Test_Environment_Continuous
-        # env.action_type = 'Continuous'
+        env_evaluate = Test_Environment_Eval_Continuous
 
-        env_evaluate = Test_Environment_eval_Continuous
-        # env_evaluate.action_type = 'Continuous'
+        if env_type == 'DR':
+            env = DR_Environment_Continuous
+            env_evaluate = DR_Environment_Eval_Continuous
 
+        args.env_type = env_type
         args.state_dim = len(env.status_tracker.get_state())
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
@@ -148,7 +151,7 @@ class PPO_GameAgent():
                     if evaluate_num % args.save_freq == 0:
                         np.save('./data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name, number, seed), np.array(evaluate_rewards))
                     '''
-        env_type = 'Default'
+        # env_type = 'Default'
         x = [i+1 for i in range(len(evaluate_rewards))]
         tools.plot_curve(x, evaluate_rewards, 'results/' + env_type + '/rewards.png')
         # tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
