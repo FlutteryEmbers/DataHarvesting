@@ -86,6 +86,7 @@ class Random_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit) -> None:
         self.x_limit = x_limit
         self.y_limit = y_limit
+        self.name = 'Random_Task'
         
     def set_mission(self, start_at, arrival_at) -> None:
         self.start_at = start_at
@@ -130,6 +131,7 @@ class Single_Task(Status_Tracker):
         self.tower_location = tower_location
         self.num_tower = len(tower_location)
         self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location)
+        self.name = 'Single_Task'
 
     def set_mission(self, start_at, arrival_at, dv_required) -> None:
         self.dv_required = dv_required

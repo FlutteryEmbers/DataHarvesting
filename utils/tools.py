@@ -8,6 +8,7 @@ import random
 import yaml
 import sys
 import re
+from loguru import logger
 
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
@@ -38,7 +39,7 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
 
 def load_config(file):
-    print('loading {}'.format(file))
+    logger.debug('loading {}'.format(file))
     loader = yaml.SafeLoader
     loader.add_implicit_resolver(
         u'tag:yaml.org,2002:float',
@@ -76,7 +77,7 @@ def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
 
 def load_network_params(mode, checkpoint_file):
     if mode == 'Default':
-        print('... loading Best model ...')
+        print('... loading default ...')
         checkpoint_file = checkpoint_file 
     elif mode == 'DR':
         print('... loading DR model ...')

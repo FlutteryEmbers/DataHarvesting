@@ -4,6 +4,7 @@ from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
 from environments.config import actions
+from loguru import logger
 
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
@@ -70,5 +71,5 @@ class Agent():
         return s, reward, self.status_tracker.is_done(), self.status_tracker.current_position
 
     def view(self):
-        print('data left = ', np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), 'steps taken = ', self.num_steps)
+        logger.info('data left = {} steps taken = {}'.format(np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), self.num_steps))
         return self.running_info

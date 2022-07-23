@@ -129,11 +129,12 @@ class Critic(nn.Module):
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
     def load_checkpoint(self, mode = 'Default'):
+        print(self.checkpoint_file)
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
 
 class PPO_continuous():
-    def __init__(self, args):
+    def __init__(self, args, load_model=None):
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
         self.batch_size = args.batch_size
@@ -159,6 +160,10 @@ class PPO_continuous():
             self.actor = Actor_Gaussian(args)
         self.critic = Critic(args)
 
+        if load_model != None:
+            self.actor.load_checkpoint(load_model)
+            self.critic.load_checkpoint(load_model)
+            
         if self.set_adam_eps:  # Trick 9: set Adam epsilon=1e-5
             self.optimizer_actor = torch.optim.Adam(self.actor.parameters(), lr=self.lr_a, eps=1e-5)
             self.optimizer_critic = torch.optim.Adam(self.critic.parameters(), lr=self.lr_c, eps=1e-5)
@@ -239,9 +244,9 @@ class PPO_continuous():
                     torch.nn.utils.clip_grad_norm_(self.critic.parameters(), 0.5)
                 self.optimizer_critic.step()
 
-        self.actor.save_checkpoint(mode=self.env_type)
-        self.critic.save_checkpoint(mode=self.env_type)
-        
+                self.actor.save_checkpoint(mode=self.env_type)
+                self.critic.save_checkpoint(mode=self.env_type)
+
         if self.use_lr_decay:  # Trick 6:learning rate Decay
             self.lr_decay(total_steps)
 

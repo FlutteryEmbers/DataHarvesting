@@ -30,7 +30,9 @@ def ppo():
     args = tools.dict2class(config)
     agent = PPO_GameAgent(args = args)
     # agent.train(env_type='Default')
-    agent.train(env_type='DR')
+    agent.evaluate_policy(args=args, load_model='Default')
+    # agent.train(env_type='DR')
+    # agent.evaluate_policy(args=args, load_model='DR')
 
 if __name__ == '__main__':
     init_working_dir()
