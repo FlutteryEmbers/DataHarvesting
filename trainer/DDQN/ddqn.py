@@ -1,3 +1,4 @@
+from loguru import logger
 import torch
 import torch.nn as nn
 import numpy as np
@@ -20,7 +21,7 @@ class DDQN(object):
 
         self.network_type  = env.state_mode
         if self.network_type == 'CNN':
-            print('Tranning using CNN network')
+            logger.warning('Using CNN network as Backend')
             state = env.status_tracker.get_state(mode='CNN')
             self.inputs= len(state)
             self.x_limit = env.status_tracker.x_limit
@@ -29,7 +30,7 @@ class DDQN(object):
 
             self.eval_net, self.target_net = CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.eval_name).to(device=device), CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.target_name).to(device=device)
         else:
-            print('Tranning using FC network')
+            logger.warning('Using FC network as Backend')
             self.inputs= len(env.status_tracker.get_state())
             self.outputs=env.action_space.n
             

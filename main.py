@@ -20,7 +20,7 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    agent.train(env_type='Default', n_games=100)
+    agent.train(env_type='Default', n_games=300)
     # agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=100)
     # agent.evaluate(env_type='DR')
@@ -36,8 +36,8 @@ def ppo():
     # agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
-    # logger.remove()
-    # logger.add(sys.stderr, level="TRACE")
+    logger.remove()
+    logger.add(sys.stderr, level="TRACE")
 
     init_working_dir()
     ddqn()

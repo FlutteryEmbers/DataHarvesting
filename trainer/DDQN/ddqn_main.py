@@ -36,7 +36,7 @@ class DDQN_GameAgent():
         stats.save(env_type + "/")
 
     def train(self, n_games, env_type):
-        logger.success('training in mode: ' + env_type)
+        logger.warning('Training {} Mode:'.format(env_type))
         best_num_steps = float('inf')
         best_rewards = 0
         episode_rewards = []
@@ -56,7 +56,7 @@ class DDQN_GameAgent():
         # ddqn = DDQN_CNN(env=env)
 
         for i in range(n_games):
-            logger.success('<<<<<<<<<Episode: %s' % i)
+            logger.success('Start Episode: %s' % i)
             s = env.reset()
             episode_reward_sum = 0
 
@@ -75,7 +75,7 @@ class DDQN_GameAgent():
                     ddqn.learn()
 
                 if done:
-                    logger.success('episode%s---reward_sum: %s' % (i, round(episode_reward_sum, 2)))
+                    logger.success('Episode %s Rewards: %s' % (i, round(episode_reward_sum, 2)))
                     env.view()
                     break
 
