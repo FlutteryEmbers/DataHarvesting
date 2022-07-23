@@ -1,13 +1,7 @@
+import time, os, random, yaml, sys, re
 import numpy as np
 import torch as T
 import matplotlib.pyplot as plt
-import time
-import os
-import torch
-import random
-import yaml
-import sys
-import re
 from loguru import logger
 
 def plot_learning_curve(x, scores, figure_file):
@@ -32,11 +26,11 @@ def mkdir(dir):
             os.makedirs(dir)
             # print("The new directory is created!")
 def setup_seed(seed):
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    T.manual_seed(seed)
+    T.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
-    torch.backends.cudnn.deterministic = True
+    T.backends.cudnn.deterministic = True
 
 def load_config(file):
     logger.debug('loading {}'.format(file))
