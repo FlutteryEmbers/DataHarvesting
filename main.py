@@ -1,4 +1,4 @@
-from trainer.Q_Learning.ddqn_main import DDQN_GameAgent
+from trainer.DDQN.ddqn_main import DDQN_GameAgent
 from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from utils import tools
 from loguru import logger

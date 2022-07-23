@@ -1,6 +1,6 @@
 from environments.instances.determistic import Test_Environment
 from environments.instances.randomized import DR_Environment
-from trainer.Q_Learning.ddqn import DDQN
+from trainer.DDQN.ddqn import DDQN
 # from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
 import sys
