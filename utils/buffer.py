@@ -91,6 +91,7 @@ class Info():
             plt.plot(t, data[i], label="turrent {}".format(i))
 
         plt.legend(loc='upper left')
+        plt.title(filename)
         plt.savefig('{}.png'.format(filename))
         plt.close('all')
 
