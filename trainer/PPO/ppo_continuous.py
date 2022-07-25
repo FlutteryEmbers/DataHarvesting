@@ -81,7 +81,8 @@ class Actor_Gaussian(nn.Module):
     def forward(self, s):
         s = self.activate_func(self.fc1(s))
         s = self.activate_func(self.fc2(s))
-        mean = self.max_action * torch.tanh(self.mean_layer(s))  # [-1,1]->[-max_action,max_action]
+        # mean = self.max_action * torch.tanh(self.mean_layer(s))  # [-1,1]->[-max_action,max_action]
+        mean = 1/2 * (self.max_action * torch.tanh(self.mean_layer(s)) + self.max_action) # [-1,1]->[0,max_action]
         return mean
 
     def get_dist(self, s):
@@ -189,7 +190,8 @@ class PPO_continuous():
             with torch.no_grad():
                 dist = self.actor.get_dist(s)
                 a = dist.sample()  # Sample the action according to the probability distribution
-                a = torch.clamp(a, -self.max_action, self.max_action)  # [-max,max]
+                # a = torch.clamp(a, -self.max_action, self.max_action)  # [-max,max]
+                a = torch.clamp(a, 0, self.max_action) # [0,max]
                 a_logprob = dist.log_prob(a)  # The log probability density of the action
         return a.numpy().flatten(), a_logprob.numpy().flatten()
 

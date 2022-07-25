@@ -34,19 +34,23 @@ class Agent():
         self.running_info.reset()
 
         s = self.status_tracker.get_state(mode = self.state_mode)
+        # logger.debug(s)
         # return s, self.status_tracker.current_position
         return s
     
-    def step(self, action):
-        if self.action_type == 'Discrete':
-            action = self.action_space.get_indexed_action(action)
+    def step(self, action, verbose = 0):
+        if verbose > 0:
+            logger.debug('angular representation: {}'.format(action))
+        action = self.action_space.get_action(action)
 
         self.num_steps += 1
 
         current_position, tower_location, dv_collected, dv_left, dv_transmittion_rate, dv_required = self.status_tracker.get_current_status()
         
         position = self.status_tracker.update_position(action)
-        
+        if verbose > 0:
+            logger.debug('action_take: {}'.format(action))
+            logger.debug('current_position: {}'.format(position))
         # data_volume_collected, data_transmitting_rate_list = Phi_dif_transmitting_speed(self.status_tracker.current_position, tower_location, dv_collected, dv_required)
         # data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
         data_volume_collected, data_transmitting_rate_list, data_volume_left = self.status_tracker.transmitting_model.update_dv_status(self.status_tracker.current_position, dv_collected, dv_required)

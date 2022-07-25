@@ -1,6 +1,3 @@
-import sys
-from turtle import position
-import torch
 import numpy as np
 # from torch.utils.tensorboard import SummaryWriter
 import gym
@@ -64,11 +61,20 @@ class PPO_GameAgent():
             stats = env.view()
             if load_model != None:
                 stats.save('{}/'.format(load_model))
+            else:
+                num_steps = env.num_steps
+                if num_steps < self.best_num_steps:
+                    self.best_num_steps = num_steps
+                    agent.actor.save_checkpoint(mode=args.env_type)
+                    agent.critic.save_checkpoint(mode=args.env_type)
+
         return evaluate_reward / times
 
 
     def main(self, args, env, env_type='Default'):
-        logger.success('total {} evals'.format(args.max_train_steps / args.evaluate_freq))
+        self.total_eval = args.max_train_steps / args.evaluate_freq
+        self.best_num_steps = float('inf')
+        logger.success('total {} evals'.format(self.total_eval))
 
         env = Test_Environment_Continuous
         env_evaluate = Test_Environment_Eval_Continuous
@@ -101,7 +107,7 @@ class PPO_GameAgent():
 
         # Build a tensorboard
         # writer = SummaryWriter(log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
-
+        
         state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
         if args.use_reward_norm:  # Trick 3:reward normalization
             reward_norm = Normalization(shape=1)
@@ -154,16 +160,18 @@ class PPO_GameAgent():
                 # Evaluate the policy every 'evaluate_freq' steps
                 if total_steps % args.evaluate_freq == 0:
                     self.timer.stop()
+                    logger.success("evaluate_num:{} left: {}".format(evaluate_num, self.total_eval - evaluate_num))
                     evaluate_num += 1
                     evaluate_reward = self.evaluate_policy(args, env_evaluate, agent, state_norm)
                     evaluate_rewards.append(evaluate_reward)
-                    logger.success("evaluate_num:{} \t evaluate_reward:{} \t".format(evaluate_num, evaluate_reward))
+                    logger.success("evaluate_reward:{}".format(evaluate_reward))
+                    agent.actor.save_checkpoint(mode='tmp')
+                    agent.critic.save_checkpoint(mode='tmp')
                     self.timer.start()
 
         self.timer.stop()
         # env_type = 'Default'
-        agent.actor.save_checkpoint(mode=args.env_type)
-        agent.critic.save_checkpoint(mode=args.env_type)
+        
 
         x = [i+1 for i in range(len(evaluate_rewards))]
         tools.plot_curve(x, evaluate_rewards, 'results/' + env_type + '/rewards.png')

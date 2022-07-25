@@ -4,6 +4,12 @@ import torch as T
 import matplotlib.pyplot as plt
 from loguru import logger
 
+def set_logger_level(level):
+    choice = ['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL']
+    logger.remove()
+    # logger.add(sys.stderr, format="{time:HH:mm:ss} | {level} | {message}", level=choice[level])
+    logger.add(sys.stderr, level=choice[level])
+
 def plot_learning_curve(x, scores, figure_file):
     running_avg = np.zeros(len(scores))
     for i in range(len(running_avg)):
@@ -65,7 +71,7 @@ def save_network_params(mode, checkpoint_file, state_dict, num_checkpoints = 0):
         logger.debug('saving to {}'.format(checkpoint_file))
     else:
         checkpoint_file = checkpoint_file + '_' + mode
-        logger.debug('saving to {}_{}'.format(checkpoint_file, mode))
+        logger.debug('saving to {}'.format(checkpoint_file))
 
     T.save(state_dict, checkpoint_file)
 

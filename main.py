@@ -20,28 +20,27 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    agent.train(env_type='Default', n_games=300)
+    # agent.train(env_type='Default', n_games=300)
     # agent.evaluate(env_type='Default')
-    # agent.train(env_type='DR', n_games=100)
-    # agent.evaluate(env_type='DR')
+    # agent.train(env_type='DR', n_games=1000)
+    agent.evaluate(env_type='DR')
 
 def ppo():
     logger.critical('Start PPO Session')
-    mode = 'DR'
+    mode = 'Default'
     config = tools.load_config("configs/config_ppo_{}.yaml".format(mode.lower()))
     tools.setup_seed(config['random_seed'])
     args = tools.dict2class(config)
     agent = PPO_GameAgent(args = args)
-    agent.train(env_type=mode)
-    # agent.evaluate_policy(args=args, load_model=mode)
+    # agent.train(env_type=mode)
+    agent.evaluate_policy(args=args, load_model=mode)
 
 if __name__ == '__main__':
-    logger.remove()
-    logger.add(sys.stderr, level="TRACE")
+    tools.set_logger_level(1)
 
     init_working_dir()
-    ddqn()
-    # ppo()
+    # ddqn()
+    ppo()
 
     
    
