@@ -118,7 +118,7 @@ class DDQN(object):
         self.optimizer.zero_grad()                                     
         loss.backward()                                                 
         self.optimizer.step()
-        # self.decrement_epsilon()
+        self.decrement_epsilon()
     
     def save_models(self, mode):
         self.eval_net.save_checkpoint(mode=mode)

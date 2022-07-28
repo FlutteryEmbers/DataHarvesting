@@ -2,13 +2,16 @@ import numpy as np
 from loguru import logger
 import matplotlib.pyplot as plt
 import pickle, os
+import yaml
 
 class Learning_Monitor():
-	def __init__(self, output_dir='', name='', log = '') -> None:
+	def __init__(self, output_dir='', name='', log = '', args=None) -> None:
 		self.rewards = []
 		self.name = name
 		self.output_dir = output_dir + '/'
 		self.log = log
+		self.args = args
+
 		self.mkdir(output_dir)
 
 	def store(self, reward):
@@ -62,10 +65,14 @@ class Learning_Monitor():
 		handle.close()
 
 	def save_log(self):
-		with open('readme.txt', 'w') as f:
+		with open(self.output_dir+'log.txt', 'w') as f:
 			for line in self.log:
 				f.write(line)
 				f.write('\n')
+
+		with open(self.output_dir+'config.yaml', "w", encoding = "utf-8") as yaml_file:
+			dump = yaml.dump(self.args, default_flow_style = False, allow_unicode = True, encoding = None)
+			yaml_file.write(dump )
 
 		f.close()
 

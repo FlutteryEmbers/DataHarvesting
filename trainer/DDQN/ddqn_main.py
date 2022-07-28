@@ -13,7 +13,13 @@ class DDQN_GameAgent():
         self.network = network
         self.timer = tools.Timer()
 
+        now = datetime.now()
+        self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
+
     def evaluate(self, env_type, env = Test_Environment):
+        output_dir = self.output_dir + '_' + env_type + '_eval_ddqn/'
+        tools.mkdir(output_dir)
+
         env.state_mode = self.network
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
@@ -23,7 +29,7 @@ class DDQN_GameAgent():
         rewards, env = self.evaluate_with_model(env=env, model=ddqn)
 
         stats = env.view()
-        stats.save(env_type + "/")
+        stats.save(output_dir)
 
     def evaluate_with_model(self, env, model):
         done = False
@@ -48,8 +54,8 @@ class DDQN_GameAgent():
         episode_rewards = []
         num_steps = []
 
-        now = datetime.now()
-        output_dir = 'results/{}/'.format(now.strftime("%d-%m-%Y %H-%M-%S"))
+        
+        output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
 
         tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type])
         env = None
@@ -65,11 +71,11 @@ class DDQN_GameAgent():
         ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
         # env.mode = 'CNN'
         # ddqn = DDQN_CNN(env=env)
-
+        best_model = None
         for i in range(n_games):
             logger.success('Start Episode: %s' % i)
             s = env.reset()
-            episode_reward_sum = 0
+            # episode_reward_sum = 0
 
             self.timer.start()
             while True:
@@ -78,7 +84,7 @@ class DDQN_GameAgent():
                 s_, r, done, _ = env.step(a)
 
                 ddqn.store_transition(s, a, r, s_, done)
-                episode_reward_sum += r
+                # episode_reward_sum += r
 
                 s = s_
 
@@ -100,8 +106,9 @@ class DDQN_GameAgent():
                 if env_type == 'DR':
                     ddqn.save_models(mode=env_type)
                 elif env_type == 'Default':
-                    if env.num_steps < best_num_steps:
+                    if test_env.num_steps < best_num_steps:
                         best_num_steps = env.num_steps
+                        best_model = ddqn
                         ddqn.save_models(mode=env_type)
             
             self.timer.stop()
@@ -112,7 +119,10 @@ class DDQN_GameAgent():
         tracker.plot_learning_curve()
         tracker.dump_to_file()
         tracker.save_log()
-        tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
+        eval_rewards, test_env = self.evaluate_with_model(env=env, model=best_model)
+        stats = test_env.view()
+        stats.save(output_dir)
+        tools.plot_curve(x, num_steps, output_dir + 'step.png')
 
     def fine_tuning(self, n_game):
         pass

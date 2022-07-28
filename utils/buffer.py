@@ -37,7 +37,7 @@ class ReplayBuffer():
         return states, actions, rewards, states_, dones
 
 class Info():
-    def __init__(self, board_structure, num_turrent, output_dir = 'results/') -> None:
+    def __init__(self, board_structure, num_turrent, output_dir = '') -> None:
         self.board = board_structure
         self.num_turrent = num_turrent
         self.timestamp = 0

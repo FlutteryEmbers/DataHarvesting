@@ -8,8 +8,6 @@ import torch as T
 def init_working_dir():
     tools.mkdir('model/q_networks')
     tools.mkdir('model/ppo')
-    tools.mkdir('results/Default')
-    tools.mkdir('results/DR')
 
 def ddqn():
     logger.critical('Start DDQN Session')
@@ -21,8 +19,8 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    agent.train(env_type='Default', n_games=300)
-    # agent.evaluate(env_type='Default')
+    # agent.train(env_type='Default', n_games=10)
+    agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=1000)
     # agent.evaluate(env_type='DR')
 
