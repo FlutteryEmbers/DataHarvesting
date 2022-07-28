@@ -35,8 +35,8 @@ class Status_Tracker(object):
 
         dv_collected_ratio = dv_collected/dv_required
         # state = np.concatenate((current_position, dv_collected_ratio, tower_location), axis=None)
-        # state = np.concatenate((current_position, dv_collected, dv_required, tower_location), axis=None)
-        state = np.concatenate((current_position, dv_collected), axis=None)
+        state = np.concatenate((current_position, dv_collected_ratio, dv_required, tower_location), axis=None)
+        # state = np.concatenate((current_position, dv_collected), axis=None)
         return state.tolist()
 
     def get_visual_state(self):

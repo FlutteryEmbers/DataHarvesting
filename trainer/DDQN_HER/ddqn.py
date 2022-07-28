@@ -12,8 +12,6 @@ class DDQN(object):
         self.batch_size = config['BATCH_SIZE']
         self.lr = config['LR']
         self.epsilon = config['EPSILON']
-        self.decay_epsilon = config['EPSILON_DECAY_RATE']
-        self.min_epsilon = config['MINIMUN_EPSILON']
         self.gamma = config['GAMMA']
         self.target_replace_iter = config['TARGET_REPLACE_ITER']
         self.memory_capaciy = config['MEMORY_CAPACITY']
@@ -56,7 +54,7 @@ class DDQN(object):
             EPSILON = EPSILON * 0.99
             print('EPSILON = ', EPSILON)
         '''
-        if np.random.uniform() < self.epsilon and not disable_exploration:
+        if np.random.uniform() > self.epsilon and not disable_exploration:
            action = self.env.action_space.sample()
 
         elif self.network_type == 'CNN':
@@ -76,9 +74,6 @@ class DDQN(object):
         self.memory_counter += 1
 
     def learn(self):
-        if self.memory_counter < self.memory.mem_size:
-            return
-
         if self.learn_step_counter % self.target_replace_iter == 0:
             self.target_net.load_state_dict(self.eval_net.state_dict())
         self.learn_step_counter += 1
@@ -118,7 +113,6 @@ class DDQN(object):
         self.optimizer.zero_grad()                                     
         loss.backward()                                                 
         self.optimizer.step()
-        # self.decrement_epsilon()
     
     def save_models(self, mode):
         self.eval_net.save_checkpoint(mode=mode)
@@ -134,17 +128,3 @@ class DDQN(object):
         for i in range(self.batch_size):
             result.append([i, batch_samples[i][name]])
         return result
-    
-    def lr_decay(self, max_train_steps):
-        lr_now = self.lr * (1 - self.learn_step_counter / max_train_steps)
-        
-        for p in self.optimizer.param_groups:
-            p['lr'] = lr_now
-
-    def decrement_epsilon(self):
-        """
-        Decrements the epsilon after each step till it reaches minimum epsilon (0.1)
-        epsilon = epsilon - decrement (default is 1e-5)
-        """
-        self.epsilon = self.epsilon - self.decay_epsilon if self.epsilon > self.min_epsilon \
-            else self.min_epsilon

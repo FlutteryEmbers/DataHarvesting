@@ -1,11 +1,10 @@
 from environments.instances.determistic import Test_Environment
 from environments.instances.randomized import DR_Environment
 from trainer.DDQN.ddqn import DDQN
+# from trainer.Q_Learning.ddqn_cnn import DDQN_CNN
 from utils import tools
-from utils import monitor
 import sys
 from loguru import logger
-from datetime import datetime
 
 class DDQN_GameAgent():
     def __init__(self, config, network = 'Default') -> None:
@@ -20,26 +19,21 @@ class DDQN_GameAgent():
         # ddqn = DDQN_CNN(env=env)
 
         ddqn.load_models(mode=env_type)
-        rewards, env = self.evaluate_with_model(env=env, model=ddqn)
-
-        stats = env.view()
-        stats.save(env_type + "/")
-
-    def evaluate_with_model(self, env, model):
         done = False
         s = env.reset()
         episode_reward_sum = 0
 
         while not done:
-            a = model.choose_action(s, disable_exploration=True)
-            s_, r, done, _ = env.step(a, type_reward='sparse')
+            a = ddqn.choose_action(s, disable_exploration=True)
+            s_, r, done, _ = env.step(a)
 
-            model.store_transition(s, a, r, s_, done)
+            ddqn.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
 
             s = s_
 
-        return episode_reward_sum, env
+        stats = env.view()
+        stats.save(env_type + "/")
 
     def train(self, n_games, env_type):
         logger.warning('Training {} Mode'.format(env_type))
@@ -48,10 +42,6 @@ class DDQN_GameAgent():
         episode_rewards = []
         num_steps = []
 
-        now = datetime.now()
-        output_dir = 'results/{}/'.format(now.strftime("%d-%m-%Y %H-%M-%S"))
-
-        tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type])
         env = None
         if env_type == 'Default':
             env = Test_Environment
@@ -82,18 +72,15 @@ class DDQN_GameAgent():
 
                 s = s_
 
-                # if ddqn.memory_counter > ddqn.memory.mem_size:
-                ddqn.learn()
-                
+                if ddqn.memory_counter > ddqn.memory.mem_size:
+                    ddqn.learn()
+
                 if done:
-                    eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn)
-                    tracker.store(eval_rewards)
-                    logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
-                    test_env.view()
+                    logger.success('Episode %s Rewards: %s' % (i, round(episode_reward_sum, 2)))
+                    env.view()
                     break
 
-            # ddqn.lr_decay(n_games)
-            # episode_rewards.append(round(episode_reward_sum, 2))
+            episode_rewards.append(round(episode_reward_sum, 2))
             num_steps.append(env.num_steps)
             
             if  n_games - i < 100:
@@ -107,11 +94,7 @@ class DDQN_GameAgent():
             self.timer.stop()
 
         x = [i+1 for i in range(n_games)]
-        # tools.plot_curve(x, episode_rewards, 'results/' + env_type + '/rewards.png')
-        tracker.plot_average_learning_curve(50)
-        tracker.plot_learning_curve()
-        tracker.dump_to_file()
-        tracker.save_log()
+        tools.plot_curve(x, episode_rewards, 'results/' + env_type + '/rewards.png')
         tools.plot_curve(x, num_steps, 'results/' + env_type + '/step.png')
 
     def fine_tuning(self, n_game):

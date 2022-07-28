@@ -38,7 +38,7 @@ class Agent():
         # return s, self.status_tracker.current_position
         return s
     
-    def step(self, action, verbose = 0):
+    def step(self, action, verbose = 0, type_reward = 'default'):
         if verbose > 0:
             logger.debug('angular representation: {}'.format(action))
         action = self.action_space.get_action(action)
@@ -63,12 +63,18 @@ class Agent():
                                     data_collected_t=data_volume_collected, 
                                     data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 
-        reward = self.status_tracker.get_reward()
-        reward -= self.num_steps * 0.01 # 每步减少reward 1
+        if type_reward == 'default':  
+            reward = self.status_tracker.get_reward()
+            reward -= self.num_steps * 0.01 # 每步减少reward 1
 
-        # NOTE: 判断是否到达终点
-        if self.status_tracker.is_done():
-            reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+            # NOTE: 判断是否到达终点
+            if self.status_tracker.is_done():
+                reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+
+        else:
+            reward = -1
+            if self.status_tracker.is_done():
+                reward -= np.sum(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
 
         s = self.status_tracker.get_state(mode = self.state_mode)
         return s, reward, self.status_tracker.is_done(), self.status_tracker.current_position
