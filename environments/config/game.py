@@ -9,9 +9,9 @@ from loguru import logger
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, env, state_mode = 'MLP', action_type = 'Discrete'):
+    def __init__(self, env, state_mode = 'MLP', action_type = 'Discrete', max_episode_steps = 10000):
         # self.reward_func = self.test_reward_function
-        self._max_episode_steps = 10000
+        self._max_episode_steps = max_episode_steps
         self.state_mode = state_mode
         self.status_tracker = env
         self.action_type = action_type
@@ -63,6 +63,7 @@ class Agent():
                                     data_collected_t=data_volume_collected, 
                                     data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 
+        done = False
         if type_reward == 'default':  
             reward = self.status_tracker.get_reward()
             reward -= self.num_steps * 0.01 # 每步减少reward 1
@@ -70,14 +71,22 @@ class Agent():
             # NOTE: 判断是否到达终点
             if self.status_tracker.is_done():
                 reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+                done = True
+
+        elif type_reward == 'HER':
+            reward = -1
+            if self.status_tracker.is_done() and np.array_equal(self.status_tracker.current_position, self.status_tracker.arrival_at):
+                reward = 0
+                done = True
 
         else:
             reward = -1
             if self.status_tracker.is_done():
                 reward -= np.sum(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+                done = True
 
         s = self.status_tracker.get_state(mode = self.state_mode)
-        return s, reward, self.status_tracker.is_done(), self.status_tracker.current_position
+        return s, reward, done, self.status_tracker.current_position
 
     def view(self):
         logger.info('data left = {} steps taken = {}'.format(np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), self.num_steps))

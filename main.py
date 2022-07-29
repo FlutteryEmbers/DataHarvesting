@@ -19,10 +19,10 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    # agent.train(env_type='Default', n_games=10)
-    agent.evaluate(env_type='Default')
-    # agent.train(env_type='DR', n_games=1000)
-    # agent.evaluate(env_type='DR')
+    # agent.train(env_type='Default', n_games=2000)
+    # agent.evaluate(env_type='Default')
+    # agent.train(env_type='DR', n_games=10000)
+    agent.evaluate(env_type='DR')
 
 def ppo():
     logger.critical('Start PPO Session')

@@ -57,7 +57,7 @@ class DDQN_GameAgent():
         
         output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
 
-        tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type])
+        tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type], args=self.config)
         env = None
         if env_type == 'Default':
             env = Test_Environment
