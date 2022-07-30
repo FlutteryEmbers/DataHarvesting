@@ -8,7 +8,7 @@ from trainer.DDQN_HER.HERBuffer import HindsightExperienceReplayMemory as Replay
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DDQN(object):
-    def __init__(self, env, config, network_config, eval_name = 'ddqn_eval', target_name = 'ddqn_target') -> None:
+    def __init__(self, env, config, network_config, eval_name = 'her_ddqn_eval', target_name = 'her_ddqn_target') -> None:
         self.batch_size = config['BATCH_SIZE']
         self.lr = config['LR']
         self.epsilon = config['EPSILON']
@@ -42,7 +42,7 @@ class DDQN(object):
         self.env = env
 
     def choose_action(self, state, goal, disable_exploration=False):
-        if np.random.random() > self.epsilon:
+        if np.random.random() > self.epsilon or disable_exploration:
             concat_state_goal = np.concatenate([state, goal])
             state = torch.tensor(np.array([concat_state_goal]), dtype=torch.float).to(self.eval_net.device)
             actions = self.eval_net.forward(state)

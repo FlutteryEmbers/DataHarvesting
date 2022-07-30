@@ -104,9 +104,9 @@ class DDQN_GameAgent():
                     ddqn.save_models(mode=env_type)
                 elif env_type == 'Default':
                     if test_env.num_steps < best_num_steps:
-                        best_num_steps = env.num_steps
+                        best_num_steps = test_env.num_steps
                         best_model = ddqn
-                        ddqn.save_models(mode=env_type)
+                        best_model.save_models(mode=env_type)
             
             self.timer.stop()
 

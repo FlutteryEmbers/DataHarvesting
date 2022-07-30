@@ -1,5 +1,4 @@
 from environments.instances.determistic import Test_Environment
-from environments.instances.randomized import DR_Environment
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools
 from utils import monitor
@@ -15,7 +14,8 @@ class GameAgent():
         self.timer = tools.Timer()
 
         now = datetime.now()
-        self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
+        # self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
+        self.output_dir = 'results/HER'
 
     def evaluate(self, env_type, env = Test_Environment):
         output_dir = self.output_dir + '_' + env_type + '_eval_ddqn/'
@@ -28,7 +28,7 @@ class GameAgent():
 
         ddqn.load_models(mode=env_type)
         rewards, env = self.evaluate_with_model(env=env, model=ddqn)
-
+        print(rewards)
         stats = env.view()
         stats.save(output_dir)
 
@@ -37,6 +37,8 @@ class GameAgent():
         s = env.reset()
         episode_reward_sum = 0
         goal = env.goal
+        print(goal)
+        env.view()
         step = 0
         while not done and step < 1000:
             step += 1
@@ -125,12 +127,12 @@ class GameAgent():
             # episode_rewards.append(round(episode_reward_sum, 2))
             # num_steps.append(env.num_steps)
             
-                if  n_games - i < 100:
-                    if env_type == 'Default':
-                        if test_env.num_steps < best_num_steps:
-                            best_num_steps = env.num_steps
-                            best_model = ddqn
-                            ddqn.save_models(mode=env_type)
+
+                if test_env.num_steps < best_num_steps:
+                    logger.warning('best num step: {}'.format(test_env.num_steps))
+                    best_num_steps = test_env.num_steps
+                    best_model = ddqn
+                    
             
             self.timer.stop()
 
@@ -141,8 +143,10 @@ class GameAgent():
         tracker.dump_to_file()
         tracker.save_log()
         eval_rewards, test_env = self.evaluate_with_model(env=env, model=best_model)
+        logger.success('Best Rewards: %s' % (round(eval_rewards, 2)))
         stats = test_env.view()
         stats.save(output_dir)
+        best_model.save_models(mode=env_type)
         # tools.plot_curve(x, num_steps, output_dir + 'step.png')
 
     def fine_tuning(self, n_game):

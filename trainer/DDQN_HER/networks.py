@@ -29,6 +29,7 @@ class MLP(nn.Module):
         return self.output(x)
 
     def save_checkpoint(self, mode = 'Default'):
+        print('save to {}'.format(self.checkpoint_file))
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)

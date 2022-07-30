@@ -42,12 +42,8 @@ def her_ddqn():
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
     agent = HER_ddqn_main.GameAgent(config=config, network='MLP')
-
-    ## trainning_mode:
-    ## - Default: Trainning for a specific environment;
-    ## - DR: Trainning with randomized initial states
-    agent.train(env_type='Default', n_games=2000)
-    # agent.evaluate(env_type='Default')
+    # agent.train(env_type='Default', n_games=2000)
+    agent.evaluate(env_type='Default')
 
 if __name__ == '__main__':
     tools.set_logger_level(3)
