@@ -1,13 +1,14 @@
 from environments.instances.determistic import Test_Environment
 from environments.instances.randomized import DR_Environment
-from trainer.DDQN.ddqn import DDQN
+from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools
 from utils import monitor
 import sys
 from loguru import logger
 from datetime import datetime
+import numpy as np
 
-class DDQN_GameAgent():
+class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
         self.config = config
         self.network = network
@@ -35,11 +36,16 @@ class DDQN_GameAgent():
         done = False
         s = env.reset()
         episode_reward_sum = 0
+        goal = env.goal
+        step = 0
+        while not done and step < 1000:
+            step += 1
+            a = model.choose_action(s, goal, disable_exploration=True)
+            s_, r, done, _ = env.step(a, type_reward='HER')
 
-        while not done:
-            a = model.choose_action(s, disable_exploration=True)
-            s_, r, done, _ = env.step(a, type_reward='sparse')
+            # model.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
+            
             s = s_
 
         return episode_reward_sum, env
@@ -58,8 +64,7 @@ class DDQN_GameAgent():
         env = None
         if env_type == 'Default':
             env = Test_Environment
-        elif env_type == 'DR':
-            env = DR_Environment
+            logger.warning('max_step_allowed:', env._max_episode_steps)
         else:
             sys.exit("need to set mode")
 
@@ -70,43 +75,62 @@ class DDQN_GameAgent():
         # ddqn = DDQN_CNN(env=env)
         best_model = None
         for i in range(n_games):
-            logger.success('Start Episode: %s' % i)
+            logger.info('Start Episode: %s' % i)
             s = env.reset()
             # episode_reward_sum = 0
 
             self.timer.start()
-            while True:
-                # env.render()
-                a = ddqn.choose_action(s)
-                s_, r, done, _ = env.step(a)
+            done = False
+            transitions = []
+            goal = env.goal
+            logger.debug('current goal: {}'.format(goal))
+            for p in range(env._max_episode_steps):
+                if not done:
+                    # env.render()
+                    a = ddqn.choose_action(s, goal)
+                    s_, r, done, _ = env.step(a, type_reward='HER')
 
-                ddqn.store_transition(s, a, r, s_, done)
-                # episode_reward_sum += r
+                    ddqn.store_transition(s, a, r, s_, done, goal)
+                    transitions.append((s, a, r, s_))
+                    # episode_reward_sum += r
 
-                s = s_
+                    s = s_
 
-                # if ddqn.memory_counter > ddqn.memory.mem_size:
-                ddqn.learn()
-                
-                if done:
-                    eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn)
-                    tracker.store(eval_rewards)
-                    logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
-                    test_env.view()
-                    break
+                    # if ddqn.memory_counter > ddqn.memory.mem_size:
+                    ddqn.learn()
+
+            if not done:
+                new_goal = np.copy(s)
+                # logger.debug('alternative goal: {}'.format(new_goal))
+                if not np.array_equal(new_goal, goal):
+                    for p in range(env._max_episode_steps):
+                        transition = transitions[p]
+                        if np.array_equal(transition[3], new_goal):
+                            ddqn.store_transition(transition[0], transition[1], 0.0,
+                                                transition[3], True, new_goal)
+                            ddqn.learn()
+                            break
+
+                        ddqn.store_transition(transition[0], transition[1], transition[2],
+                                            transition[3], False, new_goal)
+                        ddqn.learn()
+
+            if i % 50 == 0 or n_games - i < 100:
+                eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn)
+                tracker.store(eval_rewards)
+                logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
+                test_env.view()
 
             # ddqn.lr_decay(n_games)
             # episode_rewards.append(round(episode_reward_sum, 2))
-            num_steps.append(env.num_steps)
+            # num_steps.append(env.num_steps)
             
-            if  n_games - i < 100:
-                if env_type == 'DR':
-                    ddqn.save_models(mode=env_type)
-                elif env_type == 'Default':
-                    if test_env.num_steps < best_num_steps:
-                        best_num_steps = env.num_steps
-                        best_model = ddqn
-                        ddqn.save_models(mode=env_type)
+                if  n_games - i < 100:
+                    if env_type == 'Default':
+                        if test_env.num_steps < best_num_steps:
+                            best_num_steps = env.num_steps
+                            best_model = ddqn
+                            ddqn.save_models(mode=env_type)
             
             self.timer.stop()
 
@@ -119,7 +143,7 @@ class DDQN_GameAgent():
         eval_rewards, test_env = self.evaluate_with_model(env=env, model=best_model)
         stats = test_env.view()
         stats.save(output_dir)
-        tools.plot_curve(x, num_steps, output_dir + 'step.png')
+        # tools.plot_curve(x, num_steps, output_dir + 'step.png')
 
     def fine_tuning(self, n_game):
         pass

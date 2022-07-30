@@ -35,7 +35,8 @@ class Status_Tracker(object):
 
         dv_collected_ratio = dv_collected/dv_required
         # state = np.concatenate((current_position, dv_collected_ratio, tower_location), axis=None)
-        state = np.concatenate((current_position, dv_collected_ratio, dv_required, tower_location), axis=None)
+        # state = np.concatenate((current_position, dv_collected_ratio, dv_required, tower_location), axis=None)
+        state = np.concatenate((current_position, dv_collected), axis=None)
         # state = np.concatenate((current_position, dv_collected), axis=None)
         return state.tolist()
 
@@ -88,6 +89,9 @@ class Status_Tracker(object):
             return True
 
         return False
+
+    def get_goal(self):
+        return np.concatenate((self.arrival_at, self.dv_required), axis=None)
 
 class Random_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit) -> None:
