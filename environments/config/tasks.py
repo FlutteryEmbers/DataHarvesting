@@ -93,6 +93,11 @@ class Status_Tracker(object):
     def get_goal(self):
         return np.concatenate((self.arrival_at, self.dv_required), axis=None)
 
+    def description(self):
+        return ['x_limit: {}'.format(self.x_limit), 'y_limit: {}'.format(self.y_limit),\
+                'start_at: {}'.format(self.start_at), 'arrival_at: {}'.format(self.arrival_at),\
+                'dv_required: {}'.format(self.dv_required)]
+
 class Random_Task(Status_Tracker):
     def __init__(self, x_limit, y_limit) -> None:
         self.x_limit = x_limit

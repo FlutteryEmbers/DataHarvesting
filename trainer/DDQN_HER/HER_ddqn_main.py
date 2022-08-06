@@ -1,6 +1,7 @@
 from environments.instances.determistic import Test_Environment
+from environments.instances.v1 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
-from utils import tools
+from utils import tools, io
 from utils import monitor
 import sys
 from loguru import logger
@@ -52,23 +53,16 @@ class GameAgent():
 
         return episode_reward_sum, env
 
-    def train(self, n_games, env_type):
+    def train_model(self, n_games, env, env_type):
         logger.warning('Training {} Mode'.format(env_type))
         best_num_steps = float('inf')
         best_rewards = 0
         episode_rewards = []
         num_steps = []
 
-        
         output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
 
         tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type], args=self.config)
-        env = None
-        if env_type == 'Default':
-            env = Test_Environment
-            logger.warning('max_step_allowed:', env._max_episode_steps)
-        else:
-            sys.exit("need to set mode")
 
         logger.warning('Using {} Environment'.format(env.status_tracker.name))
         env.state_mode = self.network
@@ -148,6 +142,31 @@ class GameAgent():
         stats.save(output_dir)
         best_model.save_models(mode=env_type)
         # tools.plot_curve(x, num_steps, output_dir + 'step.png')
+
+    def train(self, n_games, env_type):
+        env = None
+        if env_type == 'Default':
+            env = Test_Environment
+            logger.warning('max_step_allowed:', env._max_episode_steps)
+        else:
+            sys.exit("need to set mode")
+        self.train_model(n_games, env, env_type)
+
+    def batch_evaluation(self, env_type):
+        
+        for i in range(len(env_list.environment_list)):
+            env = env_list.get_mission(i)
+            env.state_mode = self.network
+            output_dir = io.mkdir(self.output_dir + '_' + env_type + '_batch_eval_ddqn/{}/'.format(i))
+
+            ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
+            ddqn.load_models(mode=env_type)
+            
+            rewards, result = self.evaluate_with_model(env=env, model=ddqn)
+            print(rewards)
+            stats = result.view()
+            stats.save(output_dir)
+            result.save_task_info(output_dir)
 
     def fine_tuning(self, n_game):
         pass

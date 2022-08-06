@@ -3,19 +3,20 @@ import random
 from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
+from utils import io
 from environments.config import actions
 from loguru import logger
 
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, env, state_mode = 'MLP', action_type = 'Discrete', max_episode_steps = 50):
+    def __init__(self, task, state_mode = 'MLP', action_type = 'Discrete', max_episode_steps = 50):
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
         self.state_mode = state_mode
-        self.status_tracker = env
+        self.status_tracker = task
         self.action_type = action_type
-        self.goal = env.get_goal()
+        self.goal = task.get_goal()
         
         if self.action_type == 'Discrete':
             self.action_space = actions.Discrete()       
@@ -92,3 +93,8 @@ class Agent():
     def view(self):
         logger.info('data left = {} steps taken = {}'.format(np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), self.num_steps))
         return self.running_info
+
+    def save_task_info(self, output_dir):
+        logs = self.status_tracker.description()
+        io.save_log(output_dir, logs)
+        return logs

@@ -1,7 +1,7 @@
 from trainer.DDQN.ddqn_main import DDQN_GameAgent
 from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from trainer.DDQN_HER import HER_ddqn_main
-from utils import tools
+from utils import tools, graphic
 from loguru import logger
 import sys
 import torch as T
@@ -42,15 +42,17 @@ def her_ddqn():
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
     agent = HER_ddqn_main.GameAgent(config=config, network='MLP')
-    # agent.train(env_type='Default', n_games=2000)
-    agent.evaluate(env_type='Default')
+    # agent.train(env_type='Default', n_games=1000)
+    # agent.evaluate(env_type='Default')
+    agent.batch_evaluation(env_type='Default')
 
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
     # ddqn()
     # ppo()
-    her_ddqn()
+    # her_ddqn()
+    graphic.plot_result_path(x_limit=10, y_limit=10, tower_locations=[[0, 1], [4, 7], [9, 3]], paths=[[0, 0], [1, 2], [2, 3], [7, 9]])
 
     
    
