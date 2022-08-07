@@ -45,7 +45,7 @@ class Agent():
         evaluate_freq = 5e3  # Evaluate the policy every 'evaluate_freq' steps
         evaluate_num = 0  # Record the number of evaluations
         total_steps = 0  # Record the total steps during the training
-        memory_size = int(1e6)
+        memory_size = int(1e6) ## Variable
         replay_buffer = HindsightExperienceReplayMemory(memory_size=memory_size, input_dims=self.state_dim, n_actions=self.action_dim)
         tracker = monitor.Learning_Monitor(output_dir=output_dir, name='sac', log=['ddpg'])
 

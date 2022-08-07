@@ -6,11 +6,11 @@ import torch
 class SAC(object):
     def __init__(self, state_dim, action_dim, max_action):
         self.max_action = max_action
-        self.hidden_width = 256  # The number of neurons in hidden layers of the neural network
-        self.batch_size = 64  # batch size
-        self.GAMMA = 0.95  # discount factor
-        self.TAU = 0.005  # Softly update the target network
-        self.lr = 3e-4  # learning rate
+        self.hidden_width = 256  # The number of neurons in hidden layers of the neural network ## Variable
+        self.batch_size = 64  # batch size ## Variable
+        self.GAMMA = 0.95  # discount factor ## Variable
+        self.TAU = 0.005  # Softly update the target network ## Variable
+        self.lr = 3e-4  # learning rate ## Variable
         self.adaptive_alpha = True  # Whether to automatically learn the temperature alpha
         if self.adaptive_alpha:
             # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
