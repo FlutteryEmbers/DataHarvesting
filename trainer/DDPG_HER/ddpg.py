@@ -3,8 +3,8 @@ import numpy as np
 import torch
 
 from trainer.DDPG_HER.networks import Actor, Critic
-from trainer.DDQN_HER import HERMemory as her
-from trainer.DDPG_HER.OUNoise import OUNoise as noise
+from trainer.DDPG_HER import HERBuffer as her
+from trainer.DDPG_HER import OUNoise as noise
 
 
 class DDPGAgent:
@@ -69,19 +69,28 @@ class DDPGAgent:
         """
         Selects actions using epsilon-greedy approach with OU-noise added to the greedy actions
         """
-        if disable_exploration:
+        if not disable_exploration:
+            '''
             if np.random.random() > 0.1:
-                state = torch.tensor([np.concatenate([observation, goal])], dtype=torch.float).to(self.actor.device)
+                state = torch.tensor(np.array([np.concatenate([observation, goal])]), dtype=torch.float).to(self.actor.device)
                 mu = self.actor.forward(state).to(self.actor.device)
                 action = mu + torch.tensor(self.ou_noise(), dtype=torch.float).to(self.actor.device)
-
+                action = torch.clamp(action, 0, 1)
                 self.actor.train()
                 selected_action = action.cpu().detach().numpy()[0]
             else:
                 selected_action = np.random.rand(2)
+            '''
+            
+            state = torch.tensor(np.array([np.concatenate([observation, goal])]), dtype=torch.float).to(self.actor.device)
+            mu = self.actor.forward(state).to(self.actor.device)
+            action = mu + torch.tensor(self.ou_noise(), dtype=torch.float).to(self.actor.device)
+            action = torch.clamp(action, 0, 1)
+            self.actor.train()
+            selected_action = action.cpu().detach().numpy()[0]
         
         else:
-            state = torch.tensor([np.concatenate([observation, goal])], dtype=torch.float).to(self.actor.device)
+            state = torch.tensor(np.array([np.concatenate([observation, goal])]), dtype=torch.float).to(self.actor.device)
             action = self.actor.forward(state).to(self.actor.device)
             selected_action = action.cpu().detach().numpy()[0]
 
@@ -92,6 +101,7 @@ class DDPGAgent:
         Learns the y function
         """
         if self.memory.counter < self.batch_size:
+            print('not learning')
             return
 
         self.actor.optimizer.zero_grad()

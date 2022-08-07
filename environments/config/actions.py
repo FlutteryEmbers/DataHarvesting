@@ -30,3 +30,6 @@ class Continuous():
         y = r * math.sin(math.radians(theta))
 
         return [x, y]
+
+    def sample(self):
+        return np.random.rand(2)

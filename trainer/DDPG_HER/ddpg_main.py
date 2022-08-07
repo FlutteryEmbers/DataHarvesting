@@ -17,9 +17,9 @@ class GameAgent():
         self.max_action = float(self.env.action_space.high)
         self.max_episode_steps = self.env._max_episode_steps
 
-        self.agent = ddpg.DDPGAgent(actor_learning_rate=0.0001, critic_learning_rate=0.001, n_actions=2,
-                                input_dims=2, gamma=0.99,
-                                memory_size=10000, batch_size=64,
+        self.agent = ddpg.DDPGAgent(actor_learning_rate=1e-4, critic_learning_rate=1e-3, n_actions=2,
+                                input_dims=self.state_dim, gamma=0.99,
+                                memory_size=int(1e6), batch_size=64,
                                 checkpoint_dir=checkpoint_dir)
     
     def evaluate_with_model(self, env, model):
@@ -27,13 +27,13 @@ class GameAgent():
         s = env.reset()
         episode_reward_sum = 0
         goal = env.goal
-        print(goal)
+        # print(goal)
         env.view()
         step = 0
         while not done and step < 1000:
             step += 1
-            a = model.choose_action(s, goal, disable_exploration=True)
-            s_, r, done, _ = env.step(a, type_reward='HER')
+            a = model.choose_action(s, goal, disable_exploration=False)
+            s_, r, done, _ = env.step(a, type_reward='Default')
 
             # model.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
@@ -65,13 +65,14 @@ class GameAgent():
             transitions = []
             goal = self.env.goal
             logger.debug('current goal: {}'.format(goal))
-            for p in range(self.env._max_episode_steps):
+            # for p in range(self.env._max_episode_steps):
+            for p in range(10000):
                 if not done:
                     # env.render()
                     a = self.agent.choose_action(s, goal, disable_exploration=False)
-                    s_, r, done, _ = self.env.step(a, type_reward='HER', verbose=1)
+                    s_, r, done, _ = self.env.step(a, type_reward='Default', verbose=1)
 
-                    self.agent.store_transition(s, a, r, s_, done, goal)
+                    self.agent.store_experience(s, a, r, s_, done, goal)
                     transitions.append((s, a, r, s_))
                     # episode_reward_sum += r
 
@@ -81,18 +82,20 @@ class GameAgent():
                     self.agent.learn()
 
             if not done:
+                print('NOT DONE')
                 new_goal = np.copy(s)
                 # logger.debug('alternative goal: {}'.format(new_goal))
+                # print(new_goal)
                 if not np.array_equal(new_goal, goal):
                     for p in range(self.env._max_episode_steps):
                         transition = transitions[p]
                         if np.array_equal(transition[3], new_goal):
-                            self.agent.store_transition(transition[0], transition[1], 0.0,
+                            self.agent.store_experience(transition[0], transition[1], 0.0,
                                                 transition[3], True, new_goal)
                             self.agent.learn()
                             break
 
-                        self.agent.store_transition(transition[0], transition[1], transition[2],
+                        self.agent.store_experience(transition[0], transition[1], transition[2],
                                             transition[3], False, new_goal)
                         self.agent.learn()
 

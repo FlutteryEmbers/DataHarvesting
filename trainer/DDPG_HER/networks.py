@@ -14,11 +14,11 @@ class Actor(nn.Module):
         super(Actor, self).__init__()
 
         self.input = input_dims
-        self.fc1 = nn.Linear(2*input_dims, 512)
-        self.fc2 = nn.Linear(512, 256)
+        self.fc1 = nn.Linear(2*input_dims, 256)
+        self.fc2 = nn.Linear(256, 256)
         self.fc3 = nn.Linear(256, n_actions)
 
-        self.optimizer = optim.RMSprop(self.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
         self.loss = nn.MSELoss()
 
         self.device_type = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -31,8 +31,10 @@ class Actor(nn.Module):
     def forward(self, data):
         fc_layer1 = F.relu(self.fc1(data))
         fc_layer2 = F.relu(self.fc2(fc_layer1))
-        actions = self.fc3(fc_layer2)
-
+        # actions = self.fc3(fc_layer2)
+        actions = 1/2 * (torch.tanh(self.fc3(fc_layer2)) + 1)
+        if torch.max(actions) > 1 or torch.min(actions) < 0:
+            print('not a valid action')
         return actions
 
     def save_checkpoint(self):
@@ -51,11 +53,11 @@ class Critic(nn.Module):
     def __init__(self, input_dims, n_actions, learning_rate, checkpoint_dir, name):
         super(Critic, self).__init__()
 
-        self.fc1 = nn.Linear(2*input_dims + n_actions, 512)
-        self.fc2 = nn.Linear(512, 256)
+        self.fc1 = nn.Linear(2*input_dims + n_actions, 256)
+        self.fc2 = nn.Linear(256, 256)
         self.fc3 = nn.Linear(256, 1)
 
-        self.optimizer = optim.RMSprop(self.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(self.parameters(), lr=learning_rate, weight_decay=1e-2)
         self.loss = nn.MSELoss()
 
         self.device_type = 'cuda:0' if torch.cuda.is_available() else 'cpu'

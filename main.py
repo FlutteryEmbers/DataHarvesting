@@ -1,10 +1,10 @@
 from trainer.DDQN.ddqn_main import DDQN_GameAgent
 from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from trainer.DDQN_HER import HER_ddqn_main
+from trainer.SAC import sac_main
 from utils import tools, graphic
 from loguru import logger
-import sys
-import torch as T
+from trainer.DDPG_HER import ddpg_main
 
 def init_working_dir():
     tools.mkdir('model/q_networks')
@@ -46,13 +46,35 @@ def her_ddqn():
     # agent.evaluate(env_type='Default')
     agent.batch_evaluation(env_type='Default')
 
+def ddpg():
+    logger.critical('Start DDPG Session')
+    config = tools.load_config("configs/config_ddqn.yaml")
+    tools.setup_seed(config['RANDOM_SEED'])
+    ## network: trainning algorithm using: MLP/CNN network 
+    agent = ddpg_main.GameAgent()
+    agent.train(n_games=1000)
+    # agent.evaluate(env_type='Default')
+    # agent.train(env_type='DR', n_games=10000)
+    # agent.evaluate(env_type='DR')
+
+def sac():
+    logger.critical('Start SAC Session')
+    config = tools.load_config("configs/config_ddqn.yaml")
+    tools.setup_seed(config['RANDOM_SEED'])
+    ## network: trainning algorithm using: MLP/CNN network 
+    agent = sac_main.Agent()
+    agent.train(1000)
+
+
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
     # ddqn()
     # ppo()
     # her_ddqn()
-    graphic.plot_result_path(x_limit=10, y_limit=10, tower_locations=[[0, 1], [4, 7], [9, 3]], paths=[[0, 0], [1, 2], [2, 3], [7, 9]])
+    # ddpg()
+    sac()
+    # graphic.plot_result_path(x_limit=10, y_limit=10, tower_locations=[[0, 1], [4, 7], [9, 3]], paths=[[0, 0], [1, 2], [2, 3], [7, 9]])
 
     
    
