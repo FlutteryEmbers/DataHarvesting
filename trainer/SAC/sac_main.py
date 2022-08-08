@@ -28,7 +28,7 @@ class Agent():
         episode_reward = 0
         while not done:
             a = model.choose_action(s, deterministic=True)  # We use the deterministic policy during the evaluating
-            s_, r, done, _ = env.step(a, type_reward='Default')
+            s_, r, done, _ = env.step(a, type_reward='default')
             episode_reward += r
             s = s_
         print(episode_reward)
@@ -60,7 +60,7 @@ class Agent():
                     a = self.env.action_space.sample()
                 else:
                     a = self.agent.choose_action(s)
-                s_, r, done, _ = self.env.step(a, type_reward='Default')
+                s_, r, done, _ = self.env.step(a, type_reward='default')
 
                 # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
                 # dw means dead or win,there is no next state s';

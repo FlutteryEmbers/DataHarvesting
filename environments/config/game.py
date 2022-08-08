@@ -10,7 +10,7 @@ from loguru import logger
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, task, state_mode = 'MLP', action_type = 'Discrete', max_episode_steps = 100):
+    def __init__(self, task, state_mode = 'MLP', action_type = 'Discrete', max_episode_steps = 50):
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
         self.state_mode = state_mode
@@ -66,7 +66,8 @@ class Agent():
                                     data_left_t=data_volume_left, data_collect_rate_t = data_transmitting_rate_list)
 
         done = False
-        if type_reward == 'default':  
+        if type_reward == 'default':
+            # print('default')  
             reward = self.status_tracker.get_reward()
             reward -= self.num_steps * 0.01 # 每步减少reward 1
 

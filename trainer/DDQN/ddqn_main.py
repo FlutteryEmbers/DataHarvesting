@@ -38,7 +38,7 @@ class DDQN_GameAgent():
 
         while not done:
             a = model.choose_action(s, disable_exploration=True)
-            s_, r, done, _ = env.step(a, type_reward='sparse')
+            s_, r, done, _ = env.step(a, type_reward='HER')
             episode_reward_sum += r
             s = s_
 
@@ -72,13 +72,14 @@ class DDQN_GameAgent():
         for i in range(n_games):
             logger.success('Start Episode: %s' % i)
             s = env.reset()
-            # episode_reward_sum = 0
+            episode_step = 0
 
             self.timer.start()
-            while True:
+            while episode_step < env._max_episode_steps:
+                episode_step += 1
                 # env.render()
                 a = ddqn.choose_action(s)
-                s_, r, done, _ = env.step(a)
+                s_, r, done, _ = env.step(a, type_reward='HER')
 
                 ddqn.store_transition(s, a, r, s_, done)
                 # episode_reward_sum += r

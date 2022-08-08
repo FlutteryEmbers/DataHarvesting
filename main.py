@@ -21,10 +21,10 @@ def ddqn():
     ## trainning_mode:
     ## - Default: Trainning for a specific environment;
     ## - DR: Trainning with randomized initial states
-    # agent.train(env_type='Default', n_games=2000)
+    agent.train(env_type='Default', n_games=2000)
     # agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=10000)
-    agent.evaluate(env_type='DR')
+    # agent.evaluate(env_type='DR')
 
 def ppo():
     logger.critical('Start PPO Session')
@@ -42,9 +42,10 @@ def her_ddqn():
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
     agent = HER_ddqn_main.GameAgent(config=config, network='MLP')
-    # agent.train(env_type='Default', n_games=1000)
+    agent.train(env_type='Default', n_games=3000)
     # agent.evaluate(env_type='Default')
-    agent.batch_evaluation(env_type='Default')
+    # agent.batch_evaluation(env_type='Default')
+    # agent.batch_train('Default')
 
 def ddpg():
     logger.critical('Start DDPG Session')
@@ -69,11 +70,11 @@ def sac():
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
-    # ddqn()
+    ddqn()
     # ppo()
     # her_ddqn()
     # ddpg()
-    sac()
+    # sac()
     # graphic.plot_result_path(x_limit=10, y_limit=10, tower_locations=[[0, 1], [4, 7], [9, 3]], paths=[[0, 0], [1, 2], [2, 3], [7, 9]])
 
     

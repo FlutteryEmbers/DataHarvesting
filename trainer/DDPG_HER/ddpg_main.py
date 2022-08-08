@@ -33,7 +33,7 @@ class GameAgent():
         while not done and step < 1000:
             step += 1
             a = model.choose_action(s, goal, disable_exploration=False)
-            s_, r, done, _ = env.step(a, type_reward='Default')
+            s_, r, done, _ = env.step(a, type_reward='default')
 
             # model.store_transition(s, a, r, s_, done)
             episode_reward_sum += r
@@ -70,7 +70,7 @@ class GameAgent():
                 if not done:
                     # env.render()
                     a = self.agent.choose_action(s, goal, disable_exploration=False)
-                    s_, r, done, _ = self.env.step(a, type_reward='Default', verbose=1)
+                    s_, r, done, _ = self.env.step(a, type_reward='default', verbose=1)
 
                     self.agent.store_experience(s, a, r, s_, done, goal)
                     transitions.append((s, a, r, s_))
