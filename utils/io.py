@@ -13,7 +13,7 @@ def save_log(output_dir, logs):
             f.write(line)
             f.write('\n')
 
-def dump_to_file(self, filename, content):
+def dump_to_file(filename, content):
     with open(filename, 'wb') as handle:
         pickle.dump(content, handle, protocol=pickle.HIGHEST_PROTOCOL)
         

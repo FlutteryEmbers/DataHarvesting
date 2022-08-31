@@ -15,6 +15,18 @@ class Discrete():
     def sample(self):
         return np.random.randint(0, len(self.actions)-1)
 
+class LinearDiscrete():
+    def __init__(self) -> None:
+        self.actions = [[0, 0.1], [0, 0]]
+        self.n = len(self.actions)
+    
+    def get_action(self, n):
+        return self.actions[n]
+
+    def sample(self):
+        return np.random.randint(0, len(self.actions)-1)
+
+
 class Continuous():
     def __init__(self) -> None:
         self.shape = 2

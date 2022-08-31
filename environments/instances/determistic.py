@@ -6,5 +6,9 @@ task.set_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[30, 30, 30])
 
 Test_Environment = Agent(task=task)
 
+task2 = Single_Task(x_limit=15, y_limit=15, tower_location=[[0, 14], [14, 0]])
+task2.set_mission(start_at=[0, 0], arrival_at=[14, 14], dv_required=[30, 30])
+Test_Environment2 = Agent(task=task2)
+
 Test_Environment_Continuous = Agent(task=task, action_type='Continuous')
 Test_Environment_Eval_Continuous = Agent(task=task, action_type='Continuous')

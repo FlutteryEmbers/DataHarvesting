@@ -2,12 +2,13 @@ from json import tool
 import numpy as np
 import math
 import sys
-from utils import tools
+from utils import tools, io
 
-Config = tools.load_config("configs/config_trans_model.yaml")
+config_name = "configs/config_trans_model_1_D"
+Config = tools.load_config(config_name + '.yaml')
 
 class Phi_dif_Model():
-    def __init__(self, x_limit, y_limit, tower_position, rounding = 0, time_ratio=1, B=0.5, height=0.5, K=8, N=3, Phi_list=np.array([5,4,3, 3, 3])) -> None:
+    def __init__(self, x_limit, y_limit, tower_position, rounding = 0) -> None:
         self.time_ratio = Config['TIME_RATIO']
         self.B = Config['B']
         self.height = Config['HEIGHT']
@@ -21,16 +22,17 @@ class Phi_dif_Model():
         self.rounding = rounding
 
         self.tower_position = tower_position
-        self.signal_map = self.init_signal_map()
+        # self.signal_map = self.init_signal_map()
+        self.signal_map = self.load_map()
 
-    def update_dv_status(self, agent_position, dv_collected, dv_required):
+    def update_dv_status(self, agent_position, dv_collected, dv_required, time_ratio = 1):
         x = round(agent_position[0], self.rounding)
         y = round(agent_position[1], self.rounding)
         if (x, y) not in self.signal_map:
             sys.exit("signal_map not initialized correctly")
 
         transmitting_rate_list = self.signal_map[(x, y)]
-        dv_collected_updated = np.array(dv_collected) + np.array(transmitting_rate_list*self.time_ratio)
+        dv_collected_updated = np.array(dv_collected) + np.array(transmitting_rate_list)*time_ratio
         dv_collected_updated = np.minimum(dv_collected_updated, dv_required)
 
         transmitting_rate = dv_collected_updated - dv_collected
@@ -43,11 +45,12 @@ class Phi_dif_Model():
         signal_map = {}
         x_position = np.arange(0, self.x_limit+1, self.precision, dtype=float)
         y_position = np.arange(0, self.y_limit+1, self.precision, dtype=float)
-
+        print('Building Map')
         for x in x_position:
+            print(x)
             for y in y_position:
                 rate_at_XY = []
-                agent_position = [x, y]
+                agent_position = [round(x, self.rounding), round(y, self.rounding)]
                 for i in range(len(self.tower_position)):
                     tower = self.tower_position[i]
                     rate_at_XY_t = self.get_transmission_rate_signal(agent_position=agent_position, tower_location=tower, 
@@ -55,8 +58,10 @@ class Phi_dif_Model():
                                                                     k=self.K, n=self.N)
                     rate_at_XY.append(rate_at_XY_t)
 
-                signal_map[(x, y)] = rate_at_XY
-
+                signal_map[(round(x, self.rounding), round(y, self.rounding))] = rate_at_XY
+    
+        self.save_map(signal_map)
+        sys.exit('Done Building Map')
         return signal_map
 
     def get_transmission_rate_signal(self, agent_position, tower_location, phi, height, b, k, n):
@@ -67,3 +72,9 @@ class Phi_dif_Model():
         data_transmitting_rate = phi * b * math.log2(1 + k / (n * (pow(relative_distance, 2) + pow(height, 2))))
 
         return data_transmitting_rate
+
+    def save_map(self, map):
+        io.dump_to_file(config_name, map)
+
+    def load_map(self):
+        return io.load_from_file(config_name)

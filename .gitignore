@@ -8,3 +8,6 @@ model/
 .results
 .results/*
 results/
+map/*
+.map
+map/

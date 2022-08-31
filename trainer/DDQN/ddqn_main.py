@@ -1,5 +1,4 @@
 from environments.instances.determistic import Test_Environment
-from environments.instances.randomized import DR_Environment
 from trainer.DDQN.ddqn import DDQN
 from utils import tools
 from utils import monitor

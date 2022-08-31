@@ -2,6 +2,7 @@ import numpy as np
 import os
 from utils import tools
 import matplotlib.pyplot as plt
+import pickle
 
 class ReplayBuffer():
     def __init__(self, max_size, input_shape, n_actions) -> None:
@@ -80,6 +81,11 @@ class Info():
                 f.write(str(timestamp) + ' ' + str(line[0]) + '  ' + str(line[1]))
                 f.write('\n')
                 timestamp += 1
+
+        with open(output_dir + 'path.pickle', 'wb') as handle:
+            pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
+        handle.close()
 
     def plot(self, filename, data):
         # self.mkdir(type)
