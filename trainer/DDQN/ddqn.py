@@ -22,22 +22,13 @@ class DDQN(object):
         self.target_name = target_name
 
         self.network_type  = env.state_mode
-        if self.network_type == 'CNN':
-            logger.warning('Using CNN network as Backend')
-            state = env.status_tracker.get_state(mode='CNN')
-            self.inputs= len(state)
-            self.x_limit = env.status_tracker.x_limit
-            self.y_limit = env.status_tracker.y_limit
-            self.info_length = len(state) - self.x_limit*self.y_limit
-
-            self.eval_net, self.target_net = CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.eval_name).to(device=device), CNN(self.x_limit, self.y_limit, self.info_length, env.action_space.n, self.target_name).to(device=device)
-        else:
-            logger.warning('Using FC network as Backend')
-            self.inputs= len(env.status_tracker.get_state())
-            self.outputs=env.action_space.n
-            
-            self.eval_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.eval_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
-            self.target_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.target_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
+       
+        logger.warning('Using FC network as Backend')
+        self.inputs= len(env.status_tracker.get_state())
+        self.outputs=env.action_space.n
+        
+        self.eval_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.eval_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
+        self.target_net = MLP(inputs=self.inputs, outputs=self.outputs, name=self.target_name, fc_dim1=network_config['MLP']['FC1'], fc_dim2=network_config['MLP']['FC2']).to(device=device)
 
         self.learn_step_counter = 0
         self.memory_counter = 0
@@ -59,10 +50,6 @@ class DDQN(object):
         if np.random.uniform() < self.epsilon and not disable_exploration:
            action = self.env.action_space.sample()
 
-        elif self.network_type == 'CNN':
-            q_value = self.eval_net(state, self.x_limit, self.y_limit)
-            _, action_value = torch.max(q_value, dim=1)
-            action = int(action_value.item())
         else:
             q_value = self.eval_net(state)
             _, action_value = torch.max(q_value, dim=1)
@@ -90,25 +77,15 @@ class DDQN(object):
         b_s_ = torch.tensor(new_state, dtype=torch.float).to(device=device)
         is_done = torch.tensor(done, dtype=torch.int).to(device=device)
 
-        if self.network_type == 'CNN':
-            q_eval = self.eval_net(b_s, self.x_limit, self.y_limit).gather(1, b_a)
-
-            q_eval_values = self.eval_net(b_s_, self.x_limit, self.y_limit).detach()
-            _, a_prime = q_eval_values.max(1)
-
-            q_target_values = self.target_net(b_s_, self.x_limit, self.y_limit).detach()
-            q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
-            q_target_s_a_prime = q_target_s_a_prime.squeeze()
         
-        else:
-            q_eval = self.eval_net(b_s).gather(1, b_a)
+        q_eval = self.eval_net(b_s).gather(1, b_a)
 
-            q_eval_values = self.eval_net(b_s_).detach()
-            _, a_prime = q_eval_values.max(1)
+        q_eval_values = self.eval_net(b_s_).detach()
+        _, a_prime = q_eval_values.max(1)
 
-            q_target_values = self.target_net(b_s_).detach()
-            q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
-            q_target_s_a_prime = q_target_s_a_prime.squeeze()
+        q_target_values = self.target_net(b_s_).detach()
+        q_target_s_a_prime = q_target_values.gather(1, a_prime.unsqueeze(1))
+        q_target_s_a_prime = q_target_s_a_prime.squeeze()
 
         q_target = b_r.reshape(self.batch_size, 1) + self.gamma * q_target_s_a_prime.view(self.batch_size, 1) * (1 - is_done.reshape(self.batch_size, 1))
 

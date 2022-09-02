@@ -9,7 +9,7 @@ class Single_Task():
         self.y_limit = y_limit
         self.tower_location = tower_location
         self.num_tower = len(tower_location)
-        self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location, rounding=3)
+        self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location, rounding=2)
         self.name = 'Single_Task'
 
     def set_mission(self, start_at, arrival_at, dv_required) -> None:
@@ -78,7 +78,7 @@ class Single_Task():
     
     def update_dv_status(self, position, action):
         delta = 10
-        N = 1
+        N = 2
         d_action = np.array(action) / delta
         position = np.array(position[:])
         for _ in range(delta):

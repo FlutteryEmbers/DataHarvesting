@@ -51,6 +51,7 @@ class Info():
 
         self.output_dir = output_dir
         self.num_plots = 0
+        self.final_reward = 0
         
 
     def store(self, position_t, action_t, data_collected_t, data_left_t, data_collect_rate_t):
@@ -62,7 +63,7 @@ class Info():
         self.data_left_t.append(data_left_t)
         self.data_collect_rate_t.append(data_collect_rate_t)
 
-    def save(self, sub_dir = ''):
+    def save(self, sub_dir = '', plot = True):
         output_dir = self.output_dir + sub_dir
         # tools.mkdir(self.output_dir)
 
@@ -71,9 +72,10 @@ class Info():
         data_collect_rate = np.array(self.data_collect_rate_t).T.tolist()
 
         # print(len(data_collected))
-        self.plot(filename='{}/data_collected'.format(output_dir), data=data_collected)
-        self.plot(filename='{}/data_left'.format(output_dir), data=data_left)
-        self.plot(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
+        if plot:
+            self.plot(filename='{}/data_collected'.format(output_dir), data=data_collected)
+            self.plot(filename='{}/data_left'.format(output_dir), data=data_left)
+            self.plot(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
 
         with open(output_dir + 'position_t.txt', 'w') as f:
             timestamp = 0
@@ -81,6 +83,9 @@ class Info():
                 f.write(str(timestamp) + ' ' + str(line[0]) + '  ' + str(line[1]))
                 f.write('\n')
                 timestamp += 1
+
+        with open(output_dir + 'final_reward.txt', 'w') as f2:
+            f2.write(''.format(self.final_reward))
 
         with open(output_dir + 'path.pickle', 'wb') as handle:
             pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)

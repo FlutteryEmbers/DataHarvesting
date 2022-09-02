@@ -1,5 +1,4 @@
-#from environments.instances.Linear import Test_Environment
-from environments.instances.Single_Task import Test_Environment
+from environments.instances.batch_train_v2 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -19,6 +18,14 @@ class GameAgent():
         # self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
         self.output_dir = 'results/HER'
 
+    def batch_train(self, env_type):
+        for i in range(len(env_list.environment_list)):
+            env = env_list.get_mission(i)
+            env.state_mode = self.network
+            output_dir = io.mkdir(self.output_dir + '_' + env_type + '_batch_train_ddqn/{}/'.format(i))
+            self.train_model(env=env, n_games=1000, output_dir=output_dir)
+            
+    '''
     def evaluate(self, env_type, env = Test_Environment):
         output_dir = self.output_dir + '_' + env_type + '_eval_ddqn/'
         tools.mkdir(output_dir)
@@ -33,6 +40,7 @@ class GameAgent():
         print(rewards)
         stats = env.view()
         stats.save(output_dir)
+    '''
 
     def evaluate_with_model(self, env, model, type_reward):
         done = False
@@ -42,7 +50,7 @@ class GameAgent():
         print(goal)
         env.view()
         step = 0
-        while not done and step < 1000:
+        while not done and step < 500:
             step += 1
             a = model.choose_action(s, goal, disable_exploration=True)
             s_, r, done, _ = env.step(a, type_reward=type_reward)
@@ -54,11 +62,12 @@ class GameAgent():
 
         return episode_reward_sum, env
 
-    def train_model(self, n_games, env, env_type):
+    def train_model(self, n_games, env, output_dir, env_type='Default',):
         logger.warning('Training {} Mode'.format(env_type))
         best_num_steps = float('inf')
+        best_rewards = -float('inf')
 
-        output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
+        # output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
 
         tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type], args=self.config)
 
@@ -119,15 +128,30 @@ class GameAgent():
 
             if i % 50 == 0 or n_games - i < 100:
                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='Simple')
+                logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
+
+                if eval_rewards > best_rewards:
+                    best_rewards = eval_rewards
+                    ddqn.save_models(mode=env_type)
+
+                    _, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
+                    logger.warning('best num step: {}'.format(test_env.num_steps))
+                    stats = test_env.view()
+                    stats.final_reward = eval_rewards
+                    stats.save(sub_dir = output_dir, plot = False)
+                '''
+                eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
                 tracker.store(eval_rewards)
                 logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
-                test_env.view()
+                stats = test_env.view()
 
                 if test_env.num_steps < best_num_steps:
                     logger.warning('best num step: {}'.format(test_env.num_steps))
                     best_num_steps = test_env.num_steps
                     ddqn.save_models(mode=env_type)
-                    
+                    stats = test_env.view()
+                    stats.save(sub_dir = output_dir, plot = False)
+                '''
             
             self.timer.stop()
 
@@ -137,20 +161,11 @@ class GameAgent():
         tracker.plot_learning_curve()
         tracker.dump_to_file()
         tracker.save_log()
-
-        ddqn = ddqn.load_models(mode=env_type)
-        eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn)
-        logger.success('Best Rewards: %s' % (round(eval_rewards, 2)))
-        stats = test_env.view()
-        stats.save(output_dir)
+        test_env.save_task_info(output_dir)
+        # ddqn = ddqn.load_models(mode=env_type)
+        # eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn)
+        # logger.success('Best Rewards: %s' % (round(eval_rewards, 2)))
+        # stats = test_env.view()
+        # stats.save(output_dir)
         # best_model.save_models(mode=env_type)
         # tools.plot_curve(x, num_steps, output_dir + 'step.png')
-
-    def train(self, n_games, env_type):
-        env = None
-        if env_type == 'Default':
-            env = Test_Environment
-            logger.warning('max_step_allowed:', env._max_episode_steps)
-        else:
-            sys.exit("need to set mode")
-        self.train_model(n_games, env, env_type)

@@ -3,8 +3,10 @@ import numpy as np
 import math
 import sys
 from utils import tools, io
+from tqdm import tqdm
 
-config_name = "configs/config_trans_model_1_D"
+config_name = "configs/config_trans_model_2_D_2"
+save_file = "map/transmission_2D_2"
 Config = tools.load_config(config_name + '.yaml')
 
 class Phi_dif_Model():
@@ -46,8 +48,11 @@ class Phi_dif_Model():
         x_position = np.arange(0, self.x_limit+1, self.precision, dtype=float)
         y_position = np.arange(0, self.y_limit+1, self.precision, dtype=float)
         print('Building Map')
-        for x in x_position:
-            print(x)
+        print(self.x_limit, self.y_limit, self.tower_position, self.Phi_list)
+        # for i in tqdm(range(len(x_position))):
+        #     x = x_position[i]
+        for x in tqdm(x_position):
+            # print(x)
             for y in y_position:
                 rate_at_XY = []
                 agent_position = [round(x, self.rounding), round(y, self.rounding)]
@@ -74,7 +79,13 @@ class Phi_dif_Model():
         return data_transmitting_rate
 
     def save_map(self, map):
-        io.dump_to_file(config_name, map)
+        io.dump_to_file(save_file, map)
 
     def load_map(self):
-        return io.load_from_file(config_name)
+        print('loading {}'.format(save_file))
+        signal_map = io.load_from_file(save_file)
+        signal_stregth = self.get_transmission_rate_signal(agent_position=[1, 1], tower_location=self.tower_position[0], 
+                                            phi=self.Phi_list[0], height=self.height,b=self.B, k=self.K, n=self.N)
+        if signal_map[(1.0, 1.0)][0] != signal_stregth:
+            sys.exit('Incorrect Singal Map')
+        return io.load_from_file(save_file)

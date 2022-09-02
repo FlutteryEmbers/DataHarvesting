@@ -86,7 +86,7 @@ class Agent():
                 done = True
 
         elif type_reward == 'Simple':
-            reward = -0.1
+            reward = -1
             if self.status_tracker.is_done():
                 reward -= np.sum(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
                 done = True

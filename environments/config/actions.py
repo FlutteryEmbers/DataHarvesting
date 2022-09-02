@@ -3,7 +3,7 @@ import math
 
 class Discrete():
     def __init__(self):
-        self.actions = [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 0]]
+        self.actions = [[0, 0.5], [0, -0.5], [0.5, 0], [-0.5, 0], [0, 0]]
         self.n = len(self.actions)
 
     def get_action(self, n):

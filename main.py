@@ -1,5 +1,6 @@
 # from trainer.DDQN.ddqn_main import DDQN_GameAgent
-from trainer.DDQN_HER import HER_Basic_Trainer
+# from trainer.DDQN_HER import HER_Basic_Trainer
+from trainer.DDQN_HER import HER_Batch_Trainer
 from utils import tools, graphic
 from loguru import logger
 
@@ -28,12 +29,14 @@ def her_ddqn():
     config = tools.load_config("configs/config_ddqn.yaml")
     tools.setup_seed(config['RANDOM_SEED'])
     ## network: trainning algorithm using: MLP/CNN network 
-    agent = HER_Basic_Trainer.GameAgent(config=config, network='MLP')
-    agent.train(env_type='Default', n_games=2000)
+    # agent = HER_Basic_Trainer.GameAgent(config=config, network='MLP')
+    # agent.train(env_type='Default', n_games=2000)
     # agent.evaluate(env_type='Default')
-    # agent.batch_evaluation(env_type='Default')
-    # agent.batch_train('Default')
 
+    agent = HER_Batch_Trainer.GameAgent(config=config, network='MLP')
+    agent.batch_train('Default')   
+    # agent.batch_evaluation(env_type='Default')
+    # 
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
