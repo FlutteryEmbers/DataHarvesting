@@ -1,5 +1,5 @@
 #from environments.instances.batch_train_v3 import env_list
-from environments.instances.loader.test_batch_set1 import env_list
+from environments.instances.loader.test_batch_set2 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -51,13 +51,10 @@ class GameAgent():
 
     def train_model(self, n_games, env, pre_output_dir, env_type='Default',):
         logger.warning('Training {} Mode'.format(env_type))
-        best_num_steps = float('inf')
-        best_rewards = -float('inf')
-
-        # output_dir = self.output_dir + '_' + env_type + '_train_ddqn/'
         for seed in range(len(random_seed)):
             tools.setup_seed(random_seed[seed])
-            # output_dir = pre_output_dir + '/{}/' + str(seed)
+            best_num_steps = float('inf')
+            best_rewards = -float('inf')
             output_dir = io.mkdir(pre_output_dir +  '/random_seed_{}/'.format(seed))
 
             tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn_random_seed_{}'.format(seed), log=['ddqn', env_type], args=self.config)
@@ -65,8 +62,6 @@ class GameAgent():
             logger.warning('Using {} Environment'.format(env.status_tracker.name))
             env.state_mode = self.network
             ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
-            # env.mode = 'CNN'
-            # ddqn = DDQN_CNN(env=env)
             best_model = None
             for i in range(n_games):
                 logger.info('Start Episode: %s' % i)

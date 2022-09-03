@@ -1,5 +1,3 @@
-# from trainer.DDQN.ddqn_main import DDQN_GameAgent
-# from trainer.DDQN_HER import HER_Basic_Trainer
 from trainer.DDQN_HER import HER_Batch_Trainer
 # from trainer.DDQN import ddqn_batch_trainer
 from utils import tools, graphic
