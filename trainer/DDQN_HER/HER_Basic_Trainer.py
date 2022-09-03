@@ -100,7 +100,7 @@ class GameAgent():
 
                     # if ddqn.memory_counter > ddqn.memory.mem_size:
                     ddqn.learn()
-            
+            '''
             if not done:
                 new_goal = np.copy(s)
                 # logger.debug('alternative goal: {}'.format(new_goal))
@@ -116,6 +116,13 @@ class GameAgent():
                         ddqn.store_transition(transition[0], transition[1], transition[2],
                                             transition[3], False, new_goal)
                         ddqn.learn()
+            '''
+            if not done:
+                for transition in transitions:
+                    new_goal = np.copy(transition[3])
+                    ddqn.store_transition(transition[0], transition[1], 0.0,
+                                                transition[3], True, new_goal)
+                    ddqn.learn()
 
             if i % 50 == 0 or n_games - i < 100:
                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='Simple')

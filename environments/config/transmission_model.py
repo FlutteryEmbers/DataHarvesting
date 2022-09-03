@@ -6,7 +6,7 @@ from utils import tools, io
 from tqdm import tqdm
 
 config_name = "configs/config_trans_model_2_D_2"
-save_file = "map/transmission_2D_2"
+save_file = "run1"
 Config = tools.load_config(config_name + '.yaml')
 
 class Phi_dif_Model():
@@ -24,8 +24,11 @@ class Phi_dif_Model():
         self.rounding = rounding
 
         self.tower_position = tower_position
-        # self.signal_map = self.init_signal_map()
-        self.signal_map = self.load_map()
+        try:
+            self.signal_map = self.load_map()
+        except:
+            self.signal_map = self.init_signal_map()
+        
 
     def update_dv_status(self, agent_position, dv_collected, dv_required, time_ratio = 1):
         x = round(agent_position[0], self.rounding)
@@ -45,8 +48,8 @@ class Phi_dif_Model():
     
     def init_signal_map(self):
         signal_map = {}
-        x_position = np.arange(0, self.x_limit+1, self.precision, dtype=float)
-        y_position = np.arange(0, self.y_limit+1, self.precision, dtype=float)
+        x_position = np.arange(0, self.x_limit, self.precision, dtype=float)
+        y_position = np.arange(0, self.y_limit, self.precision, dtype=float)
         print('Building Map')
         print(self.x_limit, self.y_limit, self.tower_position, self.Phi_list)
         # for i in tqdm(range(len(x_position))):
@@ -66,7 +69,7 @@ class Phi_dif_Model():
                 signal_map[(round(x, self.rounding), round(y, self.rounding))] = rate_at_XY
     
         self.save_map(signal_map)
-        sys.exit('Done Building Map')
+        # sys.exit('Done Building Map')
         return signal_map
 
     def get_transmission_rate_signal(self, agent_position, tower_location, phi, height, b, k, n):

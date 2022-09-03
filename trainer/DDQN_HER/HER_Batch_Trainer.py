@@ -1,4 +1,4 @@
-from environments.instances.batch_train_v2 import env_list
+from environments.instances.batch_train_v3 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -16,13 +16,13 @@ class GameAgent():
 
         now = datetime.now()
         # self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
-        self.output_dir = 'results/HER'
+        self.output_dir = 'results/'
 
     def batch_train(self, env_type):
         for i in range(len(env_list.environment_list)):
             env = env_list.get_mission(i)
             env.state_mode = self.network
-            output_dir = io.mkdir(self.output_dir + '_' + env_type + '_batch_train_ddqn/{}/'.format(i))
+            output_dir = io.mkdir(self.output_dir +  '_batch_train_ddqn_her/{}/'.format(i))
             self.train_model(env=env, n_games=1000, output_dir=output_dir)
             
     '''
@@ -125,7 +125,20 @@ class GameAgent():
                         ddqn.store_transition(transition[0], transition[1], transition[2],
                                             transition[3], False, new_goal)
                         ddqn.learn()
-
+            '''
+            if not done:
+                for p in range(len(transitions)):
+                    transition = transitions[p]
+                    new_goal = np.copy(transition[3])
+                    ddqn.store_transition(transition[0], transition[1], 0.0,
+                                                transition[3], True, new_goal)
+                    # ddqn.learn()
+                    for p2 in range(p):
+                        transition = transitions[p2]
+                        ddqn.store_transition(transition[0], transition[1], transition[2],
+                                                transition[3], False, new_goal)
+                        ddqn.learn()
+            '''
             if i % 50 == 0 or n_games - i < 100:
                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='Simple')
                 logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))

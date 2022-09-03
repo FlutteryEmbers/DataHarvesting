@@ -1,3 +1,4 @@
+from tkinter import N
 import numpy as np
 import random
 from utils.buffer import Info
@@ -64,7 +65,7 @@ class Agent():
         # data_volume_left = np.array(dv_required) - np.array(data_volume_collected)
         # data_volume_collected, data_transmitting_rate_list, data_volume_left = self.status_tracker.transmitting_model.update_dv_status(self.status_tracker.current_position, dv_collected, dv_required)
 
-        position, data_volume_collected, data_transmitting_rate_list, data_volume_left = self.status_tracker.update_position(action)
+        position, data_volume_collected, data_transmitting_rate_list, data_volume_left = self.status_tracker.update_position(action=action, N=self.action_space.time_scale)
         
 
 
@@ -88,7 +89,7 @@ class Agent():
         elif type_reward == 'Simple':
             reward = -1
             if self.status_tracker.is_done():
-                reward -= np.sum(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+                reward = -np.sum(abs(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))) * self.action_space.time_scale
                 done = True
 
         elif type_reward == 'Default':

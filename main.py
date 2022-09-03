@@ -1,6 +1,7 @@
 # from trainer.DDQN.ddqn_main import DDQN_GameAgent
 # from trainer.DDQN_HER import HER_Basic_Trainer
 from trainer.DDQN_HER import HER_Batch_Trainer
+from trainer.DDQN import ddqn_batch_trainer
 from utils import tools, graphic
 from loguru import logger
 
@@ -13,13 +14,8 @@ def ddqn():
     logger.critical('Start DDQN Session')
     config = tools.load_config("configs/config_ddqn.yaml")
     tools.setup_seed(config['RANDOM_SEED'])
-    ## network: trainning algorithm using: MLP/CNN network 
-    agent = DDQN_GameAgent(config=config, network='MLP')
-
-    ## trainning_mode:
-    ## - Default: Trainning for a specific environment;
-    ## - DR: Trainning with randomized initial states
-    agent.train(env_type='Default', n_games=1000)
+    agent = ddqn_batch_trainer.GameAgent(config=config, network='MLP')
+    agent.batch_train('Default')
     # agent.evaluate(env_type='Default')
     # agent.train(env_type='DR', n_games=10000)
     # agent.evaluate(env_type='DR')

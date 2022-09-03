@@ -5,6 +5,7 @@ from loguru import logger
 
 class Single_Task():
     def __init__(self, x_limit, y_limit, tower_location) -> None:
+        # self.action_scale = 0
         self.x_limit = x_limit
         self.y_limit = y_limit
         self.tower_location = tower_location
@@ -60,7 +61,7 @@ class Single_Task():
         self.dv_collected = dv_collected
         self.dv_transmittion_rate = dv_transmittion_rate
 
-    def update_position(self, action):
+    def update_position(self, action, N):
         old_position = np.array(self.current_position[:])
         next_position = np.array(self.current_position[:]) + np.array(action[:])
         next_position = np.round(next_position , 2)
@@ -72,13 +73,13 @@ class Single_Task():
             self.current_position[1] = next_position[1]
         
         update_action = np.array(self.current_position[:]) - old_position
-        self.update_dv_status(old_position, update_action)
+        self.update_dv_status(old_position, update_action, N)
 
         return self.current_position[:], self.dv_collected, self.dv_transmittion_rate, self.dv_left
     
-    def update_dv_status(self, position, action):
+    def update_dv_status(self, position, action, N):
         delta = 10
-        N = 2
+        # N = 2
         d_action = np.array(action) / delta
         position = np.array(position[:])
         for _ in range(delta):

@@ -85,7 +85,7 @@ class Info():
                 timestamp += 1
 
         with open(output_dir + 'final_reward.txt', 'w') as f2:
-            f2.write(''.format(self.final_reward))
+            f2.write('{}'.format(self.final_reward))
 
         with open(output_dir + 'path.pickle', 'wb') as handle:
             pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)
