@@ -3,12 +3,14 @@ from environments.config.tasks import Single_Task
 
 class Instances:
     def __init__(self) -> None:
+        print('using batch_train_v2.py')
         self.task = Single_Task(x_limit=10, y_limit=10, tower_location=[[0, 5], [4, 7], [9, 3]])
         self.task.set_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[3, 3, 3])
         self.prime_environment = Agent(task=self.task, max_episode_steps=300)
         self.environment_list = [self.prime_environment]
 
     def add_mission(self, start_at, arrival_at, dv_required):
+        print('load batch_train_v2.py')
         task = Single_Task(x_limit=10, y_limit=10, tower_location=[[0, 5], [4, 7], [9, 3]])
         task.set_mission(start_at=start_at, arrival_at=arrival_at, dv_required=dv_required)
         environment = Agent(task=task, max_episode_steps=300)

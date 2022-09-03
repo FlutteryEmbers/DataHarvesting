@@ -1,4 +1,5 @@
-from environments.instances.batch_train_v3 import env_list
+#from environments.instances.batch_train_v3 import env_list
+from environments.instances.loader.test_batch_set1 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -8,7 +9,8 @@ from datetime import datetime
 import numpy as np
 import random
 
-random_seed = [10, 20, 30, 40, 50]
+random_seed = [10]
+result_saving_iter = 1000
 
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
@@ -25,7 +27,7 @@ class GameAgent():
             env = env_list.get_mission(i)
             env.state_mode = self.network
             output_dir = io.mkdir(self.output_dir +  'batch_train_ddqn_her/{}/'.format(i))
-            self.train_model(env=env, n_games=5000, pre_output_dir=output_dir)
+            self.train_model(env=env, n_games=2000, pre_output_dir=output_dir)
             
     def evaluate_with_model(self, env, model, type_reward):
         done = False
@@ -58,7 +60,7 @@ class GameAgent():
             # output_dir = pre_output_dir + '/{}/' + str(seed)
             output_dir = io.mkdir(pre_output_dir +  '/random_seed_{}/'.format(seed))
 
-            tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn', log=['ddqn', env_type], args=self.config)
+            tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn_random_seed_{}'.format(seed), log=['ddqn', env_type], args=self.config)
 
             logger.warning('Using {} Environment'.format(env.status_tracker.name))
             env.state_mode = self.network
@@ -98,7 +100,7 @@ class GameAgent():
 
                         # if ddqn.memory_counter > ddqn.memory.mem_size:
                         ddqn.learn()
-                        if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % 2000 == 0:
+                        if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
                             eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
                             logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
                             tracker.store(eval_rewards)
@@ -123,7 +125,7 @@ class GameAgent():
                                 ddqn.store_transition(transition[0], transition[1], 0.0,
                                                     transition[3], True, new_goal)
                                 ddqn.learn()
-                                if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % 2000 == 0:
+                                if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
                                     eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
                                     logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
                                     tracker.store(eval_rewards)
@@ -142,7 +144,7 @@ class GameAgent():
                             ddqn.store_transition(transition[0], transition[1], transition[2],
                                                 transition[3], False, new_goal)
                             ddqn.learn()
-                            if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % 2000 == 0:
+                            if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
                                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
                                 logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
                                 tracker.store(eval_rewards)

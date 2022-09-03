@@ -4,13 +4,13 @@ from .transmission_model import Phi_dif_Model
 from loguru import logger
 
 class Single_Task():
-    def __init__(self, x_limit, y_limit, tower_location) -> None:
+    def __init__(self, x_limit, y_limit, tower_location, config_name, save_file_name) -> None:
         # self.action_scale = 0
         self.x_limit = x_limit
         self.y_limit = y_limit
         self.tower_location = tower_location
         self.num_tower = len(tower_location)
-        self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location, rounding=2)
+        self.transmitting_model = Phi_dif_Model(x_limit=self.x_limit, y_limit=self.y_limit, tower_position=self.tower_location, rounding=2, phi_config_file=config_name, save_file=save_file_name)
         self.name = 'Single_Task'
 
     def set_mission(self, start_at, arrival_at, dv_required) -> None:

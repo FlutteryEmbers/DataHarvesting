@@ -11,7 +11,7 @@ from loguru import logger
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, task, action_type = 'Discrete', max_episode_steps = 100):
+    def __init__(self, task, time_scale = 2, action_type = 'Discrete', max_episode_steps = 100):
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
         self.status_tracker = task
@@ -19,7 +19,7 @@ class Agent():
         self.goal = task.get_goal()
         
         if self.action_type == 'Discrete':
-            self.action_space = actions.Discrete()       
+            self.action_space = actions.Discrete(time_scale= time_scale)       
         elif self.action_type == 'Continuous':
             self.action_space = actions.Continuous()
         elif self.action_type == '1D':

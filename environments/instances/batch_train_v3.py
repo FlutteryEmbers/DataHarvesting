@@ -3,6 +3,7 @@ from environments.config.tasks import Single_Task
 
 class Instances:
     def __init__(self) -> None:
+        print('init batch_train_v3.py')
         self.x_limit = 10
         self.y_limit = 10
         self.tower_location = [[2, 5], [1, 7], [3, 6], [2, 5]]
@@ -13,6 +14,7 @@ class Instances:
         self.environment_list = [self.prime_environment]
 
     def add_mission(self, start_at, arrival_at, dv_required):
+        print('load batch_train_v3.py')
         task = Single_Task(x_limit=self.x_limit, y_limit=self.y_limit, tower_location=self.tower_location)
         task.set_mission(start_at=start_at, arrival_at=arrival_at, dv_required=dv_required)
         environment = Agent(task=task, max_episode_steps=300)

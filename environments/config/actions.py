@@ -3,8 +3,8 @@ import numpy as np
 import math
 
 class Discrete():
-    def __init__(self):
-        self.time_scale = 2
+    def __init__(self, time_scale=2):
+        self.time_scale = time_scale
         actions = np.array([[0, 1.0], [0, -1.0], [1.0, 0], [-1.0, 0], [0, 0]]) / self.time_scale
         self.actions = actions.tolist()
         self.n = len(self.actions)
