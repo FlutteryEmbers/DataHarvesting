@@ -6,7 +6,7 @@ from utils import tools, io
 from tqdm import tqdm
 
 config_name = "configs/config_trans_model_2_D_2"
-save_file = "run1"
+save_file = "map/run1"
 Config = tools.load_config(config_name + '.yaml')
 
 class Phi_dif_Model():

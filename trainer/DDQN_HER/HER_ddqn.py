@@ -69,7 +69,7 @@ class DDQN(object):
         b_a = torch.tensor(action).to(self.eval_net.device)
         b_r = torch.tensor(reward).to(self.eval_net.device)
         b_s_ = torch.tensor(next_state).to(self.eval_net.device)
-        is_done = torch.tensor(done).to(self.eval_net.device)
+        is_done = torch.tensor(done, dtype=torch.int).to(self.eval_net.device)
         b_goal = torch.tensor(goal).to(self.eval_net.device)
 
         return b_s, b_a, b_r, b_s_, is_done, b_goal 
@@ -86,7 +86,9 @@ class DDQN(object):
 
         b_s = torch.cat((b_s, b_goal), 1)
         b_s_ = torch.cat((b_s_, b_goal), 1)
-        '''
+        
+        b_a = b_a.unsqueeze(1)
+
         q_eval = self.eval_net(b_s).gather(1, b_a)
 
         q_eval_values = self.eval_net(b_s_).detach()
@@ -98,7 +100,8 @@ class DDQN(object):
 
         q_target = b_r.reshape(self.batch_size, 1) + self.gamma * q_target_s_a_prime.view(self.batch_size, 1) * (1 - is_done.reshape(self.batch_size, 1))
 
-        loss = self.loss_func(q_eval, q_target)
+        loss = self.loss_func(q_eval, q_target).to(self.eval_net.device)
+
         '''
         batches = np.arange(self.batch_size)
         q_pred = self.eval_net.forward(b_s)[batches, b_a]
@@ -109,13 +112,13 @@ class DDQN(object):
 
         # Computes loss and performs backpropagation
         loss = self.loss_func(q_target, q_pred).to(self.eval_net.device)
-
+        '''
         # loss = self.loss_func(q_eval, q_target)
         self.optimizer.zero_grad()                                     
         loss.backward()                                                 
         self.optimizer.step()
         self.decrement_epsilon()
-    
+
     def save_models(self, mode):
         self.eval_net.save_checkpoint(mode=mode)
         self.target_net.save_checkpoint(mode=mode)

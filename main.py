@@ -1,7 +1,7 @@
 # from trainer.DDQN.ddqn_main import DDQN_GameAgent
 # from trainer.DDQN_HER import HER_Basic_Trainer
 from trainer.DDQN_HER import HER_Batch_Trainer
-from trainer.DDQN import ddqn_batch_trainer
+# from trainer.DDQN import ddqn_batch_trainer
 from utils import tools, graphic
 from loguru import logger
 
@@ -13,7 +13,7 @@ def init_working_dir():
 def ddqn():
     logger.critical('Start DDQN Session')
     config = tools.load_config("configs/config_ddqn.yaml")
-    tools.setup_seed(config['RANDOM_SEED'])
+    # tools.setup_seed(config['RANDOM_SEED'])
     agent = ddqn_batch_trainer.GameAgent(config=config, network='MLP')
     agent.batch_train('Default')
     # agent.evaluate(env_type='Default')

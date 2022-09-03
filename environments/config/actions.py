@@ -4,7 +4,7 @@ import math
 
 class Discrete():
     def __init__(self):
-        self.time_scale = 5
+        self.time_scale = 2
         actions = np.array([[0, 1.0], [0, -1.0], [1.0, 0], [-1.0, 0], [0, 0]]) / self.time_scale
         self.actions = actions.tolist()
         self.n = len(self.actions)

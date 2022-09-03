@@ -1,4 +1,4 @@
-from environments.instances.batch_train_v3 import env_list
+from environments.instances.batch_train_v2 import env_list
 from trainer.DDQN.ddqn import DDQN
 from utils import tools, io
 from utils import monitor
