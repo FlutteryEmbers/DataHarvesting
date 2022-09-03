@@ -28,7 +28,7 @@ class Instances:
 
 env_list = Instances()
 
-env_list.add_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[1, 1])
+# env_list.add_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[1, 1])
 env_list.add_mission(start_at=[0, 0], arrival_at=[2, 5], dv_required=[1, 1]) ## Different arrival point
 env_list.add_mission(start_at=[0, 0], arrival_at=[3, 2], dv_required=[1, 1]) ## Different arrival point
 env_list.add_mission(start_at=[4, 3], arrival_at=[2, 5], dv_required=[1, 1]) ## Different arrival point

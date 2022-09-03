@@ -38,7 +38,7 @@ class GameAgent():
         print(goal)
         env.view()
         step = 0
-        while not done and step < 500:
+        while not done and step < env._max_episode_steps:
             step += 1
             a = model.choose_action(s, disable_exploration=True)
             s_, r, done, _ = env.step(a, type_reward=type_reward)

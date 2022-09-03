@@ -11,26 +11,16 @@ def init_working_dir():
 def ddqn():
     logger.critical('Start DDQN Session')
     config = tools.load_config("configs/config_ddqn.yaml")
-    # tools.setup_seed(config['RANDOM_SEED'])
     agent = ddqn_batch_trainer.GameAgent(config=config, network='MLP')
     agent.batch_train('Default')
-    # agent.evaluate(env_type='Default')
-    # agent.train(env_type='DR', n_games=10000)
-    # agent.evaluate(env_type='DR')
 
 def her_ddqn():
     logger.critical('Start HER_DDQN Session')
     config = tools.load_config("configs/config_ddqn.yaml")
-    tools.setup_seed(config['RANDOM_SEED'])
-    ## network: trainning algorithm using: MLP/CNN network 
-    # agent = HER_Basic_Trainer.GameAgent(config=config, network='MLP')
-    # agent.train(env_type='Default', n_games=2000)
-    # agent.evaluate(env_type='Default')
-
+    # tools.setup_seed(config['RANDOM_SEED'])
     agent = HER_Batch_Trainer.GameAgent(config=config, network='MLP')
     agent.batch_train('Default')   
-    # agent.batch_evaluation(env_type='Default')
-    # 
+
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
