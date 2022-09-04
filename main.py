@@ -1,5 +1,5 @@
-from trainer.DDQN_HER import HER_Batch_Trainer
-# from trainer.DDQN import ddqn_batch_trainer
+# from trainer.DDQN_HER import HER_Batch_Trainer
+from trainer.DDQN import ddqn_batch_trainer
 from utils import tools, graphic
 from loguru import logger
 
@@ -24,10 +24,9 @@ def her_ddqn():
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
-    # ddqn()
-    her_ddqn()
-    # ddpg()
-    # sac()
+    ddqn()
+    # her_ddqn()
+    
     # graphic.plot_result_path(x_limit=10, y_limit=10, tower_locations=[[0, 1], [4, 7], [9, 3]], paths=[[0, 0], [1, 2], [2, 3], [7, 9]])
 
     

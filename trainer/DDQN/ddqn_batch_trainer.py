@@ -1,5 +1,5 @@
 # from environments.instances.batch_train_v2 import env_list
-from environments.instances.loader.test_batch_set2 import env_list
+from environments.instances.loader.test_batch_set3 import env_list
 from trainer.DDQN.ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -11,7 +11,7 @@ import random
 
 random_seeds = [10]
 result_saving_iter = 1000
-
+rewards_type = 'Default'
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
         self.config = config
@@ -30,7 +30,7 @@ class GameAgent():
             self.train_model(env=env, n_games=2000, pre_output_dir=output_dir)
             print('======================================================================================')
 
-    def evaluate_with_model(self, env, model, type_reward):
+    def evaluate_with_model(self, env, model, type_reward, draw_path = False):
         done = False
         s = env.reset()
         episode_reward_sum = 0
@@ -38,7 +38,7 @@ class GameAgent():
         print(goal)
         env.view()
         step = 0
-        while not done and step < env._max_episode_steps:
+        while not done and (step < env._max_episode_steps or (step < 1000 and draw_path)):
             step += 1
             a = model.choose_action(s, disable_exploration=True)
             s_, r, done, _ = env.step(a, type_reward=type_reward)
@@ -77,7 +77,7 @@ class GameAgent():
                     episode_step += 1
                     # env.render()
                     a = ddqn.choose_action(s)
-                    s_, r, done, _ = env.step(a, type_reward='HER')
+                    s_, r, done, _ = env.step(a, type_reward=rewards_type)
 
                     ddqn.store_transition(s, a, r, s_, done)
                     # episode_reward_sum += r
@@ -87,7 +87,7 @@ class GameAgent():
                     # if ddqn.memory_counter > ddqn.memory.mem_size:
                     ddqn.learn()
                     if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
-                        eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
+                        eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward=rewards_type)
                         logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
                         tracker.store(eval_rewards)
 
@@ -95,7 +95,7 @@ class GameAgent():
                             best_rewards = eval_rewards
                             ddqn.save_models(mode=env_type)
 
-                            _, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
+                            _, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward=rewards_type, draw_path=True)
                             logger.warning('best num step: {}'.format(test_env.num_steps))
                             stats = test_env.view()
                             stats.final_reward = eval_rewards

@@ -94,11 +94,12 @@ class Agent():
 
         elif type_reward == 'Default':
             reward = self.status_tracker.get_reward()
-            reward -= self.num_steps * 0.01 # 每步减少reward 1
+            reward -= 1 # 每步减少reward 1
+            
 
             # NOTE: 判断是否到达终点
             if self.status_tracker.is_done():
-                reward -= 5 * LNG.norm(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))
+                reward = -np.sum(abs(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))) * self.action_space.time_scale
                 done = True
 
         else:

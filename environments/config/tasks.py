@@ -51,9 +51,17 @@ class Single_Task():
 
     ## Important
     def get_reward(self):
+        '''
         dv_transmisttion_rate = np.array(self.dv_transmittion_rate)
         dv_required = np.array(self.dv_required)
         transmission_reward = 10*np.sum(dv_transmisttion_rate/dv_required)
+        '''
+        # current_position = np.array(self.current_position)
+        transmission_reward = 0
+        for i in range(len(self.tower_location)):
+            penalty_to_tower = np.sum(abs(np.array(self.current_position) - np.array(self.tower_location[i]))) * self.dv_left[i] * 1
+            transmission_reward -= penalty_to_tower
+        transmission_reward += 100*np.sum(np.array(self.dv_transmittion_rate))
         return transmission_reward
 
     def update_dv_info(self, dv_left, dv_collected, dv_transmittion_rate):
