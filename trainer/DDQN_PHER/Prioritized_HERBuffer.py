@@ -40,7 +40,7 @@ class PHindsightExperienceReplayMemory(object):
         Returns any random memory from the experience replay memory
         """
 
-        w = np.exp(self.weights) / np.sum(np.exp(self.weights), axis=0)
+        w = self.softmax(self.weights)
 
         rand_index = np.random.choice(min(self.counter, self.max_mem_size), batch_size, p=w, replace=False)
         
@@ -52,3 +52,7 @@ class PHindsightExperienceReplayMemory(object):
         rand_goal = self.goal_memory[rand_index]
 
         return rand_state, rand_action, rand_reward, rand_next_state, rand_done, rand_goal
+
+    def softmax(self, x):
+        f = np.exp(x - np.max(x))  # shift values
+        return f / f.sum(axis=0)

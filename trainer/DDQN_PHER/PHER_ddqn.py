@@ -8,7 +8,7 @@ from trainer.DDQN_PHER.Prioritized_HERBuffer import PHindsightExperienceReplayMe
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DDQN(object):
-    def __init__(self, env, config, network_config, eval_name = 'her_ddqn_eval', target_name = 'her_ddqn_target') -> None:
+    def __init__(self, env, config, network_config, eval_name = 'pher_ddqn_eval', target_name = 'pher_ddqn_target') -> None:
         self.env = env
         self.batch_size = config['BATCH_SIZE']
         self.lr = config['LR']

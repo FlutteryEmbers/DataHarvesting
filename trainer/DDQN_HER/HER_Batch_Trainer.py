@@ -1,5 +1,5 @@
 #from environments.instances.batch_train_v3 import env_list
-from environments.instances.loader.test_batch_set3 import env_list
+from environments.instances.loader.test_batch_set4 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -27,7 +27,7 @@ class GameAgent():
             env = env_list.get_mission(i)
             env.state_mode = self.network
             output_dir = io.mkdir(self.output_dir +  'batch_train_ddqn_her/{}/'.format(i))
-            self.train_model(env=env, n_games=5000, pre_output_dir=output_dir)
+            self.train_model(env=env, n_games=2000, pre_output_dir=output_dir)
             
     def evaluate_with_model(self, env, model, type_reward):
         done = False

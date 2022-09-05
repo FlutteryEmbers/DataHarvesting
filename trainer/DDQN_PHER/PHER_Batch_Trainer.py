@@ -1,6 +1,5 @@
-#from environments.instances.batch_train_v3 import env_list
 from environments.instances.loader.test_batch_set3 import env_list
-from trainer.DDQN_HER.HER_ddqn import DDQN
+from trainer.DDQN_PHER.PHER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
 import sys
@@ -8,8 +7,10 @@ from loguru import logger
 from datetime import datetime
 import numpy as np
 import random
+import math
 
-random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
+# random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
+random_seed = [20, 30]
 result_saving_iter = 1000
 
 class GameAgent():
@@ -81,13 +82,15 @@ class GameAgent():
                 s = env.reset()
                 transitions = []
                 logger.debug('current goal: {}'.format(goal))
+                priority = 1
                 for p in range(env._max_episode_steps):
                     if not done:
+                        priority += min(math.tanh(i/1500), 0.7)**p
                         # env.render()
                         a = ddqn.choose_action(s, goal)
                         s_, r, done, _ = env.step(a, type_reward='HER')
 
-                        ddqn.store_transition(s, a, r, s_, done, goal)
+                        ddqn.store_transition(s, a, r, s_, done, goal, priority)
                         transitions.append((s, a, r, s_))
                         # episode_reward_sum += r
 
@@ -114,11 +117,13 @@ class GameAgent():
                     new_goal = np.copy(s)
                     # logger.debug('alternative goal: {}'.format(new_goal))
                     if not np.array_equal(new_goal, goal):
+                        priority = 1
                         for p in range(env._max_episode_steps):
                             transition = transitions[p]
                             if np.array_equal(transition[3], new_goal):
+                                priority += min(math.tanh(i/1500), 0.7) ** p
                                 ddqn.store_transition(transition[0], transition[1], 0.0,
-                                                    transition[3], True, new_goal)
+                                                    transition[3], True, new_goal, priority)
                                 ddqn.learn()
                                 if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
                                     eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
@@ -137,7 +142,7 @@ class GameAgent():
                                 break
 
                             ddqn.store_transition(transition[0], transition[1], transition[2],
-                                                transition[3], False, new_goal)
+                                                transition[3], False, new_goal, priority)
                             ddqn.learn()
                             if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
                                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
