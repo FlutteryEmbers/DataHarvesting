@@ -1,4 +1,4 @@
-from environments.instances.loader.test_batch_set3 import env_list
+from environments.instances.loader.test_batch_set5 import env_list
 from trainer.DDQN_PHER.PHER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -10,9 +10,14 @@ import random
 import math
 
 # random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
-random_seed = [20, 30]
+random_seed = [20]
 result_saving_iter = 1000
+n_game = 10000
 
+def delta_priority(iteration, t):
+    # return min(math.tanh(iteration/5000), 0.30) ** t
+    return 0.2 ** t
+    
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
         self.config = config
@@ -27,8 +32,8 @@ class GameAgent():
         for i in range(len(env_list.environment_list)):
             env = env_list.get_mission(i)
             env.state_mode = self.network
-            output_dir = io.mkdir(self.output_dir +  'batch_train_ddqn_pher/{}/'.format(i))
-            self.train_model(env=env, n_games=5000, pre_output_dir=output_dir)
+            output_dir = io.mkdir(self.output_dir + env_list.instance_name + '/batch_train_ddqn_pher/{}/'.format(i))
+            self.train_model(env=env, n_games=n_game, pre_output_dir=output_dir)
             
     def evaluate_with_model(self, env, model, type_reward):
         done = False
@@ -85,7 +90,8 @@ class GameAgent():
                 priority = 1
                 for p in range(env._max_episode_steps):
                     if not done:
-                        priority += min(math.tanh(i/1500), 0.7)**p
+                        # priority += min(math.tanh(i/2000), 0.90)**p
+                        priority += delta_priority(i, p)
                         # env.render()
                         a = ddqn.choose_action(s, goal)
                         s_, r, done, _ = env.step(a, type_reward='HER')
@@ -121,7 +127,7 @@ class GameAgent():
                         for p in range(env._max_episode_steps):
                             transition = transitions[p]
                             if np.array_equal(transition[3], new_goal):
-                                priority += min(math.tanh(i/1500), 0.7) ** p
+                                priority += delta_priority(i, p)
                                 ddqn.store_transition(transition[0], transition[1], 0.0,
                                                     transition[3], True, new_goal, priority)
                                 ddqn.learn()

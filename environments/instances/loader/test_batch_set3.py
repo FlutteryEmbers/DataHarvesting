@@ -1,6 +1,9 @@
 from environments.config.game import Agent
 from environments.config.tasks import Single_Task
 
+'''
+    Sparse Reward
+'''
 class Instances:
     def __init__(self) -> None:
         self.instance_name = 'borad_loarder_v3'

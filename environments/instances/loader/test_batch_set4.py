@@ -1,6 +1,10 @@
 from environments.config.game import Agent
 from environments.config.tasks import Single_Task
 
+'''
+    Easy Task to Show Convergence
+'''
+
 class Instances:
     def __init__(self) -> None:
         self.instance_name = 'board_loader_v4'
