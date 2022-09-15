@@ -93,7 +93,7 @@ class Single_Task():
         for _ in range(delta):
             position = position + d_action
             self.dv_collected,  self.dv_transmittion_rate, self.dv_left = \
-                self.transmitting_model.update_dv_status(position, self.dv_collected, self.dv_required, 1.0/(delta*N*10))
+                self.transmitting_model.update_dv_status(position, self.dv_collected, self.dv_required, 1.0/(delta*N))
 
     def get_current_status(self):
         return self.current_position, self.tower_location, self.dv_collected, self.dv_left, self.dv_transmittion_rate, self.dv_required

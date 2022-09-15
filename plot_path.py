@@ -7,7 +7,7 @@ import matplotlib.patches as mpatches
 
 x_limit = 10
 y_limit = 10
-tower_locations = [[7, 2], [2, 8]]
+tower_locations = [[7, 2], [1, 8]]
 start_at = [0, 0]
 end_at = [2, 5]
 curved_path = False

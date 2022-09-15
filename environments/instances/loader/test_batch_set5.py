@@ -12,7 +12,7 @@ class Instances:
         self.y_limit = 10
         self.tower_location = [[7, 2], [1, 8]]
         self.time_scale = 1
-        self.max_episode_steps = 60
+        self.max_episode_steps = 50
         print('using {}'.format(self.instance_name))
         self.environment_list = []
 
@@ -32,7 +32,7 @@ class Instances:
 env_list = Instances()
 
 # env_list.add_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[1, 1])
-env_list.add_mission(start_at=[0, 0], arrival_at=[2, 5], dv_required=[1.25, 1.25])
+env_list.add_mission(start_at=[0, 0], arrival_at=[2, 5], dv_required=[1, 1])
 # env_list.add_mission(start_at=[0, 0], arrival_at=[3, 2], dv_required=[1, 1])
 # env_list.add_mission(start_at=[4, 3], arrival_at=[2, 5], dv_required=[1, 1]) 
 # env_list.add_mission(start_at=[1, 5], arrival_at=[3, 2], dv_required=[1, 1]) 

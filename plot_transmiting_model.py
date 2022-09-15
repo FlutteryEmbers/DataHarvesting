@@ -18,6 +18,7 @@ for index in transmission_model:
     heat_t1[i, j] = transmission_model[index][0] + transmission_model[index][1]
     # heat_t2[i, j] = transmission_model[index][1]
 
+print(heat_t1[7, 2])
 # plt.imshow(heat_t1, cmap='viridis', interpolation='nearest')
 sns.set()
 ax = sns.heatmap(heat_t1, fmt='.1f', cmap="Blues", annot=True)

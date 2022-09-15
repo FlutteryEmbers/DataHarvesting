@@ -10,13 +10,13 @@ import random
 import math
 
 # random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
-random_seed = [20]
+random_seed = [30]
 result_saving_iter = 1000
 n_game = 10000
 
 def delta_priority(iteration, t):
-    # return min(math.tanh(iteration/5000), 0.30) ** t
-    return 0.2 ** t
+    return min(math.tanh(iteration/8000), 0.90) ** t
+    # return 0.2 ** t
     
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
@@ -163,7 +163,7 @@ class GameAgent():
                                     logger.warning('best num step: {}'.format(test_env.num_steps))
                                     stats = test_env.view()
                                     stats.final_reward = eval_rewards
-                                    stats.save(sub_dir = output_dir, plot = False)
+                                    stats.save(sub_dir = output_dir, plot = True)
 
                 '''
                 eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')

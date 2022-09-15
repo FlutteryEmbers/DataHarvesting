@@ -17,12 +17,11 @@ def ddqn():
 
 def her_ddqn():
     logger.critical('Start HER_DDQN Session')
-    config = tools.load_config("configs/config_ddqn.yaml")
+    config = tools.load_config("configs/config_ddqn_2.yaml")
     # tools.setup_seed(config['RANDOM_SEED'])
     agent = HER_Batch_Trainer.GameAgent(config=config, network='MLP')
-    agent.batch_train('Default') 
     # agent = PHER_Batch_Trainer.GameAgent(config=config, network='MLP')
-    # agent.batch_train('Default')  
+    agent.batch_train('Default')  
 
 if __name__ == '__main__':
     tools.set_logger_level(3)

@@ -1,0 +1,11 @@
+TIME_RATIO: 1
+B: 0.5
+HEIGHT: 0.5
+K: 2
+N: 3
+PHI_LIST: 
+- 1
+- 2
+- 3
+- 4
+- 5
