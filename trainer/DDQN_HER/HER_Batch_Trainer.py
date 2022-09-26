@@ -1,5 +1,5 @@
 #from environments.instances.batch_train_v3 import env_list
-from environments.instances.loader.test_batch_set6 import env_list
+from environments.instances.loader.test_batch_set3 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -12,7 +12,7 @@ import random
 # random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
 random_seed = [20]
 result_saving_iter = 1000
-n_game = 100
+n_game = 3000
 
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
@@ -110,7 +110,7 @@ class GameAgent():
                                 logger.warning('best num step: {}'.format(test_env.num_steps))
                                 stats = test_env.view()
                                 stats.final_reward = eval_rewards
-                                stats.save(sub_dir = output_dir, plot = False)
+                                stats.save(sub_dir = output_dir, plot = True)
                 
                 if not done:
                     new_goal = np.copy(s)
@@ -135,7 +135,7 @@ class GameAgent():
                                         logger.warning('best num step: {}'.format(test_env.num_steps))
                                         stats = test_env.view()
                                         stats.final_reward = eval_rewards
-                                        stats.save(sub_dir = output_dir, plot = False)
+                                        stats.save(sub_dir = output_dir, plot = True)
                                 break
 
                             ddqn.store_transition(transition[0], transition[1], transition[2],

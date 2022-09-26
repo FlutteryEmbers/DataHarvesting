@@ -90,10 +90,14 @@ class Single_Task():
         # N = 2
         d_action = np.array(action) / delta
         position = np.array(position[:])
+        cumulative_rate = np.zeros_like(self.dv_transmittion_rate, dtype=np.float64)
         for _ in range(delta):
             position = position + d_action
-            self.dv_collected,  self.dv_transmittion_rate, self.dv_left = \
+            self.dv_collected,  dv_transmittion_rate_step, self.dv_left = \
                 self.transmitting_model.update_dv_status(position, self.dv_collected, self.dv_required, 1.0/(delta*N))
+            cumulative_rate += np.array(dv_transmittion_rate_step)
+
+        self.dv_transmittion_rate = cumulative_rate.tolist()
 
     def get_current_status(self):
         return self.current_position, self.tower_location, self.dv_collected, self.dv_left, self.dv_transmittion_rate, self.dv_required

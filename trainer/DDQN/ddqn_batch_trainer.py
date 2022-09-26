@@ -26,7 +26,7 @@ class GameAgent():
         for i in range(len(env_list.environment_list)):
             env = env_list.get_mission(i)
             env.state_mode = self.network
-            output_dir = io.mkdir(self.output_dir + 'batch_train_ddqn/{}/'.format(i))
+            output_dir = io.mkdir(self.output_dir +  env_list.instance_name + '/batch_train_ddqn/{}/'.format(i))
             self.train_model(env=env, n_games=2000, pre_output_dir=output_dir)
             print('======================================================================================')
 
@@ -99,7 +99,7 @@ class GameAgent():
                             logger.warning('best num step: {}'.format(test_env.num_steps))
                             stats = test_env.view()
                             stats.final_reward = eval_rewards
-                            stats.save(sub_dir = output_dir, plot = False)
+                            stats.save(sub_dir = output_dir, plot = True)
 
                 self.timer.stop()
 

@@ -1,0 +1,5 @@
+x_limit: 10
+y_limit: 10
+start_at: [0, 0]
+arrival_at: [9, 6]
+dv_required: [5, 6, 3, 4, 4]

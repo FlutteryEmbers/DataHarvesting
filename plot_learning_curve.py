@@ -41,4 +41,6 @@ ax.fill_between(x, her_mean-her_std, her_mean+her_std, alpha=0.3, facecolor=clrs
 ax.plot(x, pher_mean, label="HER_DDQN with Prioritized Sampling")
 ax.fill_between(x, pher_mean-pher_std, pher_mean+pher_std, alpha=0.3, facecolor=clrs[1])
 plt.legend(loc='lower right')
+plt.xlabel("iteration (each point corresponding to 1000 learning steps)")
+plt.ylabel("reward")
 plt.savefig('{}.png'.format('assets/sampling'))

@@ -6,7 +6,7 @@ from environments.config.tasks import Single_Task
 '''
 class Instances:
     def __init__(self) -> None:
-        self.instance_name = 'borad_loarder_v3'
+        self.instance_name = 'board_loader_v3'
         self.phi_model_name = 'configs/config_trans_model_2_D_3.yaml'
         self.x_limit = 10
         self.y_limit = 10
@@ -32,7 +32,7 @@ class Instances:
 env_list = Instances()
 
 # env_list.add_mission(start_at=[0, 0], arrival_at=[9, 9], dv_required=[1, 1])
-env_list.add_mission(start_at=[0, 0], arrival_at=[2, 5], dv_required=[1, 1]) ## Different arrival point
+env_list.add_mission(start_at=[0, 0], arrival_at=[2, 5], dv_required=[10, 10]) ## Different arrival point
 env_list.add_mission(start_at=[0, 0], arrival_at=[3, 2], dv_required=[1, 1]) ## Different arrival point
 env_list.add_mission(start_at=[4, 3], arrival_at=[2, 5], dv_required=[1, 1]) ## Different arrival point
 env_list.add_mission(start_at=[1, 5], arrival_at=[3, 2], dv_required=[1, 1]) ## Different arrival point

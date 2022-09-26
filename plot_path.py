@@ -1,4 +1,3 @@
-from lib2to3.pgen2.tokenize import StopTokenizing
 from utils import graphic
 from utils import io
 from matplotlib import pyplot as plt

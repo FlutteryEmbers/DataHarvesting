@@ -73,9 +73,9 @@ class Info():
 
         # print(len(data_collected))
         if plot:
-            self.plot(filename='{}/data_collected'.format(output_dir), data=data_collected)
-            self.plot(filename='{}/data_left'.format(output_dir), data=data_left)
-            self.plot(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
+            self.plot_dv_info(filename='{}/data_collected'.format(output_dir), data=data_collected)
+            self.plot_dv_info(filename='{}/data_left'.format(output_dir), data=data_left)
+            self.plot_dv_info(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
 
         with open(output_dir + 'position_t.txt', 'w') as f:
             timestamp = 0
@@ -89,21 +89,30 @@ class Info():
 
         with open(output_dir + 'path.pickle', 'wb') as handle:
             pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        with open(output_dir + 'dv_collected.pickle', 'wb') as handle:
+            pickle.dump(data_collected, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         handle.close()
 
-    def plot(self, filename, data):
+    def plot_dv_info(self, filename, data):
         # self.mkdir(type)
         t = [i+1 for i in range(self.timestamp)]
-        plt.figure()
+        plt.figure(figsize=(10,5))
+        # ax = plt.gca() #you first need to get the axis handle
+        # ax.set_aspect(0.8) #sets the height to width ratio to 1.5. 
         for i in range(self.num_turrent):
             # self.num_plots += 1
             # plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
-            plt.plot(t, data[i], label="turrent {}".format(i))
+            plt.plot(t, data[i], label="target {}".format(i + 1))
 
         plt.legend(loc='upper left')
-        plt.title(filename)
-        plt.savefig('{}.png'.format(filename))
+        # plt.title(filename)
+        plt.xlabel("Time")
+        plt.ylabel("Data Volumn")
+
+        plt.savefig('{}.png'.format(filename), bbox_inches='tight', pad_inches=0.1, format='png', dpi=300)
+        plt.savefig('{}.eps'.format(filename), bbox_inches='tight', pad_inches=0.1, format='eps', dpi=300)
         plt.close('all')
 
     def reset(self):
