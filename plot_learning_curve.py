@@ -1,4 +1,5 @@
 from random import random
+from turtle import color
 from utils import io
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,12 +36,12 @@ x = np.arange(length)
 clrs = sns.color_palette("husl", 5)
 fig, ax = plt.subplots()
 
-ax.plot(x, her_mean, label="HER_DDQN with Uniformly Sampling")
-ax.fill_between(x, her_mean-her_std, her_mean+her_std, alpha=0.3, facecolor=clrs[0])
+ax.plot(x, her_mean, label="HER_DDQN with Uniformly Sampling", color="#0066ff")
+ax.fill_between(x, her_mean-her_std, her_mean+her_std, alpha=0.3, facecolor="#66a3ff")
 
-ax.plot(x, pher_mean, label="HER_DDQN with Prioritized Sampling")
-ax.fill_between(x, pher_mean-pher_std, pher_mean+pher_std, alpha=0.3, facecolor=clrs[1])
+ax.plot(x, pher_mean, label="HER_DDQN with Prioritized Sampling", color="#ff8c1a")
+ax.fill_between(x, pher_mean-pher_std, pher_mean+pher_std, alpha=0.3, facecolor="#ffb366")
 plt.legend(loc='lower right')
 plt.xlabel("iteration (each point corresponding to 1000 learning steps)")
 plt.ylabel("reward")
-plt.savefig('{}.png'.format('assets/sampling'))
+plt.savefig('{}.png'.format('assets/sampling'), bbox_inches='tight', pad_inches=0.1, format='png', dpi=300)
