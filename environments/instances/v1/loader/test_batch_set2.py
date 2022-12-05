@@ -1,5 +1,5 @@
-from environments.config.game import Agent
-from environments.config.tasks import Single_Task
+from environments.v1.game import Agent
+from environments.v1.tasks import Single_Task
 
 class Instances:
     def __init__(self) -> None:

@@ -1,5 +1,5 @@
-from environments.config.game import Agent
-from environments.config.tasks import Single_Task
+from environments.v1.game import Agent
+from environments.v1.tasks import Single_Task
 
 '''
     Advanced Version for Set 3 with modification of data collected and max episode step to ensure that the agent need to wait under the tower

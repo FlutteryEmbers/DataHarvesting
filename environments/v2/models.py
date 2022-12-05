@@ -118,14 +118,22 @@ class Board():
 
         self.dv_transmittion_rate = cumulative_rate.tolist()
 
-    def get_agent_position(self, i):
-        return self.agents.current_position[i]
-
     def is_dv_collection_done(self):
         return not np.array(self.dv_left).any()
 
     def get_state(self):
         return np.append(self.agents.current_position, self.dv_collected)
+
+    def get_agent_goal(self, i):
+        return self.agents.arrival_at[i]
+
+    def get_agent_position(self, i):
+        return self.agents.current_position[i]
+
+    def description(self):
+        return ['x_limit: {}'.format(self.x_limit), 'y_limit: {}'.format(self.y_limit),\
+                #'start_at: {}'.format(self.start_at), 'arrival_at: {}'.format(self.arrival_at),\
+                'dv_required: {}'.format(self.dv_required)]
 
 class Actions():
     class Discrete():

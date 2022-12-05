@@ -22,7 +22,7 @@ class Agent():
             phi_config_file=phi_config_file, save_file=save_file, rounding=rounding, control_time_scale=control_time_scale)
 
         self.action_type = action_type
-        # self.goal = task.get_goal()
+        self.goal = self.board.get_goal()
         
         if self.action_type == 'Discrete':
             self.action_space = models.Actions.Discrete(time_scale = control_time_scale)       

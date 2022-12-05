@@ -5,7 +5,7 @@ from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
 from utils import io
-from environments.config import actions
+from environments.v1 import actions
 from loguru import logger
 
 timer = Timer()

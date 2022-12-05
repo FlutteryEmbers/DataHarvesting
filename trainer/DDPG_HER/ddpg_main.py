@@ -1,4 +1,4 @@
-from environments.instances.determistic import Test_Environment_Continuous, Test_Environment_Eval_Continuous
+from environments.instances.v1.determistic import Test_Environment_Continuous, Test_Environment_Eval_Continuous
 from utils import monitor, tools
 from trainer.DDPG_HER import ddpg
 from loguru import logger
