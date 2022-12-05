@@ -25,7 +25,7 @@ class DDQN(object):
         self.network_type  = env.state_mode
         
         logger.warning('Using FC network as Backend')
-        self.inputs= len(env.status_tracker.get_state())
+        self.inputs= len(env.board.get_state())
         self.outputs=env.action_space.n
         self.goal = env.goal
 

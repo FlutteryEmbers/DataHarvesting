@@ -1,5 +1,4 @@
-#from environments.instances.batch_train_v3 import env_list
-from environments.instances.v1.loader.test_batch_set3 import env_list
+from environments.instances.v2.test_batch_set1 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
@@ -61,7 +60,7 @@ class GameAgent():
 
             tracker = monitor.Learning_Monitor(output_dir=output_dir, name='ddqn_random_seed_{}'.format(seed), log=['ddqn', env_type], args=self.config)
 
-            logger.warning('Using {} Environment'.format(env.status_tracker.name))
+            # logger.warning('Using {} Environment'.format(env.status_tracker.name))
             env.state_mode = self.network
             ddqn = DDQN(env=env, config = self.config['AGENT'], network_config=self.config['NETWORK'])
             best_model = None

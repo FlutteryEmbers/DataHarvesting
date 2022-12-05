@@ -3,11 +3,11 @@ from environments.v2.game import Agent
 
 class Instances:
     def __init__(self) -> None:
-        self.instance_name = 'board_loarder_v1'
-        self.phi_model_name = 'configs/config_trans_model_2_D_2.yaml'
+        self.instance_name = 'board_loarder_v8'
+        self.phi_model_name = 'configs/config_trans_model_2_D_4.yaml'
         self.x_limit = 10
         self.y_limit = 10
-        self.tower_location = [[2, 5], [1, 7], [3, 6], [2, 5]]
+        self.tower_location=[[3, 1], [6, 7], [8, 2], [1, 6], [3, 9]]
         self.time_scale = 1
         self.max_episode_steps = 100
         print('using {}'.format(self.instance_name))
@@ -26,5 +26,5 @@ class Instances:
 
 env_list = Instances()
 
-env_list.add_mission(start_at=[[0, 0]], arrival_at=[[9, 9]], dv_required=[3, 3, 3, 3])
-
+# env_list.add_mission(start_at=[[0.0, 0.0]], arrival_at=[[9.0, 6.0]], dv_required=[5, 6, 3, 4, 4])
+env_list.add_mission(start_at=[[0, 0]], arrival_at=[[9, 6]], dv_required=[5, 6, 3, 4, 4])

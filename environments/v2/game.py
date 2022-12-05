@@ -12,7 +12,7 @@ from loguru import logger
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
-    def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 0, control_time_scale = 2,
+    def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 2, control_time_scale = 2,
         action_type = 'Discrete', max_episode_steps = 100):
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
@@ -31,7 +31,7 @@ class Agent():
         elif self.action_type == '1D':
             self.action_space = models.Actions.LinearDiscrete()
 
-        self.running_info = Info(board_structure=self.status_tracker, num_turrent=self.status_tracker.num_tower)
+        self.running_info = Info(board_structure=self.board, num_turrent=self.board.num_towers)
         
         self.reward = 0
         self.num_steps = 0
@@ -43,7 +43,7 @@ class Agent():
         self.board.reset()
         self.running_info.reset()
 
-        s = self.status_tracker.get_state()
+        s = self.board.get_state()
         # logger.debug(s)
         # return s, self.status_tracker.current_position
         return s
@@ -56,7 +56,7 @@ class Agent():
 
         self.num_steps += 1
 
-        data_volume_collected, data_transmitting_rate_list, data_volume_left = self.board.update_agent_state(i= 0, action=action)
+        data_volume_collected, data_transmitting_rate_list, data_volume_left = self.board.update_agent_state(i=0, action=action)
         
         position = self.board.get_agent_position(0)
 
@@ -68,7 +68,7 @@ class Agent():
 
         if type_reward == 'HER':
             reward = -1
-            if self.board.is_done() and np.array_equal(self.status_tracker.current_position, self.status_tracker.arrival_at):
+            if self.board.is_dv_collection_done() and self.board.is_all_arrived():
                 # print('HER complete')
                 reward = 0
                 done = True
@@ -80,12 +80,12 @@ class Agent():
                 done = True
 
         elif type_reward == 'Default':
-            reward = self.status_tracker.get_reward()
+            reward = self.board.get_reward()
             reward -= 1 # 每步减少reward 1
             
 
             # NOTE: 判断是否到达终点
-            if self.status_tracker.is_done():
+            if self.board.is_done():
                 reward = -np.sum(abs(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))) * self.action_space.time_scale
                 done = True
 
@@ -95,8 +95,11 @@ class Agent():
         s = self.board.get_state()
         return s, reward, done, position
 
+    def get_state(self):
+        return self.board.get_state()
+
     def view(self):
-        logger.info('data left = {} steps taken = {}'.format(np.array(self.status_tracker.dv_required) - np.array(self.status_tracker.dv_collected), self.num_steps))
+        logger.info('data left = {} steps taken = {}'.format(np.array(self.board.dv_required) - np.array(self.board.dv_collected), self.num_steps))
         return self.running_info
 
     def save_task_info(self, output_dir):
