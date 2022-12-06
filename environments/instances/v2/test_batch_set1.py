@@ -16,7 +16,8 @@ class Instances:
     def add_mission(self, start_at, arrival_at, dv_required):
         print('adding {}'.format(self.instance_name))
         environment = Agent(x_limit=self.x_limit, y_limit=self.y_limit, start_at=start_at, arrival_at=arrival_at, \
-            tower_location=self.tower_location, dv_required=dv_required, phi_config_file = self.phi_model_name, save_file=self.instance_name)
+            tower_location=self.tower_location, dv_required=dv_required, control_time_scale=self.time_scale, \
+                phi_config_file = self.phi_model_name, save_file=self.instance_name)
 
         self.environment_list.append(environment)
 

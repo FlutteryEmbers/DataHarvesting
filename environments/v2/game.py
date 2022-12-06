@@ -58,7 +58,7 @@ class Agent():
 
         data_volume_collected, data_transmitting_rate_list, data_volume_left = self.board.update_agent_state(i=0, action=action)
         
-        position = self.board.get_agent_position(0)
+        position = self.board.get_agent_position(0).tolist()
 
         self.running_info.store(position_t=position, action_t=action,
                                     data_collected_t=data_volume_collected, 
