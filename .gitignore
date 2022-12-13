@@ -11,3 +11,5 @@ results/
 map/*
 .map
 map/
+./cache
+./cache/*

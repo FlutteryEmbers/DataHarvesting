@@ -5,9 +5,9 @@ from utils import tools, graphic
 from loguru import logger
 
 def init_working_dir():
-    tools.mkdir('model/q_networks')
-    tools.mkdir('model/ppo')
-    tools.mkdir('model/her_q_networks')
+    tools.mkdir('cache/model/q_networks')
+    tools.mkdir('cache/model/ppo')
+    tools.mkdir('cache/model/her_q_networks')
 
 def ddqn():
     logger.critical('Start DDQN Session')

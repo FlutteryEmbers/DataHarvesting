@@ -10,7 +10,7 @@ from tqdm import tqdm
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, phi_config_file, save_file, rounding = 0) -> None:
         self.phi_config_file = phi_config_file
-        self.save_file = 'map/{}'.format(save_file)
+        self.save_file = 'cache/map/{}'.format(save_file)
         Config = tools.load_config(self.phi_config_file)
 
         self.time_ratio = Config['TIME_RATIO']

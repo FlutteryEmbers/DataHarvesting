@@ -6,8 +6,8 @@ import numpy as np
 
 class GameAgent():
     def __init__(self) -> None:
-        checkpoint_dir = 'model/her_ddpg'
-        self.output_dir = 'results/HER'
+        checkpoint_dir = 'cache/model/her_ddpg'
+        self.output_dir = 'cache/results/HER'
         self.timer = tools.Timer()
         self.env = Test_Environment_Continuous
         self.evaluate_env = Test_Environment_Eval_Continuous

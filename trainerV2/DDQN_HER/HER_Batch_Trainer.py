@@ -21,7 +21,7 @@ class GameAgent():
 
         now = datetime.now()
         # self.output_dir = 'results/{}'.format(now.strftime("%d-%m-%H-%M-%S"))
-        self.output_dir = 'results/'
+        self.output_dir = 'cache/results/'
 
     def batch_train(self, env_type):
         for i in range(len(env_list.environment_list)):
