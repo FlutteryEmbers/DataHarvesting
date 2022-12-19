@@ -77,20 +77,20 @@ class Info():
             self.plot_dv_info(filename='{}/data_left'.format(output_dir), data=data_left)
             self.plot_dv_info(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
 
-        with open(output_dir + 'position_t.txt', 'w') as f:
+        with open(output_dir + '/position_t.txt', 'w') as f:
             timestamp = 0
             for line in self.position_t:
                 f.write(str(timestamp) + ' ' + str(line[0]) + '  ' + str(line[1]))
                 f.write('\n')
                 timestamp += 1
 
-        with open(output_dir + 'final_reward.txt', 'w') as f2:
+        with open(output_dir + '/final_reward.txt', 'w') as f2:
             f2.write('{}'.format(self.final_reward))
 
-        with open(output_dir + 'path.pickle', 'wb') as handle:
+        with open(output_dir + '/path.pickle', 'wb') as handle:
             pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(output_dir + 'dv_collected.pickle', 'wb') as handle:
+        with open(output_dir + '/dv_collected.pickle', 'wb') as handle:
             pickle.dump(data_collected, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         handle.close()

@@ -25,7 +25,7 @@ class Learning_Monitor():
 		return mean
 
 	def plot_learning_curve(self):
-		name = '{}_rewards'.format(self.name)
+		name = '/{}_rewards'.format(self.name)
 		filename = self.output_dir + name + '.png'
 
 		x = np.arange(0, len(self.rewards))
@@ -37,7 +37,7 @@ class Learning_Monitor():
 		plt.close()
 
 	def plot_average_learning_curve(self, n):
-		name = '{}_average_{}_rewards'.format(self.name, n)
+		name = '/{}_average_{}_rewards'.format(self.name, n)
 		filename = self.output_dir + name + '.png'
 
 		reward = np.array(self.rewards)
@@ -53,7 +53,7 @@ class Learning_Monitor():
 		plt.close()
 	
 	def dump_to_file(self):
-		filename = self.output_dir + self.name + '_'
+		filename = self.output_dir + '/' + self.name + '_'
 		with open(filename + 'history_rewards.pickle', 'wb') as handle:
 			pickle.dump(self.rewards, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -65,12 +65,12 @@ class Learning_Monitor():
 		handle.close()
 
 	def save_log(self):
-		with open(self.output_dir+'log.txt', 'w') as f:
+		with open(self.output_dir+'/log.txt', 'w') as f:
 			for line in self.log:
 				f.write(line)
 				f.write('\n')
 
-		with open(self.output_dir+'config.yaml', "w", encoding = "utf-8") as yaml_file:
+		with open(self.output_dir+'/config.yaml', "w", encoding = "utf-8") as yaml_file:
 			dump = yaml.dump(self.args, default_flow_style = False, allow_unicode = True, encoding = None)
 			yaml_file.write(dump )
 

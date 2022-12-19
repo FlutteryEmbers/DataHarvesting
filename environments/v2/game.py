@@ -85,8 +85,8 @@ class Agent():
             
 
             # NOTE: 判断是否到达终点
-            if self.board.is_done():
-                reward = -np.sum(abs(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))) * self.action_space.time_scale
+            if self.board.is_dv_collection_done():
+                reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
                 done = True
 
         else:

@@ -2,9 +2,9 @@ import numpy as np
 # from torch.utils.tensorboard import SummaryWriter
 import gym
 import argparse
-from trainer.PPO.normalization import Normalization, RewardScaling
-from trainer.PPO.replaybuffer import ReplayBuffer
-from trainer.PPO.ppo_continuous import PPO_continuous
+from trainerV2.PPO_HER.normalization import Normalization, RewardScaling
+from trainerV2.PPO_HER.replaybuffer import HER_ReplayBuffer
+from trainerV2.PPO_HER.ppo_continuous import PPO_continuous
 from utils import tools
 from loguru import logger
 
@@ -40,17 +40,18 @@ class PPO_GameAgent():
         evaluate_reward = 0
         for _ in range(times):
             s = env.reset()
+            goal = env.goal
             if args.use_state_norm:
                 s = state_norm(s, update=False)  # During the evaluating,update=False
             done = False
             episode_reward = 0
             while not done and env.num_steps < 200:
-                a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
+                a = agent.evaluate(s, goal)  # We use the deterministic policy during the evaluating
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, position = env.step(action, type_reward = 'Default')
+                s_, r, done, position = env.step(action, type_reward = 'HER')
                 # print(position)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
@@ -93,7 +94,7 @@ class PPO_GameAgent():
         evaluate_rewards = []  # Record the rewards during the evaluating
         total_steps = 0  # Record the total steps during the training
 
-        replay_buffer = ReplayBuffer(args)
+        replay_buffer = HER_ReplayBuffer(args)
         agent = PPO_continuous(args)
 
         # Build a tensorboard
@@ -114,14 +115,16 @@ class PPO_GameAgent():
                 reward_scaling.reset()
             episode_steps = 0
             done = False
+            transitions = []
+            goal = env.goal
             while not done:
                 episode_steps += 1
-                a, a_logprob = agent.choose_action(s)  # Action and the corresponding log probability
+                a, a_logprob = agent.choose_action(s, goal)  # Action and the corresponding log probability
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, _ = env.step(action, type_reward = 'Default')
+                s_, r, done, _ = env.step(action, type_reward = 'HER')
 
                 if args.use_state_norm:
                     s_ = state_norm(s_)
@@ -130,6 +133,9 @@ class PPO_GameAgent():
                 elif args.use_reward_scaling:
                     r = reward_scaling(r)
 
+                # transitions.append((s, a, r, s_))
+                transitions.append((s, a, a_logprob, r, s_))
+                
                 # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
                 # dw means dead or win,there is no next state s';
                 # but when reaching the max_episode_steps,there is a next state s' actually.
@@ -138,8 +144,44 @@ class PPO_GameAgent():
                 else:
                     dw = False
 
+                if episode_steps == args.max_episode_steps:
+                    new_goal = np.copy(s)
+                    # logger.debug('alternative goal: {}'.format(new_goal))
+                    if not np.array_equal(new_goal, goal):
+                        for p in range(args.max_episode_steps):
+                            transition = transitions[p]
+                            if np.array_equal(transition[4], new_goal):
+                                replay_buffer.store(transition[0], transition[1], transition[2], 0.0,
+                                                    transition[3], True, True, new_goal)
+                                if replay_buffer.count == args.batch_size:
+                                    agent.update(replay_buffer, total_steps)
+                                    replay_buffer.count = 0
+                                '''
+                                ddqn.learn()
+                                if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
+                                    eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
+                                    logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
+                                    tracker.store(eval_rewards)
+
+                                    if eval_rewards > best_rewards:
+                                        best_rewards = eval_rewards
+                                        ddqn.save_models(mode=env_type)
+
+                                        _, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
+                                        logger.warning('best num step: {}'.format(test_env.num_steps))
+                                        stats = test_env.view()
+                                        stats.final_reward = eval_rewards
+                                        stats.save(sub_dir = output_dir, plot = True)
+                                break
+                                '''
+                            replay_buffer.store(transition[0], transition[1], transition[2],
+                                                transition[3], transition[4], False, False, new_goal)
+                            if replay_buffer.count == args.batch_size:
+                                    agent.update(replay_buffer, total_steps)
+                                    replay_buffer.count = 0
+
                 # Take the 'action'，but store the original 'a'（especially for Beta）
-                replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
+                replay_buffer.store(s, a, a_logprob, r, s_, dw, done, goal)
                 s = s_
                 total_steps += 1
 

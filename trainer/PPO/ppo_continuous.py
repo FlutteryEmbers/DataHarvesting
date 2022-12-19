@@ -152,7 +152,7 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
 
-        self.env_type = args.env_type
+        # self.env_type = args.env_type
 
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args)
