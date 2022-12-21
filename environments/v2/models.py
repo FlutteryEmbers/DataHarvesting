@@ -3,27 +3,6 @@ import math
 from environments.v2.transmission_model import Phi_dif_Model
 from utils.buffer import Info
 
-
-class Agent():
-    def __init__(self, start_at, arrival_at, num_tower) -> None:
-        self.start_at = start_at[:]
-        self.arrival_at = arrival_at[:]
-
-        self.current_position = start_at[:]
-        self.dv_collected = np.zeros(num_tower)
-        self.activate = True
-        self.done = False
-
-        self.position_t = [self.start_at]
-
-    def update_state(self, position):
-        self.current_position = position[:]
-        self.position_t.append(self.current_position)
-
-    def reset(self):
-        self.current_position = self.start_at[:]
-        self.done = False
-
 class Agent_List():
     def __init__(self, num_tower, start_at, arrival_at) -> None:
         self.start_at = start_at
@@ -58,6 +37,32 @@ class Agent_List():
     def get_state(self):
         return self.current_position.flatten()
 
+class Targets():
+    def __init__(self, tower_location, dv_required) -> None:
+        self.start_at = tower_location
+        self.dv_required = dv_required
+        self.num_towers = len(tower_location)
+
+        self.tower_location = np.array(self.start_at)
+        self.dv_collected = np.zeros(self.num_towers, dtype=np.float64)
+        self.dv_left = np.array(self.dv_required, dtype=np.float64)
+        self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
+
+    def reset(self):
+        self.tower_location = np.array(self.start_at)
+        self.dv_collected = np.zeros(self.num_towers, dtype=np.float64)
+        self.dv_left = np.array(self.dv_required, dtype=np.float64)
+        self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
+
+    def update_dv_state(self, transmitting_rate_list):
+        dv_collected_updated = self.dv_collected + np.array(transmitting_rate_list)
+        dv_collected_updated = np.minimum(dv_collected_updated, self.dv_required)
+
+        transmitting_rate = dv_collected_updated - self.dv_collected
+        self.dv_left = np.array(self.dv_required) - dv_collected_updated
+        self.dv_collected = dv_collected_updated
+
+        return  self.dv_collected, transmitting_rate, self.dv_left
 
 class Board():
     def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 2, control_time_scale = 2) -> None:
@@ -66,11 +71,7 @@ class Board():
         self.control_time_scale = control_time_scale
 
         self.num_towers = len(tower_location)
-        self.tower_location = tower_location
-        self.dv_required = dv_required[:]
-        self.dv_left = dv_required[:]
-        self.dv_collected = [0]*len(self.dv_required)
-        self.dv_transmittion_rate = [0]*len(self.dv_required)
+        self.targets = Targets(tower_location=tower_location, dv_required=dv_required)
 
         self.agents = Agent_List(num_tower=self.num_towers, start_at=start_at, arrival_at=arrival_at)
         self.transmitting_model = Phi_dif_Model(x_limit=x_limit, y_limit=y_limit, tower_position=tower_location, \
@@ -79,10 +80,7 @@ class Board():
         
     def reset(self):
         self.agents.reset()
-
-        self.dv_left = self.dv_required[:]
-        self.dv_collected = [0]*self.num_towers
-        self.dv_transmittion_rate = [0]*self.num_towers
+        self.targets.reset()
 
     def update_agents(self, joint_actions):
         for i in range(self.agents.num_agents):
@@ -105,51 +103,43 @@ class Board():
         
         self.agents.update_agent(i, position)
         update_action = np.array(position[:]) - prev_position
-        self.update_dv_status(prev_position, update_action)
+        dv_collected, cumulative_rate, dv_left = self.update_dv_status(prev_position, update_action)
 
-        return self.dv_collected, self.dv_transmittion_rate, self.dv_left
+        return dv_collected, cumulative_rate, dv_left
+
+    def update_target_state(self, i, action):
+        pass
 
     def update_dv_status(self, position, action, communication_time_scale = 10):
         d_action = np.array(action) / communication_time_scale
         position = np.array(position[:])
-        cumulative_rate = np.zeros_like(self.dv_transmittion_rate, dtype=np.float64)
+        cumulative_rate = np.zeros(self.num_towers, dtype=np.float64)
         for _ in range(communication_time_scale):
             position = position + d_action
-            self.dv_collected,  dv_transmittion_rate_step, self.dv_left = \
-                self.transmitting_model.update_dv_status(position, self.dv_collected, self.dv_required, 1.0/(communication_time_scale*self.control_time_scale))
+            transmitting_rate_list = self.transmitting_model.get_transmission_rate(agent_position=position, tower_location=self.targets.tower_location, \
+                time_ratio=1.0/(communication_time_scale*self.control_time_scale))
+            
+            dv_collected, dv_transmittion_rate_step, dv_left = self.targets.update_dv_state(transmitting_rate_list)
             cumulative_rate += np.array(dv_transmittion_rate_step)
 
         self.dv_transmittion_rate = cumulative_rate.tolist()
-
-    def get_reward(self):
-        '''
-        dv_transmisttion_rate = np.array(self.dv_transmittion_rate)
-        dv_required = np.array(self.dv_required)
-        transmission_reward = 10*np.sum(dv_transmisttion_rate/dv_required)
-        '''
-        # current_position = np.array(self.current_position)
-        transmission_reward = 0
-        for i in range(len(self.tower_location)):
-            penalty_to_tower = np.sum(abs(np.array(self.agents.current_position[0]) - np.array(self.tower_location[i]))) * self.dv_left[i] * 1
-            transmission_reward -= penalty_to_tower
-        transmission_reward += 100*np.sum(np.array(self.dv_transmittion_rate))
-        return transmission_reward
+        return dv_collected, cumulative_rate, dv_left
 
     def is_dv_collection_done(self):
-        return not np.array(self.dv_left).any()
+        return not np.array(self.targets.dv_left).any()
 
     def is_all_arrived(self):
         return self.agents.is_done()
 
     def get_state(self):
-        return np.append(self.agents.current_position, self.dv_collected)
+        return np.append(self.agents.current_position, self.targets.dv_collected)
 
     def get_agent_goal(self, i):
         return self.agents.arrival_at[i]
 
     def get_goal(self):
         arrival_at = self.get_agent_goal(0)
-        return np.concatenate((arrival_at, self.dv_required), axis=None)
+        return np.concatenate((arrival_at, self.targets.dv_required), axis=None)
 
     def get_agent_position(self, i):
         return self.agents.current_position[i]
@@ -157,7 +147,7 @@ class Board():
     def description(self):
         return ['x_limit: {}'.format(self.x_limit), 'y_limit: {}'.format(self.y_limit),\
                 #'start_at: {}'.format(self.start_at), 'arrival_at: {}'.format(self.arrival_at),\
-                'dv_required: {}'.format(self.dv_required)]
+                'dv_required: {}'.format(self.targets.dv_required)]
 
 class Actions():
     class Discrete():
@@ -206,6 +196,26 @@ class Actions():
 
         def sample(self):
             return np.random.rand(2)
+
+class Agent():
+    def __init__(self, start_at, arrival_at, num_tower) -> None:
+        self.start_at = start_at[:]
+        self.arrival_at = arrival_at[:]
+
+        self.current_position = start_at[:]
+        self.dv_collected = np.zeros(num_tower)
+        self.activate = True
+        self.done = False
+
+        self.position_t = [self.start_at]
+
+    def update_state(self, position):
+        self.current_position = position[:]
+        self.position_t.append(self.current_position)
+
+    def reset(self):
+        self.current_position = self.start_at[:]
+        self.done = False
 
 class Tower():
     def __init__(self, location, dv_required) -> None:

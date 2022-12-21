@@ -32,21 +32,32 @@ class Phi_dif_Model():
             self.signal_map = self.init_signal_map()
         
 
-    def update_dv_status(self, agent_position, dv_collected, dv_required, time_ratio = 1):
+    def get_transmission_rate_statics(self, agent_position, time_ratio):
         x = round(agent_position[0], self.rounding)
         y = round(agent_position[1], self.rounding)
         if (x, y) not in self.signal_map:
             sys.exit("signal_map not initialized correctly")
 
-        transmitting_rate_list = self.signal_map[(x, y)]
+        transmitting_rate_list = self.signal_map[(x, y)] * time_ratio
+        '''
         dv_collected_updated = np.array(dv_collected) + np.array(transmitting_rate_list)*time_ratio
         dv_collected_updated = np.minimum(dv_collected_updated, dv_required)
 
         transmitting_rate = dv_collected_updated - dv_collected
         dv_left = dv_required - dv_collected_updated
+        '''
+        # return dv_collected_updated.tolist(),  transmitting_rate.tolist(), dv_left.tolist()
+        return np.array(transmitting_rate_list)
 
-        return dv_collected_updated.tolist(),  transmitting_rate.tolist(), dv_left.tolist()
-        
+    def get_transmission_rate_dynamic(self, agent_position, tower_location, time_ratio):
+        agent_position = np.array(agent_position)
+        tower_location = np.array(tower_location)
+
+        relative_distance = np.linalg.norm(agent_position - tower_location, axis=1)
+        data_transmitting_rate = self.Phi_list * self.B * np.log2(1 + self.K / (self.N * (relative_distance*relative_distance + pow(self.height, 2))))
+        data_transmitting_rate = time_ratio * data_transmitting_rate
+
+        return data_transmitting_rate
     
     def init_signal_map(self):
         signal_map = {}

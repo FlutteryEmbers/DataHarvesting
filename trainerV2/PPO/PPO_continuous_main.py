@@ -50,7 +50,7 @@ class PPO_GameAgent():
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, position = env.step(action, type_reward = 'Default')
+                s_, r, done, position = env.step(action, args)
                 # print(position)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
@@ -83,6 +83,7 @@ class PPO_GameAgent():
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
+        args.type_reward = 'Shaped_Reward'
         #TODO: print("env={}".format(env_name))
         logger.trace("state_dim={}".format(args.state_dim))
         logger.trace("action_dim={}".format(args.action_dim))
@@ -121,7 +122,8 @@ class PPO_GameAgent():
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, _ = env.step(action, type_reward = 'Default')
+
+                s_, r, done, _ = env.step(action, args)
 
                 if args.use_state_norm:
                     s_ = state_norm(s_)

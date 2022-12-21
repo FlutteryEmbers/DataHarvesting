@@ -49,7 +49,7 @@ class Agent():
         return s
 
 
-    def step(self, action, verbose = 0, type_reward = 'default'):
+    def step(self, action, args, verbose = 0):
         if verbose > 0:
             logger.debug('angular representation: {}'.format(action))
         action = self.action_space.get_action(action)
@@ -66,28 +66,50 @@ class Agent():
 
         done = False 
 
-        if type_reward == 'HER':
+        if args.type_reward == 'HER':
             reward = -1
             if self.board.is_dv_collection_done() and self.board.is_all_arrived():
                 # print('HER complete')
                 reward = 0
                 done = True
 
-        elif type_reward == 'Simple':
+        elif args.type_reward == 'Simple':
             reward = -1
             if self.board.is_done():
                 reward = -np.sum(abs(np.array(self.status_tracker.current_position) - np.array(self.status_tracker.arrival_at))) * self.action_space.time_scale
                 done = True
 
-        elif type_reward == 'Default':
-            reward = self.board.get_reward()
-            reward -= 1 # 每步减少reward 1
-            
+        elif args.type_reward == 'Shaped_Reward':
+            reward = -1 # 每步减少reward 1
+            pos_penalty = -0.1 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+            dv_penalty = -0.1 * np.linalg.norm(data_volume_left)
 
+            # if self.num_steps >= self._max_episode_steps:
+                  
             # NOTE: 判断是否到达终点
-            if self.board.is_dv_collection_done():
-                reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+            if self.board.is_dv_collection_done() or self.num_steps >= self._max_episode_steps:
+                # reward = 0
+                pos_penalty = -np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                dv_penalty = -10 * np.linalg.norm(data_volume_left)
+                ## reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                done = self.board.is_dv_collection_done()
+
+            reward  += pos_penalty + dv_penalty
+
+        elif args.type_reward == 'Lagrangian':
+            reward = -1
+            if self.num_steps >= self._max_episode_steps:
+                reward = 0
+                pos_penalty = -10 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                dv_penalty = -10 * np.linalg.norm(abs(np.array(self.board.dv_collected) - np.array(self.board.dv_required)))
+                reward  = pos_penalty + dv_penalty
+
+            if self.board.is_dv_collection_done() and self.board.is_all_arrived():
+                # print('HER complete')
+                reward = 0
                 done = True
+
+            # done = True
 
         else:
             logger.critical('Invalid Reward Type')
@@ -99,7 +121,7 @@ class Agent():
         return self.board.get_state()
 
     def view(self):
-        logger.info('data left = {} steps taken = {}'.format(np.array(self.board.dv_required) - np.array(self.board.dv_collected), self.num_steps))
+        logger.info('data left = {} steps taken = {}'.format(np.array(self.board.targets.dv_required) - np.array(self.board.targets.dv_collected), self.num_steps))
         return self.running_info
 
     def save_task_info(self, output_dir):
