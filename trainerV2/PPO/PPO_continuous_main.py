@@ -84,7 +84,7 @@ class PPO_GameAgent():
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
         args.type_reward = 'Shaped_Reward'
-        #TODO: print("env={}".format(env_name))
+        
         logger.trace("state_dim={}".format(args.state_dim))
         logger.trace("action_dim={}".format(args.action_dim))
         logger.trace("max_action={}".format(args.max_action))

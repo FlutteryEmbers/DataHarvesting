@@ -2,6 +2,7 @@ import numpy as np
 import math
 import random
 from environments.v2 import models
+from environments.v2 import controller
 from utils.buffer import Info
 from numpy import linalg as LNG
 from utils.tools import Timer
@@ -13,24 +14,25 @@ timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
     def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 2, control_time_scale = 2,
-        action_type = 'Discrete', max_episode_steps = 100):
+        action_type = 'Discrete', args = None, max_episode_steps = 100):
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
         # self.status_tracker = task
         self.board = models.Board(x_limit=x_limit, y_limit=y_limit, start_at=start_at, arrival_at=arrival_at,
             tower_location=tower_location, dv_required=dv_required, 
-            phi_config_file=phi_config_file, save_file=save_file, rounding=rounding, control_time_scale=control_time_scale)
+            phi_config_file=phi_config_file, save_file=save_file, rounding=rounding, control_time_scale=control_time_scale, args=args)
 
         self.action_type = action_type
         self.goal = self.board.get_goal()
-        
+        '''
         if self.action_type == 'Discrete':
             self.action_space = models.Actions.Discrete(time_scale = control_time_scale)       
         elif self.action_type == 'Continuous':
             self.action_space = models.Actions.Continuous()
         elif self.action_type == '1D':
             self.action_space = models.Actions.LinearDiscrete()
-
+        '''
+        self.action_space = controller.Actions[self.action_type](max_speed = 1/control_time_scale)
         self.running_info = Info(board_structure=self.board, num_turrent=self.board.num_towers)
         
         self.reward = 0

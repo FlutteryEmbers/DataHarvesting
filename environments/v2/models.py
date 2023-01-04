@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from environments.v2.transmission_model import Phi_dif_Model
+from environments.v2.controller import Target_Movement_Circular
 from utils.buffer import Info
 
 class Agent_List():
@@ -38,7 +39,7 @@ class Agent_List():
         return self.current_position.flatten()
 
 class Targets():
-    def __init__(self, tower_location, dv_required) -> None:
+    def __init__(self, tower_location, dv_required, args = None) -> None:
         self.start_at = tower_location
         self.dv_required = dv_required
         self.num_towers = len(tower_location)
@@ -47,12 +48,28 @@ class Targets():
         self.dv_collected = np.zeros(self.num_towers, dtype=np.float64)
         self.dv_left = np.array(self.dv_required, dtype=np.float64)
         self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
+        self.is_moving = False
+
+        if args != None:
+            self.is_moving = True 
+            if args['type'] == 'circular':
+                self.movement = Target_Movement_Circular(centers=tower_location, radius=args['radius'], w=args['w'], w_0=args['w_0'])
+
+            self.tower_location = self.movement.locations
 
     def reset(self):
         self.tower_location = np.array(self.start_at)
         self.dv_collected = np.zeros(self.num_towers, dtype=np.float64)
         self.dv_left = np.array(self.dv_required, dtype=np.float64)
         self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
+        if self.is_moving:
+            self.movement.reset()
+            self.tower_location = self.movement.locations
+
+    def update_position(self, time_scale):
+        if self.is_moving:
+            self.movement.update(time_scale=time_scale)
+            self.tower_location = self.movement.locations
 
     def update_dv_state(self, transmitting_rate_list):
         dv_collected_updated = self.dv_collected + np.array(transmitting_rate_list)
@@ -65,13 +82,13 @@ class Targets():
         return  self.dv_collected, transmitting_rate, self.dv_left
 
 class Board():
-    def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 2, control_time_scale = 2) -> None:
+    def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, args = None, rounding = 2, control_time_scale = 2) -> None:
         self.x_limit = x_limit
         self.y_limit = y_limit
         self.control_time_scale = control_time_scale
 
         self.num_towers = len(tower_location)
-        self.targets = Targets(tower_location=tower_location, dv_required=dv_required)
+        self.targets = Targets(tower_location=tower_location, dv_required=dv_required, args=args)
 
         self.agents = Agent_List(num_tower=self.num_towers, start_at=start_at, arrival_at=arrival_at)
         self.transmitting_model = Phi_dif_Model(x_limit=x_limit, y_limit=y_limit, tower_position=tower_location, \
@@ -107,16 +124,16 @@ class Board():
 
         return dv_collected, cumulative_rate, dv_left
 
-    def update_target_state(self, i, action):
-        pass
-
     def update_dv_status(self, position, action, communication_time_scale = 10):
         d_action = np.array(action) / communication_time_scale
         position = np.array(position[:])
         cumulative_rate = np.zeros(self.num_towers, dtype=np.float64)
         for _ in range(communication_time_scale):
             position = position + d_action
-            transmitting_rate_list = self.transmitting_model.get_transmission_rate(agent_position=position, tower_location=self.targets.tower_location, \
+            if self.targets.is_moving:
+                self.targets.update_position(1.0/(communication_time_scale*self.control_time_scale))
+
+            transmitting_rate_list = self.transmitting_model.get_transmission_rate_dynamic(agent_position=position, tower_location=self.targets.tower_location, \
                 time_ratio=1.0/(communication_time_scale*self.control_time_scale))
             
             dv_collected, dv_transmittion_rate_step, dv_left = self.targets.update_dv_state(transmitting_rate_list)
