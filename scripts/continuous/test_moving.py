@@ -15,7 +15,7 @@ class Instances:
 
     def add_mission(self, start_at, arrival_at, dv_required):
         print('adding {}'.format(self.instance_name))
-        args= {'type': 'circular', 'w': [0.1, 0.01, 0.2, 0.03, 0.3], 'w_0': [0, 0, 1, 1, 2], 'radius': [1, 1, 1, 1, 1]}
+        args= {'type': 'circular', 'w': [0.1, 0.1, 0.1, -0.1, 0.1], 'w_0': [0, 0, 1, 1, 2], 'radius': [0.5, 0.8, 1, 0.6, 0.3]}
         environment = Agent(x_limit=self.x_limit, y_limit=self.y_limit, start_at=start_at, arrival_at=arrival_at, \
             tower_location=self.tower_location, dv_required=dv_required, control_time_scale=self.time_scale, \
                 phi_config_file = self.phi_model_name, save_file=self.instance_name, action_type ='Continuous', args=args)

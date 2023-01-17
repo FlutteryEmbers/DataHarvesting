@@ -8,7 +8,7 @@ from numpy import linalg as LNG
 from utils.tools import Timer
 from utils import io
 from loguru import logger
-
+import pygame
 
 timer = Timer()
 # NOTE: Discrete Position; Single Agent
@@ -38,6 +38,12 @@ class Agent():
         self.reward = 0
         self.num_steps = 0
 
+        self.window = None
+        self.clock = None
+        self.window_y = y_limit
+        self.window_x = x_limit
+        self.icon_size = 30
+
     def reset(self):
         self.reward = 0
         self.num_steps = 0
@@ -46,10 +52,15 @@ class Agent():
         self.running_info.reset()
 
         s = self.board.get_state()
+        self._render_frame()
         # logger.debug(s)
         # return s, self.status_tracker.current_position
         return s
 
+    def close(self):
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
 
     def step(self, action, args, verbose = 0):
         if verbose > 0:
@@ -130,3 +141,79 @@ class Agent():
         logs = self.board.description()
         io.save_log(output_dir, logs)
         return logs
+
+    def render(self, display = False):
+        if display:
+            self._render_frame()
+
+    def _render_frame(self):
+        if self.window is None:
+            pygame.init()
+            pygame.display.init()
+            self.window = pygame.display.set_mode((self.window_x*self.icon_size, self.window_y*self.icon_size))
+            # self.window = pygame.display.set_mode((1000, 1000))
+
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
+
+        canvas = pygame.Surface((self.window_x*self.icon_size, self.window_y*self.icon_size))
+        canvas = pygame.Surface((1000, 1000))
+        canvas.fill((255, 255, 255))
+
+        for start_at in self.board.agents.start_at:
+            pygame.draw.rect(
+                canvas,
+                (255, 0, 255),
+                pygame.Rect(
+                    self.icon_size * np.array(start_at),
+                    (self.icon_size, self.icon_size),
+                ),
+            )
+
+        for arrival_at in self.board.agents.arrival_at:
+            pygame.draw.rect(
+                canvas,
+                (255, 255, 0),
+                pygame.Rect(
+                    self.icon_size * np.array(arrival_at),
+                    (self.icon_size, self.icon_size),
+                ),
+            )
+
+        pygame.draw.line(
+            canvas,
+            0,
+            (0, self.icon_size * self.window_y),
+            (1000, self.icon_size * self.window_y),
+            width=3,
+        )
+
+        pygame.draw.line(
+            canvas,
+            0,
+            (self.icon_size * self.window_x, 0),
+            (self.icon_size * self.window_x, 1000),
+            width=3,
+        )
+
+        for agent_position in self.board.agents.current_position:
+            pygame.draw.circle(
+                canvas,
+                (0, 0, 255),
+                (agent_position) * self.icon_size,
+                self.icon_size / 3,
+            )
+
+        for target_position in self.board.targets.tower_location:
+            pygame.draw.circle(
+                canvas,
+                (0, 255, 0),
+                (target_position) * self.icon_size,
+                self.icon_size / 3,
+            )
+
+        self.window.blit(canvas, canvas.get_rect())
+        pygame.event.pump()
+        pygame.display.update()
+        self.clock.tick(30)
+        
