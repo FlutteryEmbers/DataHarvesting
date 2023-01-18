@@ -134,7 +134,7 @@ class Critic(nn.Module):
         self.load_state_dict(state_dict)
 
 class PPO_continuous():
-    def __init__(self, args, load_model=None):
+    def __init__(self, args, chkpt_dir, load_model=None):
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
         self.batch_size = args.batch_size
@@ -152,17 +152,14 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
 
-        self.env_type = args.env_type
-
         if self.policy_dist == "Beta":
-            self.actor = Actor_Beta(args)
+            self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
         else:
-            self.actor = Actor_Gaussian(args)
-        self.critic = Critic(args)
+            self.actor = Actor_Gaussian(args, chkpt_dir=chkpt_dir)
+        self.critic = Critic(args, chkpt_dir=chkpt_dir)
 
         if load_model != None:
-            self.actor.load_checkpoint(load_model)
-            self.critic.load_checkpoint(load_model)
+            self.load_models()
             
         if self.set_adam_eps:  # Trick 9: set Adam epsilon=1e-5
             self.optimizer_actor = torch.optim.Adam(self.actor.parameters(), lr=self.lr_a, eps=1e-5)
@@ -258,3 +255,11 @@ class PPO_continuous():
             p['lr'] = lr_a_now
         for p in self.optimizer_critic.param_groups:
             p['lr'] = lr_c_now
+            
+    def save_models(self, mode = 'Default'):
+        self.actor.save_checkpoint(mode=mode)
+        self.critic.save_checkpoint(mode=mode)
+
+    def load_models(self, mode = 'Default', checkpoints = None):
+        self.actor.load_checkpoint(mode=mode)
+        self.critic.load_checkpoint(mode=mode)

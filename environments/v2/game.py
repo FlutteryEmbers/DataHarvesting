@@ -24,6 +24,7 @@ class Agent():
 
         self.action_type = action_type
         self.goal = self.board.get_goal()
+        self.signal_range = [2, 3, 3.7, 4.3, 4.9]
         '''
         if self.action_type == 'Discrete':
             self.action_space = models.Actions.Discrete(time_scale = control_time_scale)       
@@ -147,6 +148,7 @@ class Agent():
             self._render_frame()
 
     def _render_frame(self):
+        color_wheel = ["#cc99ff50", "#ff99ff50", "#ffb36650", "#ff4d9450", "#80b3ff50"]
         if self.window is None:
             pygame.init()
             pygame.display.init()
@@ -197,23 +199,35 @@ class Agent():
         )
 
         for agent_position in self.board.agents.current_position:
+            # agent_position = self.board.agents.current_position[i]
             pygame.draw.circle(
                 canvas,
                 (0, 0, 255),
                 (agent_position) * self.icon_size,
-                self.icon_size / 3,
+                self.icon_size / 5,
             )
-
+            
+        i = 0
         for target_position in self.board.targets.tower_location:
+            
             pygame.draw.circle(
                 canvas,
                 (0, 255, 0),
                 (target_position) * self.icon_size,
-                self.icon_size / 3,
+                self.icon_size / 5,
             )
+
+            pygame.draw.circle(
+                canvas,
+                (0, 200-10*i, 50*i),
+                (target_position) * self.icon_size,
+                self.signal_range[i] * self.icon_size,
+                width=3
+            )
+            i += 1
 
         self.window.blit(canvas, canvas.get_rect())
         pygame.event.pump()
         pygame.display.update()
-        self.clock.tick(30)
+        self.clock.tick(15)
         

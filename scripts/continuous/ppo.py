@@ -10,4 +10,5 @@ def run():
     args = tools.load_config("configs/config_ppo_default.yaml")
     args = tools.dict2class(args)
     PPO_agent = PPO_GameAgent(args=args, output_dir='cache/results/ppo_test')
-    PPO_agent.train(env_list.environment_list[0])
+    # PPO_agent.train(env_list.environment_list[0])
+    PPO_agent.evaluate(env_list.environment_list[0])

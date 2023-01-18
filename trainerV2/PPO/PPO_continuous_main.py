@@ -4,7 +4,7 @@ import gym
 import argparse
 from trainer.PPO.normalization import Normalization, RewardScaling
 from trainer.PPO.replaybuffer import ReplayBuffer
-from trainer.PPO.ppo_continuous import PPO_continuous
+from trainerV2.PPO.ppo_continuous import PPO_continuous
 from utils import tools
 from loguru import logger
 
@@ -13,11 +13,30 @@ class PPO_GameAgent():
         self.args = args
         self.timer = tools.Timer()
         self.output_dir = output_dir
+        tools.mkdir(output_dir+'/model/')
 
     def train(self, env):
         self.main(args=self.args, env=env)
 
-    def evaluate_policy(self, args, env, agent=None, state_norm=None, load_model=None):
+    def evaluate(self, env):
+        args = self.args
+        args.state_dim = len(env.get_state())
+        args.action_dim = env.action_space.shape
+        args.max_action = float(env.action_space.high)
+        args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
+        args.type_reward = 'Shaped_Reward'
+        '''
+        agent = PPO_continuous(args=args, load_model=True, chkpt_dir=self.output_dir + '/model/')
+        state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
+        if args.use_reward_norm:  # Trick 3:reward normalization
+            reward_norm = Normalization(shape=1)
+        elif args.use_reward_scaling:  # Trick 4:reward scaling
+            reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
+        '''
+        self.evaluate_policy(args=args, env=env, display=True, load_model=True)
+
+
+    def evaluate_policy(self, args, env, agent=None, state_norm=None, load_model=None, display=False):
         if load_model != None:
             logger.success('evaluation mode {}'.format(load_model))
             # logger.success('environment name {}'.format(env.name))
@@ -29,7 +48,7 @@ class PPO_GameAgent():
             args.max_episode_steps = env._max_episode_steps
             args.use_orthogonal_init = False
 
-            agent = PPO_continuous(args, load_model=load_model)
+            agent = PPO_continuous(args, load_model=load_model, chkpt_dir=self.output_dir + '/model/')
             state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
             if args.use_reward_norm:  # Trick 3:reward normalization
                 reward_norm = Normalization(shape=1)
@@ -52,7 +71,7 @@ class PPO_GameAgent():
                     action = a
                 s_, r, done, position = env.step(action, args)
                 # print(position)
-                env.render(display=True)
+                env.render(display=display)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
                 episode_reward += r
@@ -60,7 +79,7 @@ class PPO_GameAgent():
             evaluate_reward += episode_reward
             stats = env.view()
             if load_model != None:
-                stats.save('{}/'.format(load_model))
+                stats.save(sub_dir = self.output_dir, plot = True)
             else:
                 num_steps = env.num_steps
                 if num_steps < self.best_num_steps:
@@ -68,6 +87,7 @@ class PPO_GameAgent():
                     # agent.actor.save_checkpoint(mode=args.env_type)
                     # agent.critic.save_checkpoint(mode=args.env_type)
                     stats.save(sub_dir = self.output_dir, plot = True)
+                    agent.save_models()
 
         return evaluate_reward / times
 
@@ -96,7 +116,7 @@ class PPO_GameAgent():
         total_steps = 0  # Record the total steps during the training
 
         replay_buffer = ReplayBuffer(args)
-        agent = PPO_continuous(args)
+        agent = PPO_continuous(args, chkpt_dir=self.output_dir + '/model/')
 
         # Build a tensorboard
         # writer = SummaryWriter(log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
