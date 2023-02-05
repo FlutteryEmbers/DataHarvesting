@@ -1,5 +1,5 @@
 #from environments.instances.batch_train_v3 import env_list
-from environments.instances.v1.loader.test_batch_set3 import env_list
+from environments.instances.v1.loader.test_batch_set6 import env_list
 from trainer.DDQN_HER.HER_ddqn import DDQN
 from utils import tools, io
 from utils import monitor
