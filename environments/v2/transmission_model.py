@@ -32,7 +32,7 @@ class Phi_dif_Model():
             self.signal_map = self.init_signal_map()
         
 
-    def get_transmission_rate_statics(self, agent_position, time_ratio):
+    def get_transmission_rate_stationary(self, agent_position, time_ratio):
         x = round(agent_position[0], self.rounding)
         y = round(agent_position[1], self.rounding)
         if (x, y) not in self.signal_map:

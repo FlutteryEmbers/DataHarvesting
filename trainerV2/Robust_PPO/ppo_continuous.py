@@ -16,7 +16,7 @@ def orthogonal_init(layer, gain=1.0):
 class Actor_Beta(nn.Module):
     def __init__(self, args, name='actor_beta', chkpt_dir='cache/model/ppo'):
         super(Actor_Beta, self).__init__()
-        self.fc1 = nn.Linear(2*args.state_dim, args.hidden_width)
+        self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.alpha_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.beta_layer = nn.Linear(args.hidden_width, args.action_dim)
@@ -63,7 +63,7 @@ class Actor_Gaussian(nn.Module):
     def __init__(self, args, name='actor_gaussian', chkpt_dir='cache/model/ppo'):
         super(Actor_Gaussian, self).__init__()
         self.max_action = args.max_action
-        self.fc1 = nn.Linear(2*args.state_dim, args.hidden_width)
+        self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.mean_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.log_std = nn.Parameter(torch.zeros(1, args.action_dim))  # We use 'nn.Parameter' to train log_std automatically
@@ -104,7 +104,7 @@ class Actor_Gaussian(nn.Module):
 class Critic(nn.Module):
     def __init__(self, args, name='critic', chkpt_dir='model/ppo'):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(2*args.state_dim, args.hidden_width)
+        self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.fc3 = nn.Linear(args.hidden_width, 1)
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
@@ -134,7 +134,7 @@ class Critic(nn.Module):
         self.load_state_dict(state_dict)
 
 class PPO_continuous():
-    def __init__(self, args, load_model=None):
+    def __init__(self, args, chkpt_dir, load_model=None):
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
         self.batch_size = args.batch_size
@@ -152,17 +152,14 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
 
-        # self.env_type = args.env_type
-
         if self.policy_dist == "Beta":
-            self.actor = Actor_Beta(args)
+            self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
         else:
-            self.actor = Actor_Gaussian(args)
-        self.critic = Critic(args)
+            self.actor = Actor_Gaussian(args, chkpt_dir=chkpt_dir)
+        self.critic = Critic(args, chkpt_dir=chkpt_dir)
 
         if load_model != None:
-            self.actor.load_checkpoint(load_model)
-            self.critic.load_checkpoint(load_model)
+            self.load_models()
             
         if self.set_adam_eps:  # Trick 9: set Adam epsilon=1e-5
             self.optimizer_actor = torch.optim.Adam(self.actor.parameters(), lr=self.lr_a, eps=1e-5)
@@ -171,19 +168,16 @@ class PPO_continuous():
             self.optimizer_actor = torch.optim.Adam(self.actor.parameters(), lr=self.lr_a)
             self.optimizer_critic = torch.optim.Adam(self.critic.parameters(), lr=self.lr_c)
 
-    def evaluate(self, s, g):  # When evaluating the policy, we only use the mean
-        s = torch.cat((torch.tensor(s, dtype=torch.float), torch.tensor(g, dtype=torch.float)), dim=0)
-        s = torch.unsqueeze(s, 0)
-        # s = torch.unsqueeze(torch.tensor(s, dtype=torch.float), 0)
+    def evaluate(self, s):  # When evaluating the policy, we only use the mean
+        s = torch.unsqueeze(torch.tensor(s, dtype=torch.float), 0)
         if self.policy_dist == "Beta":
             a = self.actor.mean(s).detach().numpy().flatten()
         else:
             a = self.actor(s).detach().numpy().flatten()
         return a
 
-    def choose_action(self, s, g):
-        s = torch.cat((torch.tensor(s, dtype=torch.float), torch.tensor(g, dtype=torch.float)), dim=0)
-        s = torch.unsqueeze(s, 0)
+    def choose_action(self, s):
+        s = torch.unsqueeze(torch.tensor(s, dtype=torch.float), 0)
         if self.policy_dist == "Beta":
             with torch.no_grad():
                 dist = self.actor.get_dist(s)
@@ -261,3 +255,11 @@ class PPO_continuous():
             p['lr'] = lr_a_now
         for p in self.optimizer_critic.param_groups:
             p['lr'] = lr_c_now
+            
+    def save_models(self, mode = 'Default'):
+        self.actor.save_checkpoint(mode=mode)
+        self.critic.save_checkpoint(mode=mode)
+
+    def load_models(self, mode = 'Default', checkpoints = None):
+        self.actor.load_checkpoint(mode=mode)
+        self.critic.load_checkpoint(mode=mode)

@@ -2,9 +2,9 @@ import numpy as np
 # from torch.utils.tensorboard import SummaryWriter
 import gym
 import argparse
-from trainerV2.PPO_HER.normalization import Normalization, RewardScaling
-from trainerV2.PPO_HER.replaybuffer import HER_ReplayBuffer
-from trainerV2.PPO_HER.ppo_continuous import PPO_continuous
+from trainer.PPO.normalization import Normalization, RewardScaling
+from trainer.PPO.replaybuffer import ReplayBuffer
+from trainerV2.PPO.ppo_continuous import PPO_continuous
 from utils import tools
 from loguru import logger
 
@@ -12,12 +12,24 @@ class PPO_GameAgent():
     def __init__(self, args, output_dir) -> None:
         self.args = args
         self.timer = tools.Timer()
-        self.output_dir = output_dir
+        self.output_dir = output_dir + '_robust'
+        tools.mkdir(output_dir+'/model/')
 
     def train(self, env):
         self.main(args=self.args, env=env)
 
-    def evaluate_policy(self, args, env, agent=None, state_norm=None, load_model=None):
+    def evaluate(self, env):
+        args = self.args
+        args.state_dim = len(env.get_state())
+        args.action_dim = env.action_space.shape
+        args.max_action = float(env.action_space.high)
+        args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
+        args.type_reward = 'Shaped_Reward'
+        
+        self.evaluate_policy(args=args, env=env, display=True, load_model=True)
+
+
+    def evaluate_policy(self, args, env, agent=None, state_norm=None, load_model=None, display=False):
         if load_model != None:
             logger.success('evaluation mode {}'.format(load_model))
             # logger.success('environment name {}'.format(env.name))
@@ -29,7 +41,7 @@ class PPO_GameAgent():
             args.max_episode_steps = env._max_episode_steps
             args.use_orthogonal_init = False
 
-            agent = PPO_continuous(args, load_model=load_model)
+            agent = PPO_continuous(args, load_model=load_model, chkpt_dir=self.output_dir + '/model/')
             state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
             if args.use_reward_norm:  # Trick 3:reward normalization
                 reward_norm = Normalization(shape=1)
@@ -40,19 +52,19 @@ class PPO_GameAgent():
         evaluate_reward = 0
         for _ in range(times):
             s = env.reset()
-            goal = env.goal
             if args.use_state_norm:
                 s = state_norm(s, update=False)  # During the evaluating,update=False
             done = False
             episode_reward = 0
             while not done and env.num_steps < 200:
-                a = agent.evaluate(s, goal)  # We use the deterministic policy during the evaluating
+                a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, position = env.step(action, type_reward = 'HER')
+                s_, r, done, position = env.step(action, args)
                 # print(position)
+                env.render(display=display)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
                 episode_reward += r
@@ -60,7 +72,7 @@ class PPO_GameAgent():
             evaluate_reward += episode_reward
             stats = env.view()
             if load_model != None:
-                stats.save('{}/'.format(load_model))
+                stats.save(sub_dir = self.output_dir, plot = True)
             else:
                 num_steps = env.num_steps
                 if num_steps < self.best_num_steps:
@@ -68,6 +80,7 @@ class PPO_GameAgent():
                     # agent.actor.save_checkpoint(mode=args.env_type)
                     # agent.critic.save_checkpoint(mode=args.env_type)
                     stats.save(sub_dir = self.output_dir, plot = True)
+                    agent.save_models()
 
         return evaluate_reward / times
 
@@ -84,7 +97,8 @@ class PPO_GameAgent():
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-        #TODO: print("env={}".format(env_name))
+        args.type_reward = 'Shaped_Reward'
+        
         logger.trace("state_dim={}".format(args.state_dim))
         logger.trace("action_dim={}".format(args.action_dim))
         logger.trace("max_action={}".format(args.max_action))
@@ -94,8 +108,8 @@ class PPO_GameAgent():
         evaluate_rewards = []  # Record the rewards during the evaluating
         total_steps = 0  # Record the total steps during the training
 
-        replay_buffer = HER_ReplayBuffer(args)
-        agent = PPO_continuous(args)
+        replay_buffer = ReplayBuffer(args)
+        agent = PPO_continuous(args, chkpt_dir=self.output_dir + '/model/')
 
         # Build a tensorboard
         # writer = SummaryWriter(log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
@@ -115,16 +129,15 @@ class PPO_GameAgent():
                 reward_scaling.reset()
             episode_steps = 0
             done = False
-            transitions = []
-            goal = env.goal
             while not done:
                 episode_steps += 1
-                a, a_logprob = agent.choose_action(s, goal)  # Action and the corresponding log probability
+                a, a_logprob = agent.choose_action(s)  # Action and the corresponding log probability
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
                 else:
                     action = a
-                s_, r, done, _ = env.step(action, type_reward = 'HER')
+
+                s_, r, done, _ = env.step(action, args)
 
                 if args.use_state_norm:
                     s_ = state_norm(s_)
@@ -133,9 +146,6 @@ class PPO_GameAgent():
                 elif args.use_reward_scaling:
                     r = reward_scaling(r)
 
-                # transitions.append((s, a, r, s_))
-                transitions.append((s, a, a_logprob, r, s_))
-                
                 # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
                 # dw means dead or win,there is no next state s';
                 # but when reaching the max_episode_steps,there is a next state s' actually.
@@ -144,44 +154,8 @@ class PPO_GameAgent():
                 else:
                     dw = False
 
-                if episode_steps == args.max_episode_steps:
-                    new_goal = np.copy(s)
-                    # logger.debug('alternative goal: {}'.format(new_goal))
-                    if not np.array_equal(new_goal, goal):
-                        for p in range(args.max_episode_steps):
-                            transition = transitions[p]
-                            if np.array_equal(transition[4], new_goal):
-                                replay_buffer.store(transition[0], transition[1], transition[2], 0.0,
-                                                    transition[3], True, True, new_goal)
-                                if replay_buffer.count == args.batch_size:
-                                    agent.update(replay_buffer, total_steps)
-                                    replay_buffer.count = 0
-                                '''
-                                ddqn.learn()
-                                if ddqn.learn_step_counter != 0 and ddqn.learn_step_counter % result_saving_iter == 0:
-                                    eval_rewards, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
-                                    logger.success('Episode %s Rewards: %s' % (i, round(eval_rewards, 2)))
-                                    tracker.store(eval_rewards)
-
-                                    if eval_rewards > best_rewards:
-                                        best_rewards = eval_rewards
-                                        ddqn.save_models(mode=env_type)
-
-                                        _, test_env = self.evaluate_with_model(env=env, model=ddqn, type_reward='HER')
-                                        logger.warning('best num step: {}'.format(test_env.num_steps))
-                                        stats = test_env.view()
-                                        stats.final_reward = eval_rewards
-                                        stats.save(sub_dir = output_dir, plot = True)
-                                break
-                                '''
-                            replay_buffer.store(transition[0], transition[1], transition[2],
-                                                transition[3], transition[4], False, False, new_goal)
-                            if replay_buffer.count == args.batch_size:
-                                    agent.update(replay_buffer, total_steps)
-                                    replay_buffer.count = 0
-
                 # Take the 'action'，but store the original 'a'（especially for Beta）
-                replay_buffer.store(s, a, a_logprob, r, s_, dw, done, goal)
+                replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
                 s = s_
                 total_steps += 1
 

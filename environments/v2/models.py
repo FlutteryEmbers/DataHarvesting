@@ -51,11 +51,14 @@ class Targets():
         self.is_moving = False
 
         if args != None:
+            print('The Target Is Moving')
             self.is_moving = True 
             if args['type'] == 'circular':
                 self.movement = Target_Movement_Circular(centers=tower_location, radius=args['radius'], w=args['w'], w_0=args['w_0'])
 
             self.tower_location = self.movement.locations
+        else:
+            print('Target Is Stationary')
 
     def reset(self):
         self.tower_location = np.array(self.start_at)
@@ -133,8 +136,10 @@ class Board():
             if self.targets.is_moving:
                 self.targets.update_position(1.0/(communication_time_scale*self.control_time_scale))
 
-            transmitting_rate_list = self.transmitting_model.get_transmission_rate_dynamic(agent_position=position, tower_location=self.targets.tower_location, \
-                time_ratio=1.0/(communication_time_scale*self.control_time_scale))
+                transmitting_rate_list = self.transmitting_model.get_transmission_rate_dynamic(agent_position=position, tower_location=self.targets.tower_location, \
+                    time_ratio=1.0/(communication_time_scale*self.control_time_scale))
+            else:
+                transmitting_rate_list = self.transmitting_model.get_transmission_rate_stationary(agent_position=position, time_ratio=1.0/(communication_time_scale*self.control_time_scale))
             
             dv_collected, dv_transmittion_rate_step, dv_left = self.targets.update_dv_state(transmitting_rate_list)
             cumulative_rate += np.array(dv_transmittion_rate_step)
