@@ -19,7 +19,7 @@ class Learning_Monitor():
 		logger.info('reward is {}'.format(reward))
 
 	def average(self, n):
-		reward = np.array(self.rewards)
+		reward = np.array(self.rewards[:n])
 		mean = np.mean(reward)
 		logger.info('average rewards of last {} evaluation is {}'.format(n, mean))
 		return mean

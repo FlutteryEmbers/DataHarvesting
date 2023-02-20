@@ -73,6 +73,8 @@ class Targets():
         if self.is_moving:
             self.movement.update(time_scale=time_scale)
             self.tower_location = self.movement.locations
+        else:
+            print('Target is not moving !!!!!!')
 
     def update_dv_state(self, transmitting_rate_list):
         dv_collected_updated = self.dv_collected + np.array(transmitting_rate_list)

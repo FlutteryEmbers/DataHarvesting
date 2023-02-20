@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.distributions import Beta, Normal
 from utils import tools
 import os
+from trainerV2.Robust_PPO import adversarial
 
 
 # Trick 8: orthogonal initialization
@@ -135,6 +136,8 @@ class Critic(nn.Module):
 
 class PPO_continuous():
     def __init__(self, args, chkpt_dir, load_model=None):
+        args.delta = 0.001
+
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
         self.batch_size = args.batch_size
@@ -151,12 +154,13 @@ class PPO_continuous():
         self.use_grad_clip = args.use_grad_clip
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
-
+        
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
         else:
             self.actor = Actor_Gaussian(args, chkpt_dir=chkpt_dir)
         self.critic = Critic(args, chkpt_dir=chkpt_dir)
+        self.adv_net = adversarial.Net(args, chkpt_dir=chkpt_dir)
 
         if load_model != None:
             self.load_models()
@@ -213,6 +217,14 @@ class PPO_continuous():
             if self.use_adv_norm:  # Trick 1:advantage normalization
                 adv = ((adv - adv.mean()) / (adv.std() + 1e-5))
 
+        perturb = self.adv_net(s)
+        perturb_state = s + perturb
+        loss = - F.kl_div(self.actor(s), self.actor(perturb_state))
+        self.adv_net.optimizer.zero_grad()
+        loss.backward()
+        self.adv_net.optimizer.step()
+        perturb = self.adv_net(s)
+        perturb_state = s + perturb
         # Optimize policy for K epochs:
         for _ in range(self.K_epochs):
             # Random sampling and no repetition. 'False' indicates that training will continue even if the number of samples in the last time is less than mini_batch_size
@@ -225,7 +237,8 @@ class PPO_continuous():
 
                 surr1 = ratios * adv[index]  # Only calculate the gradient of 'a_logprob_now' in ratios
                 surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * adv[index]
-                actor_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy  # Trick 5: policy entropy
+                actor_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy # Trick 5: policy entropy
+                actor_loss += 0.001 * F.kl_div(self.actor(s[index]), self.actor(perturb_state[index]))
                 # Update actor
                 self.optimizer_actor.zero_grad()
                 actor_loss.mean().backward()
@@ -259,7 +272,9 @@ class PPO_continuous():
     def save_models(self, mode = 'Default'):
         self.actor.save_checkpoint(mode=mode)
         self.critic.save_checkpoint(mode=mode)
+        self.adv_net.save_checkpoint(mode=mode)
 
     def load_models(self, mode = 'Default', checkpoints = None):
         self.actor.load_checkpoint(mode=mode)
         self.critic.load_checkpoint(mode=mode)
+        self.adv_net.load_checkpoint(mode=mode)

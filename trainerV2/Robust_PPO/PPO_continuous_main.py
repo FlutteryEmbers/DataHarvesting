@@ -1,19 +1,23 @@
 import numpy as np
-# from torch.utils.tensorboard import SummaryWriter
-import gym
-import argparse
-from trainer.PPO.normalization import Normalization, RewardScaling
-from trainer.PPO.replaybuffer import ReplayBuffer
-from trainerV2.PPO.ppo_continuous import PPO_continuous
-from utils import tools
+from torch.utils.tensorboard import SummaryWriter
+from trainerV2.Robust_PPO.normalization import Normalization, RewardScaling
+from trainerV2.Robust_PPO.replaybuffer import ReplayBuffer
+from trainerV2.Robust_PPO.ppo_continuous import PPO_continuous
+from utils import tools, monitor
 from loguru import logger
+from datetime import datetime
 
 class PPO_GameAgent():
     def __init__(self, args, output_dir) -> None:
         self.args = args
         self.timer = tools.Timer()
-        self.output_dir = output_dir + '_robust'
+        self.output_dir = output_dir
+        now = datetime.now()
+        current_time = now.strftime("%H_%M_%S")
+        
+        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + current_time)
         tools.mkdir(output_dir+'/model/')
+        tools.mkdir(output_dir+'/logs/')
 
     def train(self, env):
         self.main(args=self.args, env=env)
@@ -79,15 +83,19 @@ class PPO_GameAgent():
                     self.best_num_steps = num_steps
                     # agent.actor.save_checkpoint(mode=args.env_type)
                     # agent.critic.save_checkpoint(mode=args.env_type)
+                if evaluate_reward / times > self.best_reward:
+                    self.best_reward = evaluate_reward / times
                     stats.save(sub_dir = self.output_dir, plot = True)
                     agent.save_models()
-
+        
         return evaluate_reward / times
 
 
     def main(self, args, env):
         self.total_eval = args.max_train_steps / args.evaluate_freq
         self.best_num_steps = float('inf')
+        self.best_reward = -float('inf')
+        
         logger.success('total {} evals'.format(self.total_eval))
         logger.success('trainning:')
         # logger.success(env.status_tracker.name)
@@ -120,6 +128,7 @@ class PPO_GameAgent():
         elif args.use_reward_scaling:  # Trick 4:reward scaling
             reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
 
+        self.learning_monitor = monitor.Learning_Monitor(output_dir=self.output_dir+'/logs/', name='ppo', args=args)
         self.timer.start()
         while total_steps < args.max_train_steps:
             s = env.reset()
@@ -171,11 +180,18 @@ class PPO_GameAgent():
                     evaluate_num += 1
                     evaluate_reward = self.evaluate_policy(args, env, agent, state_norm)
                     evaluate_rewards.append(evaluate_reward)
+                    self.learning_monitor.store(evaluate_reward)
+                    self.running_summary.add_scalar('info/rewards', evaluate_reward, total_steps)
+                    self.running_summary.add_scalar('info/best_steps', self.best_num_steps, total_steps)
+                    self.running_summary.add_scalar('info/best_rewards', self.best_reward, total_steps)
+                    self.running_summary.add_scalar('info/average_rewards', self.learning_monitor.average(50), total_steps)
                     logger.success("evaluate_reward:{}".format(evaluate_reward))
                     # agent.actor.save_checkpoint(mode='tmp')
                     # agent.critic.save_checkpoint(mode='tmp')
                     self.timer.start()
-
+        self.learning_monitor.plot_average_learning_curve(50)
+        self.learning_monitor.plot_learning_curve()
+        self.learning_monitor.dump_to_file()
         self.timer.stop()
         # env_type = 'Default'
         

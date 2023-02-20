@@ -1,4 +1,4 @@
-from trainerV2.PPO.PPO_continuous_main import PPO_GameAgent
+from trainerV2.Robust_PPO.PPO_continuous_main import PPO_GameAgent
 # from scripts.continuous.test_moving import env_list
 from scripts.continuous.test_stationary import env_list
 from utils import tools
@@ -6,7 +6,7 @@ from utils import tools
 
 def run():
     tools.setup_seed(10)
-    save_dir = 'cache/results/ppo_stationary_test'
+    save_dir = 'cache/results/ppo_stationary_robust'
     tools.mkdir(save_dir)
     args = tools.load_config("configs/config_ppo_default.yaml")
     args = tools.dict2class(args)

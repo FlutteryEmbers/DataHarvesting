@@ -38,7 +38,7 @@ class Phi_dif_Model():
         if (x, y) not in self.signal_map:
             sys.exit("signal_map not initialized correctly")
 
-        transmitting_rate_list = self.signal_map[(x, y)] * time_ratio
+        transmitting_rate_list = np.array(self.signal_map[(x, y)]) * time_ratio
         '''
         dv_collected_updated = np.array(dv_collected) + np.array(transmitting_rate_list)*time_ratio
         dv_collected_updated = np.minimum(dv_collected_updated, dv_required)
@@ -47,7 +47,7 @@ class Phi_dif_Model():
         dv_left = dv_required - dv_collected_updated
         '''
         # return dv_collected_updated.tolist(),  transmitting_rate.tolist(), dv_left.tolist()
-        return np.array(transmitting_rate_list)
+        return transmitting_rate_list
 
     def get_transmission_rate_dynamic(self, agent_position, tower_location, time_ratio):
         agent_position = np.array(agent_position)

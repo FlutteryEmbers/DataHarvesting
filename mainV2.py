@@ -1,5 +1,5 @@
 # from trainerV2.DDQN_HER import HER_Batch_Trainer
-from scripts.continuous import ppo
+from scripts.continuous import ppo_robust
 from utils import tools, graphic
 from loguru import logger
 
@@ -19,6 +19,7 @@ def her_ddqn():
 if __name__ == '__main__':
     tools.set_logger_level(3)
     init_working_dir()
-    ppo.run()
+    # ppo.run()
+    ppo_robust.run()
     # ddqn()
     # her_ddqn()

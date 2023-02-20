@@ -127,8 +127,11 @@ class Agent():
 
         else:
             logger.critical('Invalid Reward Type')
-
+        
+        self.reward += reward
+        self.running_info.final_reward = self.reward
         s = self.board.get_state()
+        
         return s, reward, done, position
 
     def get_state(self):
