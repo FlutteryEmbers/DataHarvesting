@@ -1,25 +1,28 @@
-from textwrap import fill
+import sys, os
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../..'))
 from matplotlib import pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
-from scripts.info import env_list
+from scripts.data.test_stationary import env_list
 
-def run():
+signal_range = [2, 3, 3.7, 4.3, 4.9]
+
+if __name__ == "__main__":
     curved_path = False
 
-    dir = env_list.instance_name
+    dir = 'ppo_stationary_robust/'
     # dir = dir + "/batch_train_ddqn_her/"
     dir = 'cache/results/' + dir
     for i in range(len(env_list.environment_list)):
         env = env_list.environment_list[i]
         # dir_i = dir + "/{}/random_seed_0/".format(i)
         dir_i = dir
-        x_limit = env.x_limit
-        y_limit = env.y_limit
-        tower_locations = env.tower_locations
-        start_at = env.start_at
-        end_at = env.arrival_at
-        tower_range = env.signal_range
+        x_limit = env.board.x_limit
+        y_limit = env.board.y_limit
+        tower_locations = env.board.targets.start_at
+        start_at = env.board.agents.start_at[0]
+        end_at = env.board.agents.arrival_at[0]
+        tower_range = signal_range
 
         stopping_time = {}
         with open(dir_i + 'position_t.txt') as f:

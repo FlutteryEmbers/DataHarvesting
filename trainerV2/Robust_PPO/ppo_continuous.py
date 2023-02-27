@@ -93,6 +93,12 @@ class Actor_Gaussian(nn.Module):
         dist = Normal(mean, std)  # Get the Gaussian distribution
         return dist
 
+    def get_dist_parameter(self, s):
+        mean = self.forward(s)
+        log_std = self.log_std.expand_as(mean)  # To make 'log_std' have the same dimension as 'mean'
+        std = torch.exp(log_std)  # The reason we train the 'log_std' is to ensure std=exp(log_std)>0
+        return mean, std
+
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
@@ -196,6 +202,15 @@ class PPO_continuous():
                 a_logprob = dist.log_prob(a)  # The log probability density of the action
         return a.numpy().flatten(), a_logprob.numpy().flatten()
 
+    def guassian_kl(self, u1, sigma1, u2, sigma2):
+        loss = torch.div(torch.square(u1 - u2) + torch.square(sigma1) - torch.square(sigma2), 2*torch.square(sigma2)) + torch.log(torch.div(sigma2,sigma1))
+        return torch.mean(loss, dim=1).unsqueeze(dim=1)
+
+    def guassian_jeffrey(self, parameters_1, parameters_2):
+        [u1, sigma1] = parameters_1
+        [u2, sigma2] = parameters_2
+        return self.guassian_kl(u1, sigma1, u2, sigma2)/2 + self.guassian_kl(u2, sigma2, u1, sigma1)/2
+
     def update(self, replay_buffer, total_steps):
         s, a, a_logprob, r, s_, dw, done = replay_buffer.numpy_to_tensor()  # Get training data
         """
@@ -219,9 +234,10 @@ class PPO_continuous():
 
         perturb = self.adv_net(s)
         perturb_state = s + perturb
-        loss = - F.kl_div(self.actor(s), self.actor(perturb_state))
+        loss = - self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
+        # loss = torch.tensor(loss, grad_fn=perturb_state.grad_fn)
         self.adv_net.optimizer.zero_grad()
-        loss.backward()
+        loss.mean().backward()
         self.adv_net.optimizer.step()
         perturb = self.adv_net(s)
         perturb_state = s + perturb
@@ -238,7 +254,10 @@ class PPO_continuous():
                 surr1 = ratios * adv[index]  # Only calculate the gradient of 'a_logprob_now' in ratios
                 surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * adv[index]
                 actor_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy # Trick 5: policy entropy
-                actor_loss += 0.001 * F.kl_div(self.actor(s[index]), self.actor(perturb_state[index]))
+
+                with torch.no_grad():
+                    extra_loss = self.guassian_jeffrey(self.actor.get_dist_parameter(s[index]), self.actor.get_dist_parameter(perturb_state[index]))
+                actor_loss += extra_loss
                 # Update actor
                 self.optimizer_actor.zero_grad()
                 actor_loss.mean().backward()

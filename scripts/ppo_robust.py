@@ -1,10 +1,13 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+
 from trainerV2.Robust_PPO.PPO_continuous_main import PPO_GameAgent
 # from scripts.continuous.test_moving import env_list
-from scripts.continuous.test_stationary import env_list
+from scripts.data.test_stationary import env_list
 from utils import tools
 
 
-def run():
+if __name__ == "__main__":
     tools.setup_seed(10)
     save_dir = 'cache/results/ppo_stationary_robust'
     tools.mkdir(save_dir)

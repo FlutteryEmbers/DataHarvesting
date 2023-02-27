@@ -22,7 +22,7 @@ for i in range(2):
     axs[1].plot(t, data[i], label="target {}".format(i + 1))
 
 axs[1].legend(loc='lower right', prop={'size': 18})
-axs[1].set_ylabel('Data Volumn Collected', labelpad=0.01, fontsize=20)
+axs[1].set_ylabel('Data Volume Collected', labelpad=0.01, fontsize=20)
 axs[1].set_xlabel("time", labelpad=0.001, loc='right')
 axs[1].xaxis.set_label_coords(0, -0.025)
 axs[1].set_title('Reward Engineering', fontsize=20, pad=0.01)
@@ -43,7 +43,7 @@ for i in range(2):
     axs[0].plot(t, data[i], label="target {}".format(i + 1))
 
 axs[0].legend(loc='lower right', prop={'size': 18})
-axs[0].set_ylabel('Data Volumn Collected', labelpad=0.001, fontsize=20)
+axs[0].set_ylabel('Data Volume Collected', labelpad=0.001, fontsize=20)
 axs[0].set_xlabel("time", labelpad=0.001, loc='right')
 axs[0].xaxis.set_label_coords(0, -0.025)
 axs[0].set_title('Binary Reward', fontsize=20, pad=0.01)
