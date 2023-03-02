@@ -8,16 +8,17 @@ from loguru import logger
 from datetime import datetime
 
 class PPO_GameAgent():
-    def __init__(self, args, output_dir) -> None:
+    def __init__(self, args, output_dir, train_mode=True) -> None:
         self.args = args
         self.timer = tools.Timer()
         self.output_dir = output_dir
         now = datetime.now()
-        current_time = now.strftime("%H_%M_%S")
+        current_time = now.strftime("%D_%H_%M")
         
-        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + 'robust_ppo_{}'.format(current_time))
-        tools.mkdir(output_dir+'/model/')
-        tools.mkdir(output_dir+'/logs/')
+        if train_mode:
+            self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + 'robust_ppo_{}'.format(current_time))
+            tools.mkdir(output_dir+'/model/')
+            tools.mkdir(output_dir+'/logs/')
 
     def train(self, env):
         self.main(args=self.args, env=env)
@@ -129,6 +130,9 @@ class PPO_GameAgent():
                 if noise_type == 'adv':
                     noise = agent.adv_net(s)
                     s = s + noise.cpu().detach().numpy()
+                elif noise_type == 'random':
+                    noise = np.random.rand(len(s)) * args.delta
+                    s = s + noise
                 a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
@@ -145,7 +149,7 @@ class PPO_GameAgent():
             stats = env.view()
             stats.save(sub_dir = self.output_dir, plot = True)
            
-        return evaluate_reward / times
+        return evaluate_reward / times, env.num_steps
 
     def main(self, args, env):
         self.total_eval = args.max_train_steps / args.evaluate_freq
@@ -162,7 +166,9 @@ class PPO_GameAgent():
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
         args.type_reward = 'Shaped_Reward'
-        
+
+        args.train_adv = False if args.train_adv == None else args.train_adv
+
         logger.trace("state_dim={}".format(args.state_dim))
         logger.trace("action_dim={}".format(args.action_dim))
         logger.trace("max_action={}".format(args.max_action))
@@ -173,7 +179,7 @@ class PPO_GameAgent():
         total_steps = 0  # Record the total steps during the training
 
         replay_buffer = ReplayBuffer(args)
-        agent = PPO_continuous(args, chkpt_dir=self.output_dir + '/model/')
+        agent = PPO_continuous(args, chkpt_dir=self.output_dir + '/model/', train_adv=args.train_adv)
 
         # Build a tensorboard
         # writer = SummaryWriter(log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
@@ -185,6 +191,8 @@ class PPO_GameAgent():
             reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
 
         self.learning_monitor = monitor.Learning_Monitor(output_dir=self.output_dir+'/logs/', name='ppo', args=args)
+        self.learning_monitor.save_log()
+
         self.timer.start()
         while total_steps < args.max_train_steps:
             s = env.reset()

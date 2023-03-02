@@ -14,13 +14,28 @@ timer = Timer()
 # NOTE: Discrete Position; Single Agent
 class Agent():
     def __init__(self, x_limit, y_limit, start_at, arrival_at, tower_location, dv_required, phi_config_file, save_file, rounding = 2, control_time_scale = 2,
-        action_type = 'Discrete', args = None, max_episode_steps = 100):
+        action_type = 'Discrete', moving_target = False, max_episode_steps = 100):
+        self.args = {}
+        self.args['max_episode_steps'] = max_episode_steps
+        self.args['x_limit'] = x_limit
+        self.args['y_limit'] = y_limit
+        self.args['start_at'] = start_at
+        self.args['arrival_at'] = arrival_at
+        self.args['tower_location'] = tower_location
+        self.args['dv_required'] = dv_required
+        self.args['phi_config_file'] = phi_config_file
+        self.args['save_file'] = save_file
+        self.args['rounding'] = rounding
+        self.args['control_time_scale'] = control_time_scale
+        self.args['action_type'] = action_type
+        self.args['moving_target'] = moving_target
+
         # self.reward_func = self.test_reward_function
         self._max_episode_steps = max_episode_steps
         # self.status_tracker = task
         self.board = models.Board(x_limit=x_limit, y_limit=y_limit, start_at=start_at, arrival_at=arrival_at,
             tower_location=tower_location, dv_required=dv_required, 
-            phi_config_file=phi_config_file, save_file=save_file, rounding=rounding, control_time_scale=control_time_scale, args=args)
+            phi_config_file=phi_config_file, save_file=save_file, rounding=rounding, control_time_scale=control_time_scale, args=self.args)
 
         self.action_type = action_type
         self.goal = self.board.get_goal()
@@ -148,6 +163,7 @@ class Agent():
     def save_task_info(self, output_dir):
         logs = self.board.description()
         io.save_log(output_dir, logs)
+        io.save_config(output_dir=output_dir, args=self.args, name='env_config')
         return logs
 
     def render(self, display = False):

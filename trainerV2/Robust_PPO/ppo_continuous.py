@@ -17,6 +17,7 @@ def orthogonal_init(layer, gain=1.0):
 class Actor_Beta(nn.Module):
     def __init__(self, args, name='actor_beta', chkpt_dir='cache/model/ppo'):
         super(Actor_Beta, self).__init__()
+        self.device = args.device
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.alpha_layer = nn.Linear(args.hidden_width, args.action_dim)
@@ -26,6 +27,7 @@ class Actor_Beta(nn.Module):
         self.name = name
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
+        self.to(self.device)
 
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
@@ -35,30 +37,31 @@ class Actor_Beta(nn.Module):
             orthogonal_init(self.beta_layer, gain=0.01)
 
     def forward(self, s):
+        s = torch.tensor(s).to(self.device)
         s = self.activate_func(self.fc1(s))
         s = self.activate_func(self.fc2(s))
         # alpha and beta need to be larger than 1,so we use 'softplus' as the activation function and then plus 1
         alpha = F.softplus(self.alpha_layer(s)) + 1.0
         beta = F.softplus(self.beta_layer(s)) + 1.0
-        return alpha, beta
+        return alpha.cpu(), beta.cpu()
 
     def get_dist(self, s):
         alpha, beta = self.forward(s)
         dist = Beta(alpha, beta)
-        return dist
+        return dist.cpu()
 
     def mean(self, s):
         alpha, beta = self.forward(s)
         mean = alpha / (alpha + beta)  # The mean of the beta distribution
-        return mean
+        return mean.cpu()
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
-                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+                                    state_dict=self.state_dict())
 
     def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
-        if ckpt_dir != None:
+        if chkpt_dir != None:
             self.checkpoint_file = chkpt_dir + self.name
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
@@ -66,6 +69,7 @@ class Actor_Beta(nn.Module):
 class Actor_Gaussian(nn.Module):
     def __init__(self, args, name='actor_gaussian', chkpt_dir='cache/model/ppo'):
         super(Actor_Gaussian, self).__init__()
+        self.device = args.device
         self.max_action = args.max_action
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
@@ -76,6 +80,7 @@ class Actor_Gaussian(nn.Module):
         self.name = name
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
+        self.to(self.device)
 
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
@@ -84,29 +89,30 @@ class Actor_Gaussian(nn.Module):
             orthogonal_init(self.mean_layer, gain=0.01)
 
     def forward(self, s):
+        s = torch.tensor(s).to(self.device)
         s = self.activate_func(self.fc1(s))
         s = self.activate_func(self.fc2(s))
         # mean = self.max_action * torch.tanh(self.mean_layer(s))  # [-1,1]->[-max_action,max_action]
         mean = 1/2 * (self.max_action * torch.tanh(self.mean_layer(s)) + self.max_action) # [-1,1]->[0,max_action]
-        return mean
+        return mean.cpu()
 
     def get_dist(self, s):
         mean = self.forward(s)
-        log_std = self.log_std.expand_as(mean)  # To make 'log_std' have the same dimension as 'mean'
+        log_std = self.log_std.expand_as(mean).cpu()  # To make 'log_std' have the same dimension as 'mean'
         std = torch.exp(log_std)  # The reason we train the 'log_std' is to ensure std=exp(log_std)>0
         dist = Normal(mean, std)  # Get the Gaussian distribution
         return dist
 
     def get_dist_parameter(self, s):
         mean = self.forward(s)
-        log_std = self.log_std.expand_as(mean)  # To make 'log_std' have the same dimension as 'mean'
+        log_std = self.log_std.expand_as(mean).cpu()  # To make 'log_std' have the same dimension as 'mean'
         std = torch.exp(log_std)  # The reason we train the 'log_std' is to ensure std=exp(log_std)>0
         return mean, std
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
-                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+                                    state_dict=self.state_dict())
 
     def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
         if chkpt_dir != None:
@@ -117,6 +123,7 @@ class Actor_Gaussian(nn.Module):
 class Critic(nn.Module):
     def __init__(self, args, name='critic', chkpt_dir='model/ppo'):
         super(Critic, self).__init__()
+        self.device = args.device
         self.fc1 = nn.Linear(args.state_dim, args.hidden_width)
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.fc3 = nn.Linear(args.hidden_width, 1)
@@ -124,6 +131,7 @@ class Critic(nn.Module):
 
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
+        self.to(self.device)
 
         self.name = name
         if args.use_orthogonal_init:
@@ -133,15 +141,16 @@ class Critic(nn.Module):
             orthogonal_init(self.fc3)
 
     def forward(self, s):
+        s = torch.tensor(s).to(self.device)
         s = self.activate_func(self.fc1(s))
         s = self.activate_func(self.fc2(s))
         v_s = self.fc3(s)
-        return v_s
+        return v_s.cpu()
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
-                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+                                    state_dict=self.state_dict())
 
     def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
         if chkpt_dir != None:
@@ -150,9 +159,7 @@ class Critic(nn.Module):
         self.load_state_dict(state_dict)
 
 class PPO_continuous():
-    def __init__(self, args, chkpt_dir, load_model=None):
-        args.delta = 0.01
-
+    def __init__(self, args, chkpt_dir, train_adv=False, load_model=None):
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
         self.batch_size = args.batch_size
@@ -170,11 +177,14 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
         self.adv_loss = 0
+
+        self.train_adv = train_adv
         
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
         else:
             self.actor = Actor_Gaussian(args, chkpt_dir=chkpt_dir)
+
         self.critic = Critic(args, chkpt_dir=chkpt_dir)
         self.adv_net = adversarial.Net(args, chkpt_dir=chkpt_dir)
 
@@ -242,16 +252,17 @@ class PPO_continuous():
             if self.use_adv_norm:  # Trick 1:advantage normalization
                 adv = ((adv - adv.mean()) / (adv.std() + 1e-5))
 
-        perturb = self.adv_net(s)
-        perturb_state = s + perturb
-        loss = - self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
-        # loss = torch.tensor(loss, grad_fn=perturb_state.grad_fn)
-        self.adv_net.optimizer.zero_grad()
-        loss.mean().backward()
-        self.adv_net.optimizer.step()
-        perturb = self.adv_net(s)
-        perturb_state = s + perturb
-        self.adv_loss = loss.mean(dtype=torch.float32)
+        if self.train_adv:
+            perturb = self.adv_net(s)
+            perturb_state = s + perturb
+            loss = - self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
+            # loss = torch.tensor(loss, grad_fn=perturb_state.grad_fn)
+            self.adv_net.optimizer.zero_grad()
+            loss.mean().backward()
+            self.adv_net.optimizer.step()
+            perturb = self.adv_net(s)
+            perturb_state = s + perturb
+            self.adv_loss = loss.mean(dtype=torch.float32)
         
         # Optimize policy for K epochs:
         for _ in range(self.K_epochs):
@@ -267,9 +278,10 @@ class PPO_continuous():
                 surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * adv[index]
                 actor_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy # Trick 5: policy entropy
 
-                with torch.no_grad():
-                    extra_loss = self.guassian_jeffrey(self.actor.get_dist_parameter(s[index]), self.actor.get_dist_parameter(perturb_state[index]))
-                actor_loss += extra_loss
+                if self.train_adv:
+                    with torch.no_grad():
+                        extra_loss = self.guassian_jeffrey(self.actor.get_dist_parameter(s[index]), self.actor.get_dist_parameter(perturb_state[index]))
+                    actor_loss += extra_loss
                 # Update actor
                 self.optimizer_actor.zero_grad()
                 actor_loss.mean().backward()
@@ -303,7 +315,8 @@ class PPO_continuous():
     def save_models(self, mode = 'Default'):
         self.actor.save_checkpoint(mode=mode)
         self.critic.save_checkpoint(mode=mode)
-        self.adv_net.save_checkpoint(mode=mode)
+        if self.train_adv:
+            self.adv_net.save_checkpoint(mode=mode)
 
     def load_models(self, mode = 'Default'):
         self.actor.load_checkpoint(mode=mode)

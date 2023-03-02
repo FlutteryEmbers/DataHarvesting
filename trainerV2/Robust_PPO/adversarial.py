@@ -10,7 +10,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(args.state_dim, 128)
         self.fc2 = nn.Linear(128, 128)
         self.out = nn.Linear(128, args.state_dim)
-        self.device = T.device("cuda" if T.cuda.is_available() else "cpu")
+        self.device = args.device
         self.name = name
         self.delta = args.delta
         self.checkpoint_file = os.path.join(chkpt_dir, name)
@@ -23,12 +23,12 @@ class Net(nn.Module):
         x = F.relu(self.fc1(state))
         x = F.relu(self.fc2(x))
         out = T.clamp(self.out(x), max=self.delta, min=0).cpu()
-        return out
+        return out.cpu()
 
     def save_checkpoint(self, mode = 'Default'):
         self.num_checkpoints += 1
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
-                                    state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
+                                    state_dict=self.state_dict())
 
     def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
         if chkpt_dir != None:

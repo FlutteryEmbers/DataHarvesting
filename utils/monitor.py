@@ -19,7 +19,8 @@ class Learning_Monitor():
 		logger.info('reward is {}'.format(reward))
 
 	def average(self, n):
-		reward = np.array(self.rewards[:n])
+		lower = max(len(self.rewards) - n, 0)
+		reward = np.array(self.rewards[lower:])
 		mean = np.mean(reward)
 		logger.info('average rewards of last {} evaluation is {}'.format(n, mean))
 		return mean
@@ -65,16 +66,18 @@ class Learning_Monitor():
 		handle.close()
 
 	def save_log(self):
-		with open(self.output_dir+'/log.txt', 'w') as f:
-			for line in self.log:
-				f.write(line)
-				f.write('\n')
+		if self.log != '':
+			with open(self.output_dir+'/log.txt', 'w') as f:
+				for line in self.log:
+					f.write(line)
+					f.write('\n')
+			f.close()
 
 		with open(self.output_dir+'/config.yaml', "w", encoding = "utf-8") as yaml_file:
 			dump = yaml.dump(self.args, default_flow_style = False, allow_unicode = True, encoding = None)
-			yaml_file.write(dump )
+			yaml_file.write(dump)
 
-		f.close()
+		
 
 	def reset(self):
 		self.rewards = []

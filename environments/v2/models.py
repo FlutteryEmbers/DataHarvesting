@@ -50,7 +50,7 @@ class Targets():
         self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
         self.is_moving = False
 
-        if args != None:
+        if args['moving_target']:
             print('The Target Is Moving')
             self.is_moving = True 
             if args['type'] == 'circular':

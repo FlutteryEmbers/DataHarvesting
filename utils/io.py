@@ -7,8 +7,8 @@ def mkdir(dir):
         os.makedirs(dir)
     return dir
 
-def save_log(output_dir, logs):
-    with open(output_dir+'log.txt', 'w') as f:
+def save_log(output_dir, logs, name='log'):
+    with open(output_dir+'{}.txt'.format(name), 'w') as f:
         for line in logs:
             f.write(line)
             f.write('\n')
@@ -25,3 +25,8 @@ def load_from_file(file):
 
     handle.close()
     return content
+
+def save_config(output_dir, args, name='config'):
+    with open(output_dir+'/{}.yaml'.format(name), "w", encoding = "utf-8") as yaml_file:
+        dump = yaml.dump(args, default_flow_style = False, allow_unicode = True, encoding = None)
+        yaml_file.write(dump)
