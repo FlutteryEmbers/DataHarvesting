@@ -52,6 +52,7 @@ class Info():
         self.output_dir = output_dir
         self.num_plots = 0
         self.final_reward = 0
+        self.final_steps = 0
         
 
     def store(self, position_t, action_t, data_collected_t, data_left_t, data_collect_rate_t):
@@ -85,7 +86,7 @@ class Info():
                 timestamp += 1
 
         with open(output_dir + '/final_reward.txt', 'w') as f2:
-            f2.write('{}'.format(self.final_reward))
+            f2.write('final rewards: {}, final steps: {}'.format(self.final_reward, self.final_steps))
 
         with open(output_dir + '/path.pickle', 'wb') as handle:
             pickle.dump(self.position_t, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -94,7 +95,8 @@ class Info():
             pickle.dump(data_collected, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         handle.close()
-
+        plt.close('all')
+        
     def plot_dv_info(self, filename, data):
         # self.mkdir(type)
         t = [i+1 for i in range(self.timestamp)]

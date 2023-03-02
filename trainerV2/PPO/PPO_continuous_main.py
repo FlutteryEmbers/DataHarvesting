@@ -13,9 +13,9 @@ class PPO_GameAgent():
         self.timer = tools.Timer()
         self.output_dir = output_dir
         now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
+        current_time = now.strftime("%H_%M_%S")
         
-        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + current_time)
+        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + 'ppo_{}'.format(current_time))
         tools.setup_seed(args.random_seed)
         tools.mkdir(output_dir+'/model/')
         tools.mkdir(output_dir+'/logs/')

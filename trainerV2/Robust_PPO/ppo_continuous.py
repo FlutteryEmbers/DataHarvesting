@@ -23,6 +23,7 @@ class Actor_Beta(nn.Module):
         self.beta_layer = nn.Linear(args.hidden_width, args.action_dim)
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
 
+        self.name = name
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
 
@@ -56,7 +57,9 @@ class Actor_Beta(nn.Module):
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
-    def load_checkpoint(self, mode = 'Default'):
+    def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
+        if ckpt_dir != None:
+            self.checkpoint_file = chkpt_dir + self.name
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
 
@@ -70,6 +73,7 @@ class Actor_Gaussian(nn.Module):
         self.log_std = nn.Parameter(torch.zeros(1, args.action_dim))  # We use 'nn.Parameter' to train log_std automatically
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
 
+        self.name = name
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
 
@@ -104,7 +108,9 @@ class Actor_Gaussian(nn.Module):
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
-    def load_checkpoint(self, mode = 'Default'):
+    def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
+        if chkpt_dir != None:
+            self.checkpoint_file = chkpt_dir + self.name
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
 
@@ -119,6 +125,7 @@ class Critic(nn.Module):
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
 
+        self.name = name
         if args.use_orthogonal_init:
             print("------use_orthogonal_init------")
             orthogonal_init(self.fc1)
@@ -136,13 +143,15 @@ class Critic(nn.Module):
         tools.save_network_params(mode=mode, checkpoint_file=self.checkpoint_file, 
                                     state_dict=self.state_dict(), num_checkpoints=self.num_checkpoints)
 
-    def load_checkpoint(self, mode = 'Default'):
+    def load_checkpoint(self, mode = 'Default', chkpt_dir=None):
+        if chkpt_dir != None:
+            self.checkpoint_file = chkpt_dir + self.name
         state_dict = tools.load_network_params(mode=mode, checkpoint_file=self.checkpoint_file)
         self.load_state_dict(state_dict)
 
 class PPO_continuous():
     def __init__(self, args, chkpt_dir, load_model=None):
-        args.delta = 0.001
+        args.delta = 0.01
 
         self.policy_dist = args.policy_dist
         self.max_action = args.max_action
@@ -160,6 +169,7 @@ class PPO_continuous():
         self.use_grad_clip = args.use_grad_clip
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
+        self.adv_loss = 0
         
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
@@ -241,6 +251,8 @@ class PPO_continuous():
         self.adv_net.optimizer.step()
         perturb = self.adv_net(s)
         perturb_state = s + perturb
+        self.adv_loss = loss.mean(dtype=torch.float32)
+        
         # Optimize policy for K epochs:
         for _ in range(self.K_epochs):
             # Random sampling and no repetition. 'False' indicates that training will continue even if the number of samples in the last time is less than mini_batch_size
@@ -293,7 +305,7 @@ class PPO_continuous():
         self.critic.save_checkpoint(mode=mode)
         self.adv_net.save_checkpoint(mode=mode)
 
-    def load_models(self, mode = 'Default', checkpoints = None):
+    def load_models(self, mode = 'Default'):
         self.actor.load_checkpoint(mode=mode)
         self.critic.load_checkpoint(mode=mode)
         self.adv_net.load_checkpoint(mode=mode)

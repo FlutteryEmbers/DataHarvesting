@@ -10,7 +10,7 @@ signal_range = [2, 3, 3.7, 4.3, 4.9]
 if __name__ == "__main__":
     curved_path = False
 
-    dir = 'ppo_stationary_robust/'
+    dir = 'ppo_stationary_test/'
     # dir = dir + "/batch_train_ddqn_her/"
     dir = 'cache/results/' + dir
     for i in range(len(env_list.environment_list)):

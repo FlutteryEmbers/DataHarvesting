@@ -103,7 +103,7 @@ class Agent():
             # NOTE: 判断是否到达终点
             if self.board.is_dv_collection_done() or self.num_steps >= self._max_episode_steps:
                 # reward = 0
-                pos_penalty = -np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                pos_penalty = -10 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
                 dv_penalty = -10 * np.linalg.norm(data_volume_left)
                 ## reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
                 done = self.board.is_dv_collection_done()
@@ -122,14 +122,18 @@ class Agent():
                 # print('HER complete')
                 reward = 0
                 done = True
-
             # done = True
 
         else:
             logger.critical('Invalid Reward Type')
+
+
+        if done:
+            self.num_steps += np.linalg.norm(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0)))
         
         self.reward += reward
         self.running_info.final_reward = self.reward
+        self.running_info.final_steps = self.num_steps
         s = self.board.get_state()
         
         return s, reward, done, position

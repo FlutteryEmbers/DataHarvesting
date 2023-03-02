@@ -15,7 +15,7 @@ class PPO_GameAgent():
         now = datetime.now()
         current_time = now.strftime("%H_%M_%S")
         
-        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + current_time)
+        self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + 'robust_ppo_{}'.format(current_time))
         tools.mkdir(output_dir+'/model/')
         tools.mkdir(output_dir+'/logs/')
 
@@ -31,7 +31,6 @@ class PPO_GameAgent():
         args.type_reward = 'Shaped_Reward'
         
         self.evaluate_policy(args=args, env=env, display=True, load_model=True)
-
 
     def evaluate_policy(self, args, env, agent=None, state_norm=None, load_model=None, display=False):
         if load_model != None:
@@ -90,6 +89,63 @@ class PPO_GameAgent():
         
         return evaluate_reward / times
 
+    def robust_evaluation(self, env, dirs, noise_type=None, state_norm=None, display=False):
+        args = self.args
+        args.state_dim = len(env.get_state())
+        args.action_dim = env.action_space.shape
+        args.max_action = float(env.action_space.high)
+        args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
+        args.type_reward = 'Shaped_Reward'
+
+        logger.success('action type {}'.format(env.action_type))
+        args.env_type = True
+        args.state_dim = len(env.get_state())
+        args.action_dim = env.action_space.shape
+        args.max_action = float(env.action_space.high)
+        args.max_episode_steps = env._max_episode_steps
+        args.use_orthogonal_init = False
+
+        agent = PPO_continuous(args, chkpt_dir=self.output_dir + '/model/')
+        agent.actor.load_checkpoint(chkpt_dir=dirs['actor'])
+        agent.critic.load_checkpoint(chkpt_dir=dirs['critic'])
+        if noise_type == 'adv':
+            agent.adv_net.load_checkpoint(chkpt_dir=dirs['adv_net'])
+
+        state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
+        if args.use_reward_norm:  # Trick 3:reward normalization
+            reward_norm = Normalization(shape=1)
+        elif args.use_reward_scaling:  # Trick 4:reward scaling
+            reward_scaling = RewardScaling(shape=1, gamma=args.gamma)
+
+        times = 3
+        evaluate_reward = 0
+        for _ in range(times):
+            s = env.reset()
+            if args.use_state_norm:
+                s = state_norm(s, update=False)  # During the evaluating,update=False
+            done = False
+            episode_reward = 0
+            while not done and env.num_steps < 200:
+                if noise_type == 'adv':
+                    noise = agent.adv_net(s)
+                    s = s + noise.cpu().detach().numpy()
+                a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
+                if args.policy_dist == "Beta":
+                    action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
+                else:
+                    action = a
+                s_, r, done, position = env.step(action, args)
+                # print(position)
+                env.render(display=display)
+                if args.use_state_norm:
+                    s_ = state_norm(s_, update=False)
+                episode_reward += r
+                s = s_
+            evaluate_reward += episode_reward
+            stats = env.view()
+            stats.save(sub_dir = self.output_dir, plot = True)
+           
+        return evaluate_reward / times
 
     def main(self, args, env):
         self.total_eval = args.max_train_steps / args.evaluate_freq
@@ -185,6 +241,12 @@ class PPO_GameAgent():
                     self.running_summary.add_scalar('info/best_steps', self.best_num_steps, total_steps)
                     self.running_summary.add_scalar('info/best_rewards', self.best_reward, total_steps)
                     self.running_summary.add_scalar('info/average_rewards', self.learning_monitor.average(50), total_steps)
+
+                    self.running_summary.add_scalar('adv_loss/adv_loss', agent.adv_loss, total_steps)
+                    self.running_summary.add_histogram("layer1.bias", agent.adv_net.fc1.bias, total_steps)
+                    self.running_summary.add_histogram("conv1.weight", agent.adv_net.fc1.weight, total_steps)
+                    self.running_summary.add_histogram("conv2.bias", agent.adv_net.fc2.bias, total_steps)
+                    self.running_summary.add_histogram("conv2.weight", agent.adv_net.fc2.weight, total_steps)
                     logger.success("evaluate_reward:{}".format(evaluate_reward))
                     # agent.actor.save_checkpoint(mode='tmp')
                     # agent.critic.save_checkpoint(mode='tmp')
