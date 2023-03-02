@@ -89,7 +89,7 @@ class PPO_GameAgent():
         
         return evaluate_reward / times
 
-    def robust_evaluation(self, env, dirs, noise_type=None, state_norm=None, display=False):
+    def evaluate_robust(self, env, dirs, noise_type=None, state_norm=None, display=False):
         args = self.args
         args.state_dim = len(env.get_state())
         args.action_dim = env.action_space.shape

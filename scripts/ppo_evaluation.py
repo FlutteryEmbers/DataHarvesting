@@ -19,4 +19,4 @@ if __name__ == "__main__":
     args = tools.load_config("configs/config_ppo_default.yaml")
     args = tools.dict2class(args)
     PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir)
-    PPO_agent.robust_evaluation(env=env_list.environment_list[0], dirs=dirs, noise_type='adv')
+    PPO_agent.evaluate_robust(env=env_list.environment_list[0], dirs=dirs, noise_type='adv')
