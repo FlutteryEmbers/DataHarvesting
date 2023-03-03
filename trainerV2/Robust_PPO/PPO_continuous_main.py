@@ -12,11 +12,13 @@ class PPO_GameAgent():
         self.args = args
         self.timer = tools.Timer()
         self.output_dir = output_dir
+        self.args.run_info = '{}_{}'.format(current_time, args.run_name)
+        
         now = datetime.now()
-        current_time = now.strftime("%D_%H_%M")
+        current_time = now.strftime("%b_%D_%H_%S")
         
         if train_mode:
-            self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + 'robust_ppo_{}'.format(current_time))
+            self.running_summary = SummaryWriter(log_dir=self.output_dir+'/runs/' + '{}_{}'.format(current_time, args.run_name))
             tools.mkdir(output_dir+'/model/')
             tools.mkdir(output_dir+'/logs/')
 
