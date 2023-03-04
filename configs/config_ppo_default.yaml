@@ -1,7 +1,7 @@
 ## Default values from https://github.com/Lizhi-sjtu/DRL-code-pytorch
 
 random_seed: 10 
-max_train_steps: 60e5 ## Maximum number of training steps
+max_train_steps: 10e5 ## Maximum number of training steps
 evaluate_freq: 1000 ## Evaluate the policy every 'evaluate_freq' steps
 save_freq: 20 ## Save frequency
 policy_dist: Gaussian ## Beta or Gaussian

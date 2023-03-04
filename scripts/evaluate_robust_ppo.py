@@ -8,10 +8,10 @@ from utils import tools
 from utils import io
 
 vanilla_model_dir = 'cache/results/ppo_stationary_vanilla/model/'
-robust_model_dir = 'cache/results/ppo_stationary_robust2/model/'
-adv_model_dir = 'cache/results/ppo_stationary_robust2/model/'
+robust_model_dir = 'cache/results/ppo_stationary_robust_l2/model/'
+adv_model_dir = 'cache/results/ppo_stationary_robust_l2/model/'
 
-output_dir = 'cache/results/ppo_stationary_evaluation2/'
+output_dir = 'cache/results/ppo_stationary_evaluation3/'
 eval_info = {'vanilla_no_noise': {'noise': None, 'model_dir': vanilla_model_dir, 'adv_model': ''}, 
         'vanilla_adv_noise': {'noise': 'adv', 'model_dir': vanilla_model_dir, 'adv_model': adv_model_dir}, 
         'vanilla_random_noise': {'noise': 'random', 'model_dir': vanilla_model_dir, 'adv_model': ''}, 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         tools.mkdir(sub_output_dir)
         args = tools.load_config("configs/config_ppo_default.yaml")
         args = tools.dict2class(args)
-        args.delta = 0.03
+        args.delta = 0.05
 
         PPO_agent = PPO_GameAgent(args=args, output_dir=sub_output_dir, train_mode=False)
         reward, step = PPO_agent.evaluate_robust(env=env_list.environment_list[0], dirs=dirs, noise_type=eval_info[mode]['noise'])

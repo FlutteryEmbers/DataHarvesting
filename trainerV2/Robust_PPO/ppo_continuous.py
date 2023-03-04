@@ -255,14 +255,16 @@ class PPO_continuous():
         if self.train_adv:
             perturb = self.adv_net(s)
             perturb_state = s + perturb
-            loss = - self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
+            # loss = - self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
+            adv_loss = torch.linalg.vector_norm(self.actor.get_dist_parameter(s)[0] - self.actor.get_dist_parameter(perturb_state)[0], dim=1)
+            self.adv_loss = adv_loss.mean(dtype=torch.float32)
             # loss = torch.tensor(loss, grad_fn=perturb_state.grad_fn)
             self.adv_net.optimizer.zero_grad()
-            loss.mean().backward()
+            adv_loss.mean(dtype=torch.float32).backward()
             self.adv_net.optimizer.step()
-            perturb = self.adv_net(s)
-            perturb_state = s + perturb
-            self.adv_loss = loss.mean(dtype=torch.float32)
+            
+            # perturb = self.adv_net(s)
+            # perturb_state = s + perturb
         
         # Optimize policy for K epochs:
         for _ in range(self.K_epochs):
@@ -278,16 +280,22 @@ class PPO_continuous():
                 surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * adv[index]
                 actor_loss = -torch.min(surr1, surr2) - self.entropy_coef * dist_entropy # Trick 5: policy entropy
 
-                if self.train_adv:
-                    with torch.no_grad():
-                        extra_loss = self.guassian_jeffrey(self.actor.get_dist_parameter(s[index]), self.actor.get_dist_parameter(perturb_state[index]))
-                    actor_loss += extra_loss
                 # Update actor
                 self.optimizer_actor.zero_grad()
                 actor_loss.mean().backward()
                 if self.use_grad_clip:  # Trick 7: Gradient clip
                     torch.nn.utils.clip_grad_norm_(self.actor.parameters(), 0.5)
                 self.optimizer_actor.step()
+
+                if self.train_adv:
+                    '''
+                    with torch.no_grad():
+                        # extra_loss = self.guassian_jeffrey(self.actor.get_dist_parameter(s[index]), self.actor.get_dist_parameter(perturb_state[index]))
+                        adv_loss =  10 * torch.linalg.vector_norm(self.actor.get_dist_parameter(s)[0] - self.actor.get_dist_parameter(perturb_state)[0])
+                    '''
+                    self.optimizer_actor.zero_grad()
+                    adv_loss[index].backward()
+                    self.optimizer_actor.step()
 
                 v_s = self.critic(s[index])
                 critic_loss = F.mse_loss(v_target[index], v_s)

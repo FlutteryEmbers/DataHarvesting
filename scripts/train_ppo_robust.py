@@ -7,7 +7,7 @@ from scripts.data.test_stationary import env_list
 from utils import tools
 
 SEED = 10
-RUN_NAME = 'ppo_stationary_robust_2'
+RUN_NAME = 'ppo_stationary_robust_l2'
 
 if __name__ == "__main__":    
     save_dir = 'cache/results/' + RUN_NAME
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     args.train_adv = True
     args.delta = 0.05
     args.run_name = RUN_NAME
-    
+
     PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir, train_mode=True)
     PPO_agent.train(env_list.environment_list[0])
     # PPO_agent.evaluate(env_list.environment_list[0])
