@@ -34,6 +34,22 @@ class Target_Movement_Circular():
         delta = np.transpose([d_x, d_y])
         self.locations = np.array(self.centers) + delta
 
+class Target_Move_Linear():
+    def __init__(self, start_at, switch_time, speed) -> None:
+        self.start_at = np.array(start_at)
+        self.switch_time = np.array(switch_time)
+        self.speed = np.array(speed)
+        self.T = 0
+
+    def update(self, time_scale):
+        self.T += time_scale
+
+    def reset(self):
+        self.T = 0
+    
+    def set_position(self):
+        self.location = self.T * self.speed + self.start_at
+
 class Target_Controller():
     def __init__(self, step_sizes, directives, intervals) -> None:
         self.step_sizes = step_sizes

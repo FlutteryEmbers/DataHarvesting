@@ -13,3 +13,4 @@ map/*
 map/
 ./cache
 ./cache/*
+/cache/runs/*

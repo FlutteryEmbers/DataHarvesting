@@ -1,4 +1,5 @@
 from textwrap import fill
+import matplotlib
 from matplotlib import pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches

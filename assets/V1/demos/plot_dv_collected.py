@@ -1,5 +1,9 @@
 import pickle
 import matplotlib.pyplot as plt
+
+plt.rc('pdf',fonttype = 42)
+plt.rc('ps', fonttype = 42)
+
 plt.rcParams.update({'font.size': 18})
 # plt.figure(figsize=(10,5))
 
