@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.distributions import Beta, Normal
 from utils import tools
 import os
-from trainerV2.Robust_PPO import adversarial
+from trainerV2.Robust_PPO.scripts import adversarial
 
 
 # Trick 8: orthogonal initialization
@@ -177,8 +177,11 @@ class PPO_continuous():
         self.use_lr_decay = args.use_lr_decay
         self.use_adv_norm = args.use_adv_norm
         self.adv_loss = 0
-
+        
         self.train_adv = train_adv
+        if train_adv:
+            self.adv_type = args.adv_type
+            self.adv_actor_lr = args.adv_actor_lr
         
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
@@ -255,8 +258,10 @@ class PPO_continuous():
         if self.train_adv:
             perturb = self.adv_net(s)
             perturb_state = s + perturb
-            adversarial_loss =  self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
-            # adv_loss = torch.linalg.vector_norm(self.actor.get_dist_parameter(s)[0] - self.actor.get_dist_parameter(perturb_state)[0], dim=1)
+            if self.adv_type == 'KL':
+                adversarial_loss =  self.guassian_jeffrey(self.actor.get_dist_parameter(s), self.actor.get_dist_parameter(perturb_state))
+            elif self.adv_type == 'L2':
+                adversarial_loss = torch.linalg.vector_norm(self.actor.get_dist_parameter(s)[0] - self.actor.get_dist_parameter(perturb_state)[0], dim=1)
             self.adv_loss = -adversarial_loss.mean(dtype=torch.float32)
             # loss = torch.tensor(loss, grad_fn=perturb_state.grad_fn)
             self.optimizer_actor.zero_grad()
@@ -264,7 +269,7 @@ class PPO_continuous():
             self.adv_net.optimizer.step()
 
             self.adv_net.optimizer.zero_grad()
-            (100*adversarial_loss).mean(dtype=torch.float32).backward()
+            (self.adv_actor_lr * adversarial_loss).mean(dtype=torch.float32).backward()
             self.optimizer_actor.step()
 
             # perturb = self.adv_net(s)

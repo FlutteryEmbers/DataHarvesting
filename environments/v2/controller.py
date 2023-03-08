@@ -11,7 +11,7 @@ class Obstacles_Avoidance():
         self.board_info[0, :] = np.ones(x_limit)
         self.board_info[0, y_limit-1] = np.ones(x_limit)
 
-class Target_Movement_Circular():
+class Target_Move_Circular():
     def __init__(self, centers, radius, w, w_0) -> None:
         self.centers = centers
         self.radius = np.array(radius)
@@ -36,17 +36,26 @@ class Target_Movement_Circular():
 
 class Target_Move_Linear():
     def __init__(self, start_at, switch_time, speed) -> None:
-        self.start_at = np.array(start_at)
+        self.start_at = start_at
+        self.speed = speed
+
+        self.location = np.array(start_at)
         self.switch_time = np.array(switch_time)
-        self.speed = np.array(speed)
+        self.current_speed = np.array(speed)
         self.T = 0
 
     def update(self, time_scale):
         self.T += time_scale
+        if self.T > self.switch_time:
+            self.T = 0
+            self.current_speed = - self.current_speed
+        self.location = self.location + time_scale * self.speed
 
     def reset(self):
         self.T = 0
-    
+        self.current_speed = np.array(self.speed)
+        self.location = np.array(self.start_at)
+
     def set_position(self):
         self.location = self.T * self.speed + self.start_at
 

@@ -105,4 +105,4 @@ class Timer:
 
         elapsed_time = time.perf_counter() - self._start_time
         self._start_time = None
-        logger.info(f"Elapsed time: {elapsed_time:0.4f} seconds")
+        print(f"Elapsed time: {elapsed_time:0.4f} seconds")

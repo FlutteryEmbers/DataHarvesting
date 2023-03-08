@@ -1,17 +1,21 @@
 import sys, os
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../..'))
 
-from trainerV2.Robust_PPO.PPO_continuous_main import PPO_GameAgent
+from trainerV2.Robust_PPO.scripts.PPO_continuous_main import PPO_GameAgent
 # from scripts.continuous.test_moving import env_list
-from scripts.data.test_stationary import env_list
+from trainerV2.Robust_PPO.data.test_stationary import env_list
 from utils import tools
 from utils import io
 
-vanilla_model_dir = 'cache/results/Mar05-07_53-ppo_stationary_vanilla/model/'
-robust_model_dir = 'cache/results/Mar04-21_29-ppo_stationary_robust_KL/model/'
-adv_model_dir = 'cache/results/Mar04-21_29-ppo_stationary_robust_KL/model/'
+SEED = 10030
+vanilla_model_name = 'Mar07-07_31-ppo_stationary_vanilla'
+robust_model_name = 'Mar06-08_07-ppo_stationary_robust_KL'
 
-output_dir = 'cache/results/ppo_stationary_evaluation3/'
+vanilla_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, vanilla_model_name)
+robust_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, robust_model_name)
+adv_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, robust_model_name)
+output_dir = 'cache/results/seed_{}/ppo_stationary_evaluation/'.format(SEED)
+
 eval_info = {'vanilla_no_noise': {'noise': None, 'model_dir': vanilla_model_dir, 'adv_model': ''}, 
         'vanilla_adv_noise': {'noise': 'adv', 'model_dir': vanilla_model_dir, 'adv_model': adv_model_dir}, 
         'vanilla_random_noise': {'noise': 'random', 'model_dir': vanilla_model_dir, 'adv_model': ''}, 

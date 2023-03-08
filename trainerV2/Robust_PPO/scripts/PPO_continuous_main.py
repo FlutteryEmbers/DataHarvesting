@@ -1,8 +1,8 @@
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-from trainerV2.Robust_PPO.normalization import Normalization, RewardScaling
-from trainerV2.Robust_PPO.replaybuffer import ReplayBuffer
-from trainerV2.Robust_PPO.ppo_continuous import PPO_continuous
+from trainerV2.Robust_PPO.scripts.normalization import Normalization, RewardScaling
+from trainerV2.Robust_PPO.scripts.replaybuffer import ReplayBuffer
+from trainerV2.Robust_PPO.scripts.ppo_continuous import PPO_continuous
 from utils import tools, monitor
 from loguru import logger
 from datetime import datetime
@@ -252,7 +252,7 @@ class PPO_GameAgent():
                 # Evaluate the policy every 'evaluate_freq' steps
                 if total_steps % args.evaluate_freq == 0:
                     self.timer.stop()
-                    logger.success("evaluate_num:{} left: {}".format(evaluate_num, self.total_eval - evaluate_num))
+                    logger.success("evaluate_num:{} left: {} - {}%".format(evaluate_num, self.total_eval - evaluate_num, (self.total_eval - evaluate_num)/self.total_eval*100))
                     evaluate_num += 1
                     evaluate_reward = self.evaluate_policy(args, env, agent, state_norm)
                     evaluate_rewards.append(evaluate_reward)

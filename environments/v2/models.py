@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from environments.v2.transmission_model import Phi_dif_Model
-from environments.v2.controller import Target_Movement_Circular
+from environments.v2 import controller
 from utils.buffer import Info
 
 class Agent_List():
@@ -50,13 +50,15 @@ class Targets():
         self.dv_transmittion_rate = np.zeros(self.num_towers, dtype=np.float64)
         self.is_moving = False
 
-        if args['moving_target']:
-            print('The Target Is Moving')
+        if args['target_move_type'] == 'circular':
+            print('The Target Moves Circular')
             self.is_moving = True 
-            if args['type'] == 'circular':
-                self.movement = Target_Movement_Circular(centers=tower_location, radius=args['radius'], w=args['w'], w_0=args['w_0'])
-
+            self.movement = controller.Target_Move_Circular(centers=tower_location, radius=args['radius'], w=args['w'], w_0=args['w_0'])
             self.tower_location = self.movement.locations
+        elif args['target_move_type'] == 'linear':
+            print('The Target Moves Linear')
+            self.is_moving = True
+            self.movement = controller.Target_Move_Linear(start_at=tower_location, switch_time=args['switch_time'], speed=args['speed'])
         else:
             print('Target Is Stationary')
 
