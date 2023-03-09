@@ -7,7 +7,7 @@ from trainerV2.Robust_PPO.data.test_stationary import env_list
 from utils import tools
 
 # 10, 15, 243, 10030, 255000
-SEED = 255000
+SEED = 10030
 RUN_NAME = 'ppo_stationary_robust_KL'
 
 if __name__ == "__main__":    
@@ -18,7 +18,9 @@ if __name__ == "__main__":
     args.delta = 0.05
     args.run_name = RUN_NAME
     args.adv_type = 'KL'
-    args.adv_actor_lr = 50
+    args.actor_adv_step_size = 30
+    args.adv_lr = 0.002
+
     save_dir = 'cache/results/seed_{}/'.format(SEED)
     tools.mkdir(save_dir)
     tools.setup_seed(SEED)

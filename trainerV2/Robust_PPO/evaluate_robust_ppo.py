@@ -9,7 +9,7 @@ from utils import io
 
 SEED = 10030
 vanilla_model_name = 'Mar07-07_31-ppo_stationary_vanilla'
-robust_model_name = 'Mar06-08_07-ppo_stationary_robust_KL'
+robust_model_name = 'Mar09-00_35-ppo_stationary_robust_KL'
 
 vanilla_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, vanilla_model_name)
 robust_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, robust_model_name)
@@ -40,10 +40,11 @@ if __name__ == "__main__":
         args = tools.load_config("configs/config_ppo_default.yaml")
         args = tools.dict2class(args)
         args.delta = 0.05
+        args.adv_lr = 0.005
 
         PPO_agent = PPO_GameAgent(args=args, output_dir=sub_output_dir, train_mode=False)
-        reward, step = PPO_agent.evaluate_robust(env=env_list.environment_list[0], dirs=dirs, noise_type=eval_info[mode]['noise'])
-        summary.append('mode: {}, final rewards: {}, final steps: {}, args:{}, model_dir: {}, adv_dir: {}'.format(mode, reward, step, 
-                            eval_info[mode]['model_dir'], eval_info[mode]['adv_model'], args.delta))
+        reward, var_reward, step, var_steps = PPO_agent.evaluate_robust(env=env_list.environment_list[0], dirs=dirs, noise_type=eval_info[mode]['noise'])
+        summary.append('mode: {}, final rewards: {}, var_reward: {}, final steps: {}, var_steps:{}, model_dir: {}, adv_dir: {}, perturb:{}'
+            .format(mode, round(reward, 4), round(var_reward, 4), round(step, 4), round(var_steps, 4), eval_info[mode]['model_dir'], eval_info[mode]['adv_model'], args.delta))
         
     io.save_log(output_dir=output_dir, logs=summary)

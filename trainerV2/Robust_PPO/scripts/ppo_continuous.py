@@ -181,7 +181,7 @@ class PPO_continuous():
         self.train_adv = train_adv
         if train_adv:
             self.adv_type = args.adv_type
-            self.adv_actor_lr = args.adv_actor_lr
+            self.actor_adv_step_size = args.actor_adv_step_size
         
         if self.policy_dist == "Beta":
             self.actor = Actor_Beta(args, chkpt_dir=chkpt_dir)
@@ -269,7 +269,7 @@ class PPO_continuous():
             self.adv_net.optimizer.step()
 
             self.adv_net.optimizer.zero_grad()
-            (self.adv_actor_lr * adversarial_loss).mean(dtype=torch.float32).backward()
+            (self.actor_adv_step_size * adversarial_loss).mean(dtype=torch.float32).backward()
             self.optimizer_actor.step()
 
             # perturb = self.adv_net(s)
