@@ -7,9 +7,9 @@ from trainerV2.Robust_PPO.data.test_stationary import env_list
 from utils import tools
 from utils import io
 
-SEED = 10030
-vanilla_model_name = 'Mar07-07_31-ppo_stationary_vanilla'
-robust_model_name = 'Mar09-00_35-ppo_stationary_robust_KL'
+SEED = 255000
+vanilla_model_name = 'Mar07-18_57-ppo_stationary_vanilla'
+robust_model_name = 'Mar09-17_14-ppo_stationary_robust_KL'
 
 vanilla_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, vanilla_model_name)
 robust_model_dir = 'cache/results/seed_{}/{}/model/'.format(SEED, robust_model_name)

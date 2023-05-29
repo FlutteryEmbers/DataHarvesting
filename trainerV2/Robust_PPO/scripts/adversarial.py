@@ -15,7 +15,8 @@ class Net(nn.Module):
         self.delta = args.delta
         self.checkpoint_file = os.path.join(chkpt_dir, name)
         self.num_checkpoints = 0
-        self.optimizer = T.optim.Adam(self.parameters(), lr=args.adv_lr, weight_decay=1e-3)
+        if hasattr(args, 'lr'):
+            self.optimizer = T.optim.Adam(self.parameters(), lr=args.adv_lr, weight_decay=1e-3)
         self.to(self.device)
 
     def forward(self, state):

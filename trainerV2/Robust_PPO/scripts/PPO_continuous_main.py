@@ -37,7 +37,7 @@ class PPO_GameAgent():
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-        args.type_reward = 'Shaped_Reward'
+        # args.type_reward = 'Shaped_Reward'
         
         self.evaluate_policy(args=args, env=env, display=True, load_model=True)
 
@@ -104,7 +104,7 @@ class PPO_GameAgent():
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-        args.type_reward = 'Shaped_Reward'
+        # args.type_reward = 'Shaped_Reward'
 
         logger.success('action type {}'.format(env.action_type))
         args.env_type = True
@@ -181,7 +181,6 @@ class PPO_GameAgent():
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-        args.type_reward = 'Shaped_Reward'
 
         args.train_adv = False if args.train_adv == None else args.train_adv
 

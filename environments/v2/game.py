@@ -125,18 +125,31 @@ class Agent():
 
             reward  += pos_penalty + dv_penalty
 
+        elif args.type_reward == 'Negative_Shaped_Reward':
+            reward = -1 # 每步减少reward 1
+            pos_penalty = 0.1 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+            dv_penalty = 0.1 * np.linalg.norm(data_volume_left)
+
+            # if self.num_steps >= self._max_episode_steps:
+                  
+            # NOTE: 判断是否到达终点
+            if self.board.is_dv_collection_done() or self.num_steps >= self._max_episode_steps:
+                # reward = 0
+                pos_penalty = 10 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                dv_penalty = 10 * np.linalg.norm(data_volume_left)
+                ## reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                done = self.board.is_dv_collection_done()
+
+            reward  += pos_penalty + dv_penalty
+
         elif args.type_reward == 'Lagrangian':
             reward = -1
-            if self.num_steps >= self._max_episode_steps:
-                reward = 0
+            if self.board.is_dv_collection_done() or self.num_steps >= self._max_episode_steps:
+                # reward = 0
                 pos_penalty = -10 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
-                dv_penalty = -10 * np.linalg.norm(abs(np.array(self.board.dv_collected) - np.array(self.board.dv_required)))
-                reward  = pos_penalty + dv_penalty
-
-            if self.board.is_dv_collection_done() and self.board.is_all_arrived():
-                # print('HER complete')
-                reward = 0
-                done = True
+                dv_penalty = -10 * np.linalg.norm(data_volume_left)
+                ## reward = -np.sum(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
+                done = self.board.is_dv_collection_done()
             # done = True
 
         else:
