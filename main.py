@@ -1,7 +1,7 @@
 from trainer.DDQN_HER import HER_Batch_Trainer
 # from trainer.DDQN import ddqn_batch_trainer
 # from trainer.DDQN_PHER import PHER_Batch_Trainer
-from utils import tools, graphic
+from utils import graph, tools
 from loguru import logger
 
 def init_working_dir():

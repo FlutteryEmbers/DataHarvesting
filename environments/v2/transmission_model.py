@@ -19,6 +19,7 @@ class Phi_dif_Model():
         self.K = Config['K']
         self.N = Config['N']
         self.Phi_list = np.array(Config['PHI_LIST'])
+        self.signal_range = Config['signal_range']
 
         self.x_limit = x_limit
         self.y_limit = y_limit

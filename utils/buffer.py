@@ -1,6 +1,7 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
 import numpy as np
-import os
-from utils import tools
+from utils import graph
 import matplotlib.pyplot as plt
 import pickle
 
@@ -50,6 +51,7 @@ class Info():
         self.data_collect_rate_t = []
 
         self.output_dir = output_dir
+
         self.num_plots = 0
         self.final_reward = 0
         self.final_steps = 0
@@ -71,6 +73,7 @@ class Info():
         data_collected = np.array(self.data_collected_t).T.tolist()
         data_left = np.array(self.data_left_t).T.tolist()
         data_collect_rate = np.array(self.data_collect_rate_t).T.tolist()
+        paths = np.transpose(self.position_t, (1, 0, 2))
 
         # print(len(data_collected))
         if plot:
@@ -78,11 +81,18 @@ class Info():
             self.plot_dv_info(filename='{}/data_left'.format(output_dir), data=data_left)
             self.plot_dv_info(filename='{}/data_collect_rate'.format(output_dir), data=data_collect_rate)
 
+            graph.plot_path(x_limit = self.board.x_limit, y_limit= self.board.y_limit,\
+                                    start_at = self.board.start_at, end_at=self.board.arrival_at,\
+                                    tower_locations=self.board.tower_location, agent_paths = paths,\
+                                    signal_range = self.board.signal_range, dir=output_dir)
+
         with open(output_dir + '/position_t.txt', 'w') as f:
             timestamp = 0
             for line in self.position_t:
-                f.write(str(timestamp) + ' ' + str(line[0]) + '  ' + str(line[1]))
-                f.write('\n')
+                strings = str(timestamp) 
+                for i in line:
+                    strings += ' {}'.format(i)
+                f.write(strings + '\n')
                 timestamp += 1
 
         with open(output_dir + '/final_reward.txt', 'w') as f2:

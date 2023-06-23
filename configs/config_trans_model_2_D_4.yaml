@@ -3,9 +3,5 @@ B: 0.5
 HEIGHT: 0.5
 K: 2
 N: 3
-PHI_LIST: 
-- 1
-- 2
-- 3
-- 4
-- 5
+PHI_LIST: [1, 2, 3, 4, 5]
+signal_range: [2, 3, 3.7, 4.3, 4.9]

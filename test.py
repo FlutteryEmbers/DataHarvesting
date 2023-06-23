@@ -2,7 +2,7 @@ from trainer.DDQN.ddqn_main import DDQN_GameAgent
 from trainer.PPO.PPO_continuous_main import PPO_GameAgent
 from trainer.DDQN_HER import HER_ddqn_main
 from trainer.SAC import sac_main
-from utils import tools, graphic
+from utils import graph, tools
 from loguru import logger
 from trainer.DDPG_HER import ddpg_main
 

@@ -127,13 +127,16 @@ class Continuous():
         self.max_angle = 360
 
     def get_action(self, action):
-        r = action[0] * self.max_speed
-        theta = action[1] * self.max_angle
+        action = action.reshape(-1, self.shape)
+        r = action[:, 0] * self.max_speed
+        theta = action[:, 1] * self.max_angle
         
-        x = r * math.cos(math.radians(theta))
-        y = r * math.sin(math.radians(theta))
-
-        return [x, y]
+        x = r * np.cos(np.radians(theta))
+        y = r * np.sin(np.radians(theta))
+        action[:, 0] = x
+        action[:, 1] = y
+        
+        return action
 
     def sample(self):
         return np.random.rand(2)

@@ -1,6 +1,6 @@
 # from trainerV2.DDQN_HER import HER_Batch_Trainer
 from scripts.continuous import ppo_robust
-from utils import tools, graphic
+from utils import graph, tools
 from loguru import logger
 
 def init_working_dir():

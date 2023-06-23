@@ -1,4 +1,4 @@
-from utils import graphic
+from utils import graph
 from utils import io
 from matplotlib import pyplot as plt
 import matplotlib.path as mpath

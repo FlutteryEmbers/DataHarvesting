@@ -20,7 +20,8 @@ class Agent_List():
     def update_agent(self, i, position):
         if not self.done[i]:
             self.current_position[i] = position
-            self.done[i] = not (self.current_position[i] - np.array(self.arrival_at[i])).any()
+            ## NOTE: Agent will not raise a done signal after arrival
+            # self.done[i] = not (self.current_position[i] - np.array(self.arrival_at[i])).any()
 
     def update_history(self):
         self.position_t.append(self.current_position)
@@ -93,6 +94,9 @@ class Board():
         self.x_limit = x_limit
         self.y_limit = y_limit
         self.control_time_scale = control_time_scale
+        self.tower_location = tower_location
+        self.start_at = start_at
+        self.arrival_at = arrival_at
 
         self.num_towers = len(tower_location)
         self.targets = Targets(tower_location=tower_location, dv_required=dv_required, args=args)
@@ -100,6 +104,8 @@ class Board():
         self.agents = Agent_List(num_tower=self.num_towers, start_at=start_at, arrival_at=arrival_at)
         self.transmitting_model = Phi_dif_Model(x_limit=x_limit, y_limit=y_limit, tower_position=tower_location, \
             phi_config_file= phi_config_file, save_file=save_file, rounding=rounding)
+        
+        self.signal_range = self.transmitting_model.signal_range
         self.running_log = Info(board_structure=None, num_turrent=self.num_towers)
         
     def reset(self):
@@ -107,9 +113,13 @@ class Board():
         self.targets.reset()
 
     def update_agents(self, joint_actions):
+        agent_collect_t = np.zeros((self.agents.num_agents, self.num_towers))
         for i in range(self.agents.num_agents):
             if not self.agents.done[i]:
-                self.update_agent_state(i, joint_actions[i])
+                dv_collected, cumulative_rate, dv_left = self.update_agent_state(i, joint_actions[i])
+                agent_collect_t[i, :] = cumulative_rate
+
+        return self.targets.dv_collected, agent_collect_t.sum(0), self.targets.dv_left
 
     def update_agent_state(self, i, action):
         prev_position = np.array(self.agents.current_position[i], dtype=np.float64)
@@ -162,6 +172,9 @@ class Board():
 
     def get_agent_goal(self, i):
         return self.agents.arrival_at[i]
+    
+    def get_all_agents_goal(self):
+        return self.agents.arrival_at
 
     def get_goal(self):
         arrival_at = self.get_agent_goal(0)
@@ -169,6 +182,9 @@ class Board():
 
     def get_agent_position(self, i):
         return self.agents.current_position[i]
+    
+    def get_all_agents_position(self):
+        return self.agents.current_position
 
     def description(self):
         return ['x_limit: {}'.format(self.x_limit), 'y_limit: {}'.format(self.y_limit),\
