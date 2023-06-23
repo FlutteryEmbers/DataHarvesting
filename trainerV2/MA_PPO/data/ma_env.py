@@ -27,5 +27,5 @@ class Instances:
 
 env_list = Instances()
 
-env_list.add_mission(start_at=[[0.0, 0.0]], arrival_at=[[9.0, 6.0]], dv_required=[5, 6, 3, 4, 4])
+env_list.add_mission(start_at=[[0, 0]], arrival_at=[[9, 6]], dv_required=[5, 6, 3, 4, 4])
 # env_list.add_mission(start_at=[[0, 0], [0, 0], [0, 0]], arrival_at=[[9, 6], [5, 5], [7, 8]], dv_required=[5, 6, 3, 4, 4])
