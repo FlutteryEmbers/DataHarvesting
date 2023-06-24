@@ -119,7 +119,7 @@ class Board():
                 dv_collected, cumulative_rate, dv_left = self.update_agent_state(i, joint_actions[i])
                 agent_collect_t[i, :] = cumulative_rate
 
-        return self.targets.dv_collected, agent_collect_t.sum(0), self.targets.dv_left
+        return self.targets.dv_collected[:], agent_collect_t.sum(0)[:], self.targets.dv_left[:]
 
     def update_agent_state(self, i, action):
         prev_position = np.array(self.agents.current_position[i], dtype=np.float64)
@@ -174,7 +174,7 @@ class Board():
         return self.agents.arrival_at[i]
     
     def get_all_agents_goal(self):
-        return self.agents.arrival_at
+        return self.agents.arrival_at[:]
 
     def get_goal(self):
         arrival_at = self.get_agent_goal(0)
@@ -184,7 +184,7 @@ class Board():
         return self.agents.current_position[i]
     
     def get_all_agents_position(self):
-        return self.agents.current_position
+        return self.agents.current_position[:]
 
     def description(self):
         return ['x_limit: {}'.format(self.x_limit), 'y_limit: {}'.format(self.y_limit),\
