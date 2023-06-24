@@ -119,6 +119,37 @@ class LinearDiscrete():
         return np.random.randint(0, len(self.actions)-1)
 
 
+class MA_Continuous():
+    def __init__(self, max_speed) -> None:
+        self.shape = 2
+        self.high = 1
+        self.max_speed = max_speed
+        self.max_angle = 360
+
+    def get_action(self, action):
+        #print('MA')
+        #print(action)
+        action = action.reshape(-1, self.shape)[:]
+        #print(action)
+        r = action[:, 0] * self.max_speed
+        theta = action[:, 1] * self.max_angle
+        # print(r, theta)
+        x = r * np.cos(np.radians(theta))
+        y = r * np.sin(np.radians(theta))
+
+        coordinates = np.zeros_like(action)
+        for i in range(len(coordinates)):
+            coordinates[i, 0] = x[i]
+            coordinates[i, 1] = y[i]
+        # print(x, y)
+        # print('--------------')
+        
+        return coordinates.tolist()
+
+    def sample(self):
+        return np.random.rand(2)
+
+
 class Continuous():
     def __init__(self, max_speed) -> None:
         self.shape = 2
@@ -127,18 +158,18 @@ class Continuous():
         self.max_angle = 360
 
     def get_action(self, action):
-        action = action.reshape(-1, self.shape)[:]
-        r = action[:, 0] * self.max_speed
-        theta = action[:, 1] * self.max_angle
-        
-        x = r * np.cos(np.radians(theta))
-        y = r * np.sin(np.radians(theta))
-        action[:, 0] = x
-        action[:, 1] = y
-        
-        return action[:]
+        # print('SA')
+        # print(action)
+        r = action[0] * self.max_speed
+        theta = action[1] * self.max_angle
+        # print(r, theta)
+        x = r * math.cos(math.radians(theta))
+        y = r * math.sin(math.radians(theta))
+        # print(x, y)
+        # print('--------------')
+        return [[x, y]]
 
     def sample(self):
         return np.random.rand(2)
 
-Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete}
+Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete, 'MA_Continuous': MA_Continuous}

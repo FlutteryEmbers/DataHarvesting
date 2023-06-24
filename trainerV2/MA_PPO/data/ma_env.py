@@ -17,7 +17,7 @@ class Instances:
         print('adding {}'.format(self.instance_name))
         environment = Agent(x_limit=self.x_limit, y_limit=self.y_limit, start_at=start_at, arrival_at=arrival_at, \
             tower_location=self.tower_location, dv_required=dv_required, control_time_scale=self.time_scale, \
-                phi_config_file = self.phi_model_name, save_file=self.instance_name, action_type ='Continuous')
+                phi_config_file = self.phi_model_name, save_file=self.instance_name, action_type ='MA_Continuous')
 
         self.environment_list.append(environment)
 
@@ -27,5 +27,5 @@ class Instances:
 
 env_list = Instances()
 
-env_list.add_mission(start_at=[[0, 0]], arrival_at=[[9, 6]], dv_required=[5, 6, 3, 4, 4])
-# env_list.add_mission(start_at=[[0, 0], [0, 0], [0, 0]], arrival_at=[[9, 6], [5, 5], [7, 8]], dv_required=[5, 6, 3, 4, 4])
+# env_list.add_mission(start_at=[[0, 0]], arrival_at=[[9, 6]], dv_required=[5, 6, 3, 4, 4])
+env_list.add_mission(start_at=[[0, 0], [0, 0], [0, 0]], arrival_at=[[9, 6], [5, 5], [7, 8]], dv_required=[5, 6, 3, 4, 4])
