@@ -10,6 +10,7 @@ from tqdm import tqdm
 class Phi_dif_Model():
     def __init__(self, x_limit, y_limit, tower_position, phi_config_file, save_file, rounding = 0) -> None:
         self.phi_config_file = phi_config_file
+        tools.mkdir('cache/map/')
         self.save_file = 'cache/map/{}'.format(save_file)
         Config = tools.load_config(self.phi_config_file)
 
@@ -78,6 +79,8 @@ class Phi_dif_Model():
                     rate_at_XY_t = self.get_transmission_rate_signal(agent_position=agent_position, tower_location=tower, 
                                                                     phi=self.Phi_list[i], b=self.B, height=self.height,
                                                                     k=self.K, n=self.N)
+                    if rate_at_XY_t < 0.1:
+                        rate_at_XY_t = 0
                     rate_at_XY.append(rate_at_XY_t)
 
                 signal_map[(round(x, self.rounding), round(y, self.rounding))] = rate_at_XY

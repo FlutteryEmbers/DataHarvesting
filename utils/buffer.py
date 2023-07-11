@@ -116,7 +116,7 @@ class Info():
         for i in range(self.num_turrent):
             # self.num_plots += 1
             # plot_curve(t, data[i], self.filename(type=type, turrent=i), self.num_plots)
-            plt.plot(t, data[i], label="target {}".format(i + 1))
+            plt.plot(t, data[i], label="target {}".format(i))
 
         plt.legend(loc='upper left')
         # plt.title(filename)

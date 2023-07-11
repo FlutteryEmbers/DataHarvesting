@@ -86,9 +86,9 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
     curved_path = False
     style = mpath.Path.CURVE4 if curved_path else mpath.Path.LINETO
     for index, paths in enumerate(agent_paths):
-        string_path_data = [(mpath.Path.MOVETO, tuple(paths[0].tolist()))]
+        string_path_data = [(mpath.Path.MOVETO, tuple(start_at[index]))]
 
-        for i in range(1, len(paths)):
+        for i in range(0, len(paths)):
             string_path_data.append((style, tuple(paths[i].tolist())))
 
         codes, verts = zip(*string_path_data)
