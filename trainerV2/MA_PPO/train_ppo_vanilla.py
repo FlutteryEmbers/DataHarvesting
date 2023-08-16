@@ -3,7 +3,8 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../..'))
 
 from trainerV2.MA_PPO.scripts.PPO_continuous_main import PPO_GameAgent
 # from scripts.continuous.test_moving import env_list
-from trainerV2.MA_PPO.data.ma_env import env_list
+# from trainerV2.MA_PPO.data.ma_env import env_list
+from trainerV2.MA_PPO.data.ma_env_list import env_list
 from utils import tools
 
 # 10, 15, 243, 10030, 255000
@@ -23,6 +24,8 @@ if __name__ == "__main__":
     tools.mkdir(save_dir)
     tools.setup_seed(SEED)
 
-    PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir, train_mode=True)
-    PPO_agent.train(env_list.environment_list[0])
+    for i in range(len(env_list)):
+        PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir + '/{}/'.format(env_list[i].instance_name), train_mode=True)
+        PPO_agent.train(env_list[i].environment)
+
     # PPO_agent.evaluate(env_list.environment_list[0])

@@ -65,7 +65,7 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
     for i, (x, y) in enumerate(start_at):
         #x, y = start_at
         plt.plot(x, y, marker="o", markersize=10, markeredgecolor=cmap(i*10+5), markerfacecolor=cmap(i*25+5))
-        plt.text(x-2, y-1, '{}'.format(i), fontsize=15)
+        # plt.text(x-2, y-1, '{}'.format(i), fontsize=15)
         # plt.plot(x, y, marker="o", markersize=10, markeredgecolor="#003d99", markerfacecolor='#003d99')
         # plt.text(x-2, y-1, 'start', fontsize=15)
 
