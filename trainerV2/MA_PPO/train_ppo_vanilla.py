@@ -20,12 +20,14 @@ if __name__ == "__main__":
     args.run_name = RUN_NAME
     args.type_reward = 'Lagrangian'
     
-    save_dir = 'cache/results/seed_{}/'.format(SEED)
-    tools.mkdir(save_dir)
-    tools.setup_seed(SEED)
-
+    seed_list = [10, 15, 243, 10030, 255000]
     for i in range(len(env_list)):
-        PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir + '/{}/'.format(env_list[i].instance_name), train_mode=True)
-        PPO_agent.train(env_list[i].environment)
+        for seed in seed_list:
+            args.seed = seed
+            save_dir = 'cache/results/{}/seed_{}/'.format(env_list[i].instance_name, args.seed)
+            tools.mkdir(save_dir)
+            tools.setup_seed(seed)
+            PPO_agent = PPO_GameAgent(args=args, output_dir=save_dir, train_mode=True)
+            PPO_agent.train(env_list[i].environment)
 
     # PPO_agent.evaluate(env_list.environment_list[0])

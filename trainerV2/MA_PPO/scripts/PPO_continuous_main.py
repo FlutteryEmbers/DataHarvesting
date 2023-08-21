@@ -108,7 +108,7 @@ class PPO_GameAgent():
         args.state_dim = len(env.get_state())
         args.action_dim = env.action_space.shape
         args.max_action = float(env.action_space.high)
-        args.num_agents = env.agents.num_agents
+        args.num_agents = env.board.agents.num_agents
         args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
         # args.type_reward = 'Shaped_Reward'
 
