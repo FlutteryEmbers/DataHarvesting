@@ -177,7 +177,9 @@ class Board():
         return self.agents.arrival_at[:]
 
     def get_goal(self):
-        arrival_at = self.get_agent_goal(0)
+        arrival_at = np.array([])
+        for i in range(self.agents.num_agents):
+            arrival_at = np.concatenate((arrival_at, self.get_agent_goal(i)), axis=None)
         return np.concatenate((arrival_at, self.targets.dv_required), axis=None)
 
     def get_agent_position(self, i):

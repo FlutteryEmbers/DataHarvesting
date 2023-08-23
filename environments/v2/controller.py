@@ -112,6 +112,7 @@ class MA_Discrete():
         # self.time_scale = time_scale
         actions = np.array([[0.0, 1.0], [0.0, -1.0], [1.0, 0.0], [-1.0, 0.0], [0.0, 0.0]]) * max_speed
         self.actions = actions.tolist()
+        self.num_agents = num_agents
         self.n = len(self.actions)**num_agents
 
     def get_action(self, n):
@@ -119,7 +120,8 @@ class MA_Discrete():
         while n > 0:
             action_no.append(n%len(self.actions))
             n = n // len(self.actions)
-
+        while len(action_no) < self.num_agents:
+            action_no.append(0)
         res = []
         for no in action_no:
             res.append(self.actions[no])
