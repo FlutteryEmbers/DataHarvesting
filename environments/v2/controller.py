@@ -106,6 +106,31 @@ class Discrete():
 
     def sample(self):
         return np.random.randint(0, len(self.actions)-1)
+    
+class MA_Discrete():
+    def __init__(self, max_speed=2, num_agents = 3):
+        # self.time_scale = time_scale
+        actions = np.array([[0.0, 1.0], [0.0, -1.0], [1.0, 0.0], [-1.0, 0.0], [0.0, 0.0]]) * max_speed
+        self.actions = actions.tolist()
+        self.n = len(self.actions)**num_agents
+
+    def get_action(self, n):
+        action_no = []
+        while n > 0:
+            action_no.append(n%len(self.actions))
+            n = n // len(self.actions)
+
+        res = []
+        for no in action_no:
+            res.append(self.actions[no])
+
+        return res
+
+    def get_actions(self):
+        return self.actions
+
+    def sample(self):
+        return np.random.randint(0, len(self.actions)-1)
 
 class LinearDiscrete():
     def __init__(self, max_speed) -> None:
@@ -171,5 +196,51 @@ class Continuous():
 
     def sample(self):
         return np.random.rand(2)
+    
+class BangSingular():
+        def __init__(self, max_speed) -> None:
+            self.shape = 1
+            self.high = 1
+            self.max_speed = max_speed
+            self.max_angle = 720
 
-Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete, 'MA_Continuous': MA_Continuous}
+        def get_action(self, action):
+            thetas = action * self.max_angle
+            res = []
+            for theta in thetas:
+                if theta > 360:
+                    res.append([0, 0])
+                else:
+                    x = self.max_speed * math.cos(math.radians(theta))
+                    y = self.max_speed * math.sin(math.radians(theta))
+                    res.append([x, y])
+            return res
+        
+class BangSingular2():
+        def __init__(self, max_speed) -> None:
+            self.shape = 2
+            self.high = 1
+            self.max_speed = max_speed
+            self.max_angle = 720
+
+        def get_action(self, action):
+            action = action.reshape(-1, self.shape)[:]
+            #print(action)
+            r = np.rint(action[:, 0] * self.max_speed)
+
+            theta = action[:, 1] * self.max_angle
+            # print(r, theta)
+            x = r * np.cos(np.radians(theta))
+            y = r * np.sin(np.radians(theta))
+
+            coordinates = np.zeros_like(action)
+            for i in range(len(coordinates)):
+                coordinates[i, 0] = x[i]
+                coordinates[i, 1] = y[i]
+            # print(x, y)
+            # print('--------------')
+            
+            return coordinates.tolist()
+
+Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete,\
+           'MA_Continuous': MA_Continuous, 'BangSingular': BangSingular, 'MA_Discrete': MA_Discrete}

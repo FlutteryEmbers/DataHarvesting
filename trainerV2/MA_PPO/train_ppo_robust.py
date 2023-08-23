@@ -15,19 +15,20 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=SEED)
     parsed_args = parser.parse_args()
 
-    args = tools.load_config("configs/config_ppo_ma.yaml")
+    args = tools.load_config("configs/config_ppo_default.yaml")
     args = tools.dict2class(args)
     args.train_adv = True
     
     args.delta = 0.05
     args.run_name = RUN_NAME
     args.adv_type = 'KL'
-    args.actor_adv_step_size = 30
+    args.actor_adv_step_size = 50 #30
     args.adv_lr = 0.002
     args.type_reward = 'Lagrangian'
 
     
-    seed_list = [10, 15, 243, 10030, 255000]
+    # seed_list = [10, 15, 243, 10030, 255000]
+    seed_list = [10]
     for i in range(len(env_list)):
         for seed in seed_list:
             args.seed = seed

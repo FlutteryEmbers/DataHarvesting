@@ -136,26 +136,27 @@ class PPO_GameAgent():
         
         if noise_type == 'random':
             times = 10
-        
+
+        if seed:
+            tools.setup_seed(seed)
+
         evaluate_reward = 0
         episode_rewards = []
         episode_steps = []
-        for k in range(times):
+        for _ in range(times):
             s = env.reset()
             if args.use_state_norm:
                 s = state_norm(s, update=False)  # During the evaluating,update=False
             done = False
             episode_reward = 0
-            if seed:
-                tools.setup_seed(seed + 10 * k)
             while not done and env.num_steps < 200:
                 if noise_type == 'adv':
                     noise = agent.adv_net(s)
                     s = s + noise.cpu().detach().numpy()
                 elif noise_type == 'random':
                     noise = np.random.rand(len(s)) * args.delta
+                    print(noise)
                     s = s + noise
-                    print(k, noise)
                 a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]

@@ -238,6 +238,23 @@ class Actions():
 
         def sample(self):
             return np.random.rand(2)
+        
+    class BangSingular():
+        def __init__(self) -> None:
+            self.shape = 1
+            self.high = 1
+            self.max_speed = 1
+            self.max_angle = 360
+
+        def get_action(self, action):
+            theta = action[0] * self.max_angle
+            if theta == 360:
+                return [0, 0]
+            
+            x = self.max_speed * math.cos(math.radians(theta))
+            y = self.max_speed * math.sin(math.radians(theta))
+
+            return [x, y]
 
 class Agent():
     def __init__(self, start_at, arrival_at, num_tower) -> None:
