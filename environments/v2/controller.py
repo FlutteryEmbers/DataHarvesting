@@ -108,7 +108,7 @@ class Discrete():
         return np.random.randint(0, len(self.actions)-1)
     
 class MA_Discrete():
-    def __init__(self, max_speed=2, num_agents = 3):
+    def __init__(self, max_speed=1, num_agents = 3):
         # self.time_scale = time_scale
         actions = np.array([[0.0, 1.0], [0.0, -1.0], [1.0, 0.0], [-1.0, 0.0], [0.0, 0.0]]) * max_speed
         self.actions = actions.tolist()
@@ -132,7 +132,7 @@ class MA_Discrete():
         return self.actions
 
     def sample(self):
-        return np.random.randint(0, len(self.actions)-1)
+        return np.random.randint(0, self.n-1)
 
 class LinearDiscrete():
     def __init__(self, max_speed) -> None:

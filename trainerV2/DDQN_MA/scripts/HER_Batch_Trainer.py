@@ -11,7 +11,7 @@ import random
 # random_seed = [10, 20, 30, 40, 50, 66, 88, 120, 240, 360, 245, 670, 890]
 random_seed = [10]
 result_saving_iter = 1000
-n_game = 3000
+n_game = 10000
 
 class GameAgent():
     def __init__(self, config, network = 'Default') -> None:
