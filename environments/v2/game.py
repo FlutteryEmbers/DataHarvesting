@@ -151,6 +151,10 @@ class Agent():
                 dv_penalty = 10 * np.linalg.norm(data_volume_left)
                 reward = - (pos_penalty + dv_penalty) 
                 done = self.board.is_dv_collection_done()
+
+        elif args.type_reward == 'MA_Binary':
+            reward = -1
+            done = self.board.is_dv_collection_done()
             # done = True
 
         else:

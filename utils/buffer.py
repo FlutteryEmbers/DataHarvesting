@@ -2,8 +2,11 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
 import numpy as np
 from utils import graph
+import matplotlib
 import matplotlib.pyplot as plt
 import pickle
+
+matplotlib.use("Agg")
 
 class ReplayBuffer():
     def __init__(self, max_size, input_shape, n_actions) -> None:

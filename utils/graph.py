@@ -47,6 +47,7 @@ def plot_result_path(x_limit, y_limit, tower_locations, paths, curved_path = Fal
 
     ax.add_patch(patch)
     plt.savefig("out.png")
+    plt.close('all')
 
 def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, signal_range, dir):
     tower_range = signal_range
@@ -99,3 +100,4 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
     ax.set_aspect(1)
     # plt.savefig(dir_i + "path.eps", format='eps')
     plt.savefig(dir + "path.png", bbox_inches='tight', pad_inches=0, format='png', dpi=300)
+    plt.close('all')
