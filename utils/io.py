@@ -1,5 +1,6 @@
 import pickle, os
 import yaml
+import csv
 
 def mkdir(dir):
     isExist = os.path.exists(dir)
@@ -12,6 +13,15 @@ def save_log(output_dir, logs, name='log'):
         for line in logs:
             f.write(line)
             f.write('\n')
+
+def save_csv(output_dir, name, headers, logs):
+    with open('{}/{}.csv'.format(output_dir, name), 'w', newline='') as outcsv:
+        writer = csv.writer(outcsv)
+        writer.writerow(headers)
+        for row in logs:
+            writer.writerow(row)
+
+        outcsv.close()
 
 def dump_to_file(filename, content):
     with open(filename, 'wb') as handle:

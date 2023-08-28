@@ -174,7 +174,7 @@ class PPO_GameAgent():
             episode_rewards.append(episode_reward)
             episode_steps.append(env.num_steps)
            
-        return evaluate_reward / times, np.var(np.array(episode_rewards)), np.mean(np.array(episode_steps)), np.var(np.array(episode_steps))
+        return evaluate_reward / times, np.var(np.array(episode_rewards)), np.min(np.array(episode_rewards)), np.mean(np.array(episode_steps)), np.var(np.array(episode_steps)), np.max(np.array(episode_steps))
 
     def main(self, args, env):
         self.total_eval = args.max_train_steps / args.evaluate_freq
