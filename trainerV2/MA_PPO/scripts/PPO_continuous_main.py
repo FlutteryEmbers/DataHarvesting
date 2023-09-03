@@ -77,7 +77,7 @@ class PPO_GameAgent():
                     action = a
                 s_, r, done, position = env.step(action, args)
                 # print(position)
-                env.render(display=display)
+                # env.render(display=display)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
                 episode_reward += r
@@ -163,7 +163,7 @@ class PPO_GameAgent():
                     action = a
                 s_, r, done, position = env.step(action, args)
                 # print(position)
-                env.render(display=display)
+                # env.render(display=display)
                 if args.use_state_norm:
                     s_ = state_norm(s_, update=False)
                 episode_reward += r

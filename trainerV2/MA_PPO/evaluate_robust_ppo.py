@@ -29,6 +29,14 @@ evals_modes = ['vanilla_no_noise', 'vanilla_adv_noise', 'vanilla_random_noise', 
 if __name__ == "__main__":
     tools.setup_seed(10)
     summary = []
+    args = tools.load_config("configs/config_ppo_default.yaml")
+    args = tools.dict2class(args)
+    args.delta = 0.2
+    args.adv_lr = 0.005
+    args.type_reward = 'Lagrangian'
+    
+    output_dir = output_dir + 'delta_{}/'.format(args.delta)
+    
     for i in range(len(evals_modes)):
         mode = evals_modes[i]
         dirs = {}
@@ -36,13 +44,10 @@ if __name__ == "__main__":
         dirs['critic'] = eval_info[mode]['model_dir']
         dirs['adv_net'] = eval_info[mode]['adv_model']
 
+        # sub_output_dir = output_dir + mode
+        # tools.mkdir(sub_output_dir)
         sub_output_dir = output_dir + mode
         tools.mkdir(sub_output_dir)
-        args = tools.load_config("configs/config_ppo_default.yaml")
-        args = tools.dict2class(args)
-        args.delta = 0.03
-        args.adv_lr = 0.005
-        args.type_reward = 'Lagrangian'
 
         PPO_agent = PPO_GameAgent(args=args, output_dir=sub_output_dir, train_mode=False)
         reward, var_reward, min_reward, step, var_steps, max_steps = PPO_agent.evaluate_robust(env=env_list[0].environment, dirs=dirs, noise_type=eval_info[mode]['noise'],  seed = 1000)

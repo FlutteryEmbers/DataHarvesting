@@ -1,0 +1,7 @@
+mode,final rewards,var_reward,min_reward,final steps,var_steps,max_steps,model_dir,adv_dir,perturb
+vanilla_no_noise,-15.2,0.0,-15.2,16.02,0.0,16.02,cache/results/config_5/seed_10/Aug18-21_02-ppo_stationary_vanilla/model/,,0.05
+vanilla_adv_noise,-19.2311,0.0,-19.2311,17.3696,0.0,17.3696,cache/results/config_5/seed_10/Aug18-21_02-ppo_stationary_vanilla/model/,cache/results/config_5/seed_10/Aug23-04_49-ppo_stationary_robust_KL/model/,0.05
+vanilla_random_noise,-16.7565,0.7344,-18.1541,16.466,0.2475,17.2597,cache/results/config_5/seed_10/Aug18-21_02-ppo_stationary_vanilla/model/,,0.05
+robust_no_noise,-16.1662,0.0,-16.1662,16.0999,0.0,16.0999,cache/results/config_5/seed_10/Aug23-04_49-ppo_stationary_robust_KL/model/,,0.05
+robust_adv_noise,-16.3416,0.0,-16.3416,16.1128,0.0,16.1128,cache/results/config_5/seed_10/Aug23-04_49-ppo_stationary_robust_KL/model/,cache/results/config_5/seed_10/Aug23-04_49-ppo_stationary_robust_KL/model/,0.05
+robust_random_noise,-18.9533,25.2752,-29.7035,16.2511,0.1005,17.1862,cache/results/config_5/seed_10/Aug23-04_49-ppo_stationary_robust_KL/model/,,0.05

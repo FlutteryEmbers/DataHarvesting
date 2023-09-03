@@ -65,13 +65,13 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
 
     for i, (x, y) in enumerate(start_at):
         #x, y = start_at
-        plt.plot(x, y, marker="o", markersize=10, markeredgecolor=cmap(i*10+5), markerfacecolor=cmap(i*25+5))
+        plt.plot(x, y, marker="o", markersize=10, markeredgecolor=cmap(i*10+5), markerfacecolor=cmap(i*35+5))
         # plt.text(x-2, y-1, '{}'.format(i), fontsize=15)
         # plt.plot(x, y, marker="o", markersize=10, markeredgecolor="#003d99", markerfacecolor='#003d99')
         # plt.text(x-2, y-1, 'start', fontsize=15)
 
     for i, (x, y) in enumerate(end_at):
-        plt.plot(x, y, marker="X", markersize=10, markeredgecolor=cmap(i*10+5), markerfacecolor=cmap(i*25+5))
+        plt.plot(x, y, marker="X", markersize=10, markeredgecolor=cmap(i*10+5), markerfacecolor=cmap(i*35+5))
         # plt.text(x-2, y, 'end', fontsize=15)
 
     '''
@@ -94,7 +94,7 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
 
         codes, verts = zip(*string_path_data)
         string_path = mpath.Path(verts, codes)
-        patch = mpatches.PathPatch(string_path, facecolor="none", lw=2, edgecolor=cmap(index*25+5))
+        patch = mpatches.PathPatch(string_path, facecolor="none", lw=2, edgecolor=cmap(index*35+5))
 
         ax.add_patch(patch)
     ax.set_aspect(1)

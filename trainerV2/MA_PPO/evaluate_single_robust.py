@@ -31,12 +31,13 @@ if __name__ == "__main__":
         dirs['critic'] = eval_info[mode]['model_dir']
         dirs['adv_net'] = eval_info[mode]['adv_model']
 
-        sub_output_dir = output_dir + mode
-        tools.mkdir(sub_output_dir)
         args = tools.load_config("configs/config_ppo_default.yaml")
         args = tools.dict2class(args)
-        args.delta = 0.5
-        args.adv_lr = 0.005
+        args.delta = 1.0
+        output_dir = output_dir + 'delta_{}/'.format(args.delta)
+        sub_output_dir = output_dir + mode
+        tools.mkdir(sub_output_dir)
+        args.adv_lr = 0.01
         args.type_reward = 'Lagrangian'
 
         PPO_agent = PPO_GameAgent(args=args, output_dir=sub_output_dir, train_mode=False)

@@ -40,11 +40,11 @@ fig, ax = plt.subplots()
 for i in range(len(trail_names)):
     name = trail_names[i]
     mean_arr = np.mean(trails_stats[name], axis=0)
-    std_arr = np.mean(trails_stats[name], axis=0)
+    std_arr = np.std(trails_stats[name], axis=0)
     ax.plot(x, mean_arr, label=name, color=colors[i])
     ax.fill_between(x, mean_arr-std_arr, mean_arr+std_arr, alpha=0.3, facecolor=face_colors[i])
 
-plt.legend(loc='lower right')
+plt.legend(loc='upper right')
 plt.xlabel("iteration (each point corresponding to 1000 learning steps)")
 # plt.yscale('symlog')
 plt.ylabel("steps")

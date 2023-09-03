@@ -68,7 +68,7 @@ class Agent():
         self.running_info.reset()
 
         s = self.board.get_state()
-        self._render_frame()
+        # self._render_frame()
         # logger.debug(s)
         # return s, self.status_tracker.current_position
         return s
@@ -185,10 +185,11 @@ class Agent():
         io.save_config(output_dir=output_dir, args=self.args, name='env_config')
         return logs
 
+    '''
     def render(self, display = False):
         if display:
             self._render_frame()
-
+    
     def _render_frame(self):
         color_wheel = ["#cc99ff50", "#ff99ff50", "#ffb36650", "#ff4d9450", "#80b3ff50"]
         if self.window is None:
@@ -272,4 +273,4 @@ class Agent():
         pygame.event.pump()
         pygame.display.update()
         self.clock.tick(15)
-        
+        '''
