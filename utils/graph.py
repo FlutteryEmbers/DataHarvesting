@@ -101,3 +101,23 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
     # plt.savefig(dir_i + "path.eps", format='eps')
     plt.savefig(dir + "path.png", bbox_inches='tight', pad_inches=0, format='png', dpi=300)
     plt.close('all')
+
+
+def plot_robust_radius(name_arr, noise_level, mean_arr, std_arr):
+    # trail_names = ['weights_normalization/ci50', 'weights_normalization/ci200', 'weights_normalization/ci487', 'weights_normalization/ci4790', 'weights_normalization/uncap', 'vanilla/ci1327']
+    colors = ['#ff8c1a', '#0066ff', '#d4ac0d', '#922b21', '#76448a', '#117a65', '#3498db']
+    face_colors = ['#ffb366', '#66a3ff', '#f7dc6f', '#d98880', '#af7ac5', '#73c6b6', '#a9cce3']
+
+    seeds = [10]
+    fig, ax = plt.subplots()
+    # ax.set_ylim(bottom=50, top=1500)
+    for i in range(len(name_arr)):
+        ax.plot(noise_level, mean_arr[i], label=name_arr[i], color=colors[i])
+        ax.fill_between(noise_level, mean_arr[i]-std_arr[i], mean_arr[i]+std_arr[i], alpha=0.3, facecolor=colors[i])
+
+    plt.legend(loc='upper right')
+    plt.xlabel("noise_level")
+    # plt.yscale('log')
+
+    plt.ylabel("steps")
+    plt.savefig('{}.png'.format('cache/robust_radius'), bbox_inches='tight', pad_inches=0.1, format='png', dpi=300)

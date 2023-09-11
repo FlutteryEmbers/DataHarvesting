@@ -103,7 +103,7 @@ class PPO_GameAgent():
         
         return evaluate_reward / times
 
-    def evaluate_robust(self, env, dirs, noise_type=None, state_norm=None, display=False, seed = None):
+    def evaluate_robust(self, env, dirs, noise_type=None, state_norm=None, display=False, seed = None, plot = True):
         args = self.args
         args.state_dim = len(env.get_state())
         args.action_dim = env.action_space.shape
@@ -155,7 +155,7 @@ class PPO_GameAgent():
                 elif noise_type == 'random':
                     noise = np.random.rand(len(s)) * args.delta
                     s = s + noise
-                    print(k, noise)
+                    # print(k, noise)
                 a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
                 if args.policy_dist == "Beta":
                     action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
@@ -169,12 +169,15 @@ class PPO_GameAgent():
                 episode_reward += r
                 s = s_
             stats = env.view()
-            stats.save(sub_dir = self.output_dir, plot = True)
+            sub_dir = self.output_dir
+            if noise_type == 'random':
+                sub_dir = self.output_dir + '_random{}'.format(k)
+            stats.save(sub_dir = sub_dir, plot = plot)
             evaluate_reward += episode_reward
             episode_rewards.append(episode_reward)
             episode_steps.append(env.num_steps)
            
-        return evaluate_reward / times, np.var(np.array(episode_rewards)), np.min(np.array(episode_rewards)), np.mean(np.array(episode_steps)), np.var(np.array(episode_steps)), np.max(np.array(episode_steps))
+        return evaluate_reward / times, np.std(np.array(episode_rewards)), np.min(np.array(episode_rewards)), np.mean(np.array(episode_steps)), np.var(np.array(episode_steps)), np.max(np.array(episode_steps))
 
     def main(self, args, env):
         self.total_eval = args.max_train_steps / args.evaluate_freq

@@ -10,7 +10,8 @@ from utils import io
 SEED = 10
 config_name = 'config_5'
 vanilla_model_name = 'Aug18-21_02-ppo_stationary_vanilla'
-robust_model_name = 'Aug23-04_49-ppo_stationary_robust_KL'
+# robust_model_name = 'Aug23-04_49-ppo_stationary_robust_KL' ## for performance
+robust_model_name = 'Aug17-22_12-ppo_stationary_robust_KL'
 
 vanilla_model_dir = 'cache/results/{}/seed_{}/{}/model/'.format(config_name, SEED, vanilla_model_name)
 robust_model_dir = 'cache/results/{}/seed_{}/{}/model/'.format(config_name, SEED, robust_model_name)
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     summary = []
     args = tools.load_config("configs/config_ppo_default.yaml")
     args = tools.dict2class(args)
-    args.delta = 0.2
+    args.delta = 1
     args.adv_lr = 0.005
     args.type_reward = 'Lagrangian'
     

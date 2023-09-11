@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
 import numpy as np
-from utils import graph
+from utils import graph, tools
 import matplotlib
 import matplotlib.pyplot as plt
 import pickle
@@ -71,7 +71,7 @@ class Info():
 
     def save(self, sub_dir = '', plot = True):
         output_dir = self.output_dir + sub_dir
-        # tools.mkdir(self.output_dir)
+        tools.mkdir(output_dir)
 
         data_collected = np.array(self.data_collected_t).T.tolist()
         data_left = np.array(self.data_left_t).T.tolist()
