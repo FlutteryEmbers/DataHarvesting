@@ -61,7 +61,7 @@ def plot_path(x_limit, y_limit, start_at, end_at, tower_locations, agent_paths, 
         plt.plot(x, y, marker="*", markersize=10, markeredgecolor="red", markerfacecolor='red')
         circle = plt.Circle( (x, y ), tower_range[i], color=color_wheel[i])
         ax.add_artist( circle )
-        plt.text(x-3, y+0.5, 'target {}'.format(i), fontsize=15)
+        plt.text(x-3, y+0.5, 'target {}'.format(i+1), fontsize=15)
 
     for i, (x, y) in enumerate(start_at):
         #x, y = start_at

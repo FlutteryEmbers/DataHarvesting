@@ -62,7 +62,7 @@ if __name__ == "__main__":
         print(step, var_steps)
 
 
-    graph.plot_robust_radius(name_arr=['nonsmooth', 'smooth'], noise_level=noise_level, mean_arr=[np.array(vanilla_mean), np.array(robust_mean)], std_arr=[np.array(vanilla_std), np.array(robust_std)])
+    graph.plot_robust_radius(name_arr=['non-smooth', 'smooth'], noise_level=noise_level, mean_arr=[np.array(vanilla_mean), np.array(robust_mean)], std_arr=[np.array(vanilla_std), np.array(robust_std)])
         #summary.append('mode: {}, final rewards: {}, var_reward: {}, final steps: {}, var_steps:{}, model_dir: {}, adv_dir: {}, perturb:{}'
         #    .format(mode, round(reward, 4), round(var_reward, 4), round(step, 4), round(var_steps, 4), eval_info[mode]['model_dir'], eval_info[mode]['adv_model'], args.delta))
         

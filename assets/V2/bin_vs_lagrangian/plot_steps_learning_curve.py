@@ -33,7 +33,7 @@ for name in trail_names:
 
     trails_stats[name] = stats
 
-x = np.arange(minL)
+x = np.arange(0, minL*1000, 1000)
 clrs = sns.color_palette("husl", 5)
 fig, ax = plt.subplots()
 
@@ -45,7 +45,7 @@ for i in range(len(trail_names)):
     ax.fill_between(x, mean_arr-std_arr, mean_arr+std_arr, alpha=0.3, facecolor=face_colors[i])
 
 plt.legend(loc='upper right')
-plt.xlabel("iteration (each point corresponding to 1000 learning steps)")
+plt.xlabel("learning steps")
 # plt.yscale('symlog')
 plt.ylabel("steps")
 plt.savefig('{}.png'.format('assets/V2/bin_vs_lagrangian/steps'), bbox_inches='tight', pad_inches=0.1, format='png', dpi=300)

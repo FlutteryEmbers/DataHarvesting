@@ -45,7 +45,7 @@ for i in range(len(trail_names)):
     ax.fill_between(x, mean_arr-std_arr, mean_arr+std_arr, alpha=0.3, facecolor=face_colors[i])
 
 plt.legend(loc='lower right')
-plt.xlabel("iteration (each point corresponding to 1000 learning steps)")
+plt.xlabel("learning steps")
 plt.yscale('symlog')
 plt.ylabel("reward")
 plt.savefig('{}.png'.format('assets/V2/lagrangian/rewards'), bbox_inches='tight', pad_inches=0.1, format='png', dpi=300)
