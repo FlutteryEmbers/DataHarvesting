@@ -223,26 +223,19 @@ class BangSingular2():
             self.shape = 2
             self.high = 1
             self.max_speed = max_speed
-            self.max_angle = 720
+            self.max_angle = 360
 
         def get_action(self, action):
-            action = action.reshape(-1, self.shape)[:]
+            theta, r = np.split(action, self.shape)
+            
             #print(action)
-            r = np.rint(action[:, 0] * self.max_speed)
-
-            theta = action[:, 1] * self.max_angle
+            r = r * self.max_speed
+            theta = theta * self.max_angle
             # print(r, theta)
             x = r * np.cos(np.radians(theta))
             y = r * np.sin(np.radians(theta))
-
-            coordinates = np.zeros_like(action)
-            for i in range(len(coordinates)):
-                coordinates[i, 0] = x[i]
-                coordinates[i, 1] = y[i]
-            # print(x, y)
-            # print('--------------')
             
-            return coordinates.tolist()
+            return np.dstack((x,y)).squeeze(0).tolist()
 
 Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete,\
-           'MA_Continuous': MA_Continuous, 'BangSingular': BangSingular, 'MA_Discrete': MA_Discrete}
+           'MA_Continuous': MA_Continuous, 'BangSingular': BangSingular2, 'MA_Discrete': MA_Discrete}
