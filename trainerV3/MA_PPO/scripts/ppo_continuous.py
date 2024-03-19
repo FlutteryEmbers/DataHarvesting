@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 import torch.nn as nn
-from torch.distributions import Beta, Normal, Categorical, Bernoulli
+from torch.distributions import Beta, Normal, Categorical
 from utils import tools
 import os
 from trainerV2.Robust_PPO.scripts import adversarial
@@ -23,7 +23,7 @@ class Actor_Gaussian(nn.Module):
         self.fc2 = nn.Linear(args.hidden_width, args.hidden_width)
         self.mean_layer = nn.Linear(args.hidden_width, self.num_agents)
         self.log_std = nn.Parameter(torch.zeros(1, self.num_agents))  # We use 'nn.Parameter' to train log_std automatically
-        self.prob_layer = nn.Linear(args.hidden_width, self.num_agents)
+        self.prob_layer = nn.Linear(args.hidden_width, 2*self.num_agents)
         self.activate_func = [nn.ReLU(), nn.Tanh()][args.use_tanh]  # Trick10: use tanh
 
         self.name = name
@@ -45,12 +45,12 @@ class Actor_Gaussian(nn.Module):
         mean = 1/2 * (self.max_action * torch.tanh(self.mean_layer(s)) + self.max_action) # [-1,1]->[0,max_action]
         # probs = self.prob_layer(s).reshape(self.num_agents, 2)
         # probs = torch.softmax(probs, dim=0)
-        probs = torch.clamp(torch.sigmoid(self.prob_layer(s)), min=0.1, max=0.9)
+        probs = (torch.tanh(self.prob_layer(s)) + 1).reshape(-1, self.num_agents, 2)
         return mean.cpu(), probs.cpu()
 
     def evaluate(self, s):
         mean, probs = self.forward(s)
-        speed = torch.round(probs)
+        speed = torch.argmax(probs, dim=2)
         return torch.cat([mean, speed], dim=-1)
 
 
@@ -60,7 +60,7 @@ class Actor_Gaussian(nn.Module):
         std = torch.exp(log_std)  # The reason we train the 'log_std' is to ensure std=exp(log_std)>0
         # for i in range(self.num_agents):
         dist = Normal(mean, std)  # Get the Gaussian distribution
-        speed_dist = Bernoulli(probs)
+        speed_dist = Categorical(probs)
         return dist, speed_dist
 
     def get_dist_parameter(self, s):

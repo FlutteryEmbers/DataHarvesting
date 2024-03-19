@@ -101,7 +101,7 @@ class PPO_GameAgent():
                     tools.mkdir(self.output_dir+'/tmp_case/')
                     stats.save(sub_dir = self.output_dir+'/tmp_case/', plot = True)
         
-        return evaluate_reward / times
+        return evaluate_reward / times, min(env.num_steps, 200)
 
     def evaluate_robust(self, env, dirs, noise_type=None, state_norm=None, display=False, seed = None, plot = True):
         args = self.args
@@ -270,9 +270,9 @@ class PPO_GameAgent():
                     self.timer.stop()
                     logger.success("evaluate_num:{} left: {} - {}%".format(evaluate_num, self.total_eval - evaluate_num, (self.total_eval - evaluate_num)/self.total_eval*100))
                     evaluate_num += 1
-                    evaluate_reward = self.evaluate_policy(args, env, agent, state_norm)
+                    evaluate_reward, steps = self.evaluate_policy(args, env, agent, state_norm)
                     evaluate_rewards.append(evaluate_reward)
-                    self.learning_monitor.store(evaluate_reward)
+                    self.learning_monitor.store(evaluate_reward, steps)
                     self.running_summary.add_scalar('info/rewards', evaluate_reward, total_steps)
                     self.running_summary.add_scalar('info/best_steps', self.best_num_steps, total_steps)
                     self.running_summary.add_scalar('info/best_rewards', self.best_reward, total_steps)
@@ -289,6 +289,7 @@ class PPO_GameAgent():
                     self.timer.start()
         self.learning_monitor.plot_average_learning_curve(50)
         self.learning_monitor.plot_learning_curve()
+        self.learning_monitor.plot_steps_curve()
         self.learning_monitor.dump_to_file()
         self.timer.stop()
         # env_type = 'Default'

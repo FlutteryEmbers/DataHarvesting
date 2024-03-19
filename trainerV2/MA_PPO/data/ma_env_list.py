@@ -34,8 +34,8 @@ class Instances:
 e5 = Instances(instance_name='config_5', tower_location=[[3, 1], [7, 1], [7, 5], [7, 7]],\
                  start_at=[[0, 1], [0, 1], [0, 1]], arrival_at=[[7, 9], [7, 9], [7, 9]], dv_required=[5, 6, 3, 3])
 
-e5x = Instances(instance_name='config_5x', tower_location=[[3, 1], [7, 1], [7, 5], [7, 7]],\
-                 start_at=[[0, 1], [1, 1], [0, 0]], arrival_at=[[7, 9], [7, 8], [6, 9]], dv_required=[5, 6, 3, 3])
+# e5x = Instances(instance_name='config_5x', tower_location=[[3, 1], [7, 1], [7, 5], [7, 7]],\
+#                 start_at=[[0, 1], [1, 1], [0, 0]], arrival_at=[[7, 9], [7, 8], [6, 9]], dv_required=[5, 6, 3, 3])
 
 # e5s = Instances(instance_name='config_5s', tower_location=[[3, 1], [7, 1], [7, 5], [7, 7]],\
 #                 start_at=[[0, 1]], arrival_at=[[7, 9]], dv_required=[4, 3, 3, 3])

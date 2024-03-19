@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import sys
 
 class Obstacles_Avoidance():
     def __init__(self, x_limit, y_limit) -> None:
@@ -233,14 +232,10 @@ class BangSingular2():
             r = r * self.max_speed
             theta = theta * self.max_angle
             # print(r, theta)
-            x = r * np.round(np.cos(np.radians(theta)), decimals=4)
-            y = r * np.round(np.sin(np.radians(theta)), decimals=4)
-
-            execute_action = []
-            for coord in zip(x, y):
-                execute_action.append(list(coord))
-            # print(execute_action)
-            return execute_action
+            x = r * np.cos(np.radians(theta))
+            y = r * np.sin(np.radians(theta))
+            
+            return np.dstack((x,y)).squeeze(0).tolist()
 
 Actions = {'Discrete': Discrete, 'Continuous': Continuous, '1D': LinearDiscrete,\
            'MA_Continuous': MA_Continuous, 'BangSingular': BangSingular2, 'MA_Discrete': MA_Discrete}

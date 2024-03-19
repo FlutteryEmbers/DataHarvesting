@@ -7,6 +7,7 @@ import yaml
 class Learning_Monitor():
 	def __init__(self, output_dir='', name='', log = '', args=None) -> None:
 		self.rewards = []
+		self.steps = []
 		self.name = name
 		self.output_dir = output_dir + '/'
 		self.log = log
@@ -14,8 +15,9 @@ class Learning_Monitor():
 
 		self.mkdir(output_dir)
 
-	def store(self, reward):
+	def store(self, reward, steps):
 		self.rewards.append(reward)
+		self.steps.append(steps)
 		logger.info('reward is {}'.format(reward))
 
 	def average(self, n):
@@ -32,6 +34,18 @@ class Learning_Monitor():
 		x = np.arange(0, len(self.rewards))
 
 		plt.plot(x, self.rewards)
+		plt.title(label=name)
+		plt.savefig(filename)
+		logger.success('successfully create {}'.format(filename))
+		plt.close()
+
+	def plot_steps_curve(self):
+		name = '/{}_steps'.format(self.name)
+		filename = self.output_dir + name + '.png'
+
+		x = np.arange(0, len(self.steps))
+
+		plt.plot(x, self.steps)
 		plt.title(label=name)
 		plt.savefig(filename)
 		logger.success('successfully create {}'.format(filename))
@@ -57,6 +71,9 @@ class Learning_Monitor():
 		filename = self.output_dir + '/' + self.name + '_'
 		with open(filename + 'history_rewards.pickle', 'wb') as handle:
 			pickle.dump(self.rewards, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+		with open(filename + 'history_steps.pickle', 'wb') as handle:
+			pickle.dump(self.steps, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 		handle.close()
 

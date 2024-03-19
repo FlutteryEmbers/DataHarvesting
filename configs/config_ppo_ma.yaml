@@ -24,5 +24,5 @@ use_grad_clip: True ## Trick 7: Gradient clip
 use_orthogonal_init: True ## Trick 8: orthogonal initialization
 set_adam_eps: True ## Trick 9: set Adam epsilon=1e-5
 use_tanh: True ## Trick 10: tanh activation function
-device: 'cuda'
+device: 'cuda:1'
 
