@@ -146,15 +146,17 @@ class Agent():
             reward = -1
             if self.board.is_dv_collection_done() or self.num_steps >= self._max_episode_steps:
                 # reward = 0
-                pos_penalty = 20 * np.linalg.norm(abs(self.board.get_all_agents_position() - self.board.get_all_agents_goal()), axis=1).max()
+                pos_penalty = 5 * np.linalg.norm(abs(self.board.get_all_agents_position() - self.board.get_all_agents_goal()), axis=1).max()
                 # pos_penalty = -10 * np.linalg.norm(abs(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0))))
-                dv_penalty = 10 * np.linalg.norm(data_volume_left)
+                dv_penalty = 5 * np.linalg.norm(data_volume_left)
                 reward = - (pos_penalty + dv_penalty) 
                 done = self.board.is_dv_collection_done()
 
         elif args.type_reward == 'MA_Binary':
             reward = -1
             done = self.board.is_dv_collection_done()
+            if self.num_steps >= self._max_episode_steps and done == False:
+                reward = -10000000
             # done = True
 
         else:
@@ -163,7 +165,7 @@ class Agent():
 
         if done:
             # self.num_steps += np.linalg.norm(np.array(self.board.get_agent_position(0)) - np.array(self.board.get_agent_goal(0)))
-            self.num_steps += np.linalg.norm(abs(self.board.get_all_agents_position() - self.board.get_all_agents_goal()), axis=1).sum()
+            self.num_steps += np.linalg.norm(abs(self.board.get_all_agents_position() - self.board.get_all_agents_goal()), axis=1).max()
         
         self.reward += reward
         self.running_info.final_reward = self.reward

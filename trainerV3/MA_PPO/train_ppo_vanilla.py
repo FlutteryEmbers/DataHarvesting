@@ -9,7 +9,7 @@ from utils import tools
 
 # 10, 15, 243, 10030, 255000
 SEED = 10
-RUN_NAME = 'ppo_stationary_vanilla'
+RUN_NAME = 'ppo_bang'
 
 if __name__ == "__main__":
     args = tools.load_config("configs/config_ppo_ma.yaml")
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     args.run_name = RUN_NAME
     args.type_reward = 'Lagrangian'
     
-    seed_list = [10]
+    seed_list = [10, 15, 243]
     for i in range(len(env_list)):
         for seed in seed_list:
             args.seed = seed
